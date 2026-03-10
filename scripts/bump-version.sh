@@ -37,9 +37,9 @@ APP_SRC="$REPO_ROOT/hecate-app-marthad/src/hecate_app_marthad.app.src"
 sed -i "s/{vsn, \"[0-9]*\.[0-9]*\.[0-9]*\"}/{vsn, \"$NEW_VERSION\"}/" "$APP_SRC"
 echo "  Updated $APP_SRC"
 
-# 3. app_martha.erl — version => <<"X.Y.Z">>
+# 3. app_martha.erl — version => <<"X.Y.Z">> (only the version key, not min_sdk_version)
 APP_MARTHA="$REPO_ROOT/hecate-app-marthad/src/app_martha.erl"
-sed -i "s/version => <<\"[0-9]*\.[0-9]*\.[0-9]*\">>/version => <<\"$NEW_VERSION\">>/" "$APP_MARTHA"
+sed -i "s/^\( *version => <<\"\)[0-9]*\.[0-9]*\.[0-9]*/\1$NEW_VERSION/" "$APP_MARTHA"
 echo "  Updated $APP_MARTHA"
 
 # 4. rebar.config — {release, {hecate_app_marthad, "X.Y.Z"}

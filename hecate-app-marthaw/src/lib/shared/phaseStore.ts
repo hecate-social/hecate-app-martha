@@ -21,7 +21,7 @@ export async function openPhase(
 	try {
 		isLoading.set(true);
 		const api = getApi();
-		await api.post(`/api/${phaseApiPrefix(phase)}/${divisionId}/open`, {});
+		await api.post(`/${phaseApiPrefix(phase)}/${divisionId}/open`, {});
 		const v = get(activeVenture);
 		if (v) await fetchDivisions(v.venture_id);
 		return true;
@@ -42,7 +42,7 @@ export async function shelvePhase(
 	try {
 		isLoading.set(true);
 		const api = getApi();
-		await api.post(`/api/${phaseApiPrefix(phase)}/${divisionId}/shelve`, {
+		await api.post(`/${phaseApiPrefix(phase)}/${divisionId}/shelve`, {
 			reason: reason || null
 		});
 		const v = get(activeVenture);
@@ -64,7 +64,7 @@ export async function resumePhase(
 	try {
 		isLoading.set(true);
 		const api = getApi();
-		await api.post(`/api/${phaseApiPrefix(phase)}/${divisionId}/resume`, {});
+		await api.post(`/${phaseApiPrefix(phase)}/${divisionId}/resume`, {});
 		const v = get(activeVenture);
 		if (v) await fetchDivisions(v.venture_id);
 		return true;
@@ -84,7 +84,7 @@ export async function concludePhase(
 	try {
 		isLoading.set(true);
 		const api = getApi();
-		await api.post(`/api/${phaseApiPrefix(phase)}/${divisionId}/conclude`, {});
+		await api.post(`/${phaseApiPrefix(phase)}/${divisionId}/conclude`, {});
 		const v = get(activeVenture);
 		if (v) await fetchDivisions(v.venture_id);
 		return true;

@@ -11,7 +11,7 @@ export async function generateModule(
 ): Promise<boolean> {
 	try {
 		const api = getApi();
-		await api.post(`/api/craftings/${divisionId}/generate-module`, data);
+		await api.post(`/craftings/${divisionId}/generate-module`, data);
 		return true;
 	} catch (e: unknown) {
 		const err = e as { message?: string };
@@ -26,7 +26,7 @@ export async function generateTest(
 ): Promise<boolean> {
 	try {
 		const api = getApi();
-		await api.post(`/api/craftings/${divisionId}/generate-test`, data);
+		await api.post(`/craftings/${divisionId}/generate-test`, data);
 		return true;
 	} catch (e: unknown) {
 		const err = e as { message?: string };
@@ -42,7 +42,7 @@ export async function deliverRelease(
 ): Promise<boolean> {
 	try {
 		const api = getApi();
-		await api.post(`/api/craftings/${divisionId}/deliver-release`, { version });
+		await api.post(`/craftings/${divisionId}/deliver-release`, { version });
 		return true;
 	} catch (e: unknown) {
 		const err = e as { message?: string };
@@ -57,7 +57,7 @@ export async function stageDelivery(
 ): Promise<boolean> {
 	try {
 		const api = getApi();
-		await api.post(`/api/craftings/${divisionId}/stage-delivery`, data);
+		await api.post(`/craftings/${divisionId}/stage-delivery`, data);
 		return true;
 	} catch (e: unknown) {
 		const err = e as { message?: string };

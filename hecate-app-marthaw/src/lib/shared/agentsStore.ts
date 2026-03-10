@@ -109,7 +109,7 @@ export async function loadAgents(): Promise<void> {
 			design_level?: AgentPrompt[];
 			vision_oracle?: string;
 			assist_general?: string;
-		}>('/api/agents');
+		}>('/agents');
 
 		if (resp.big_picture) bigPictureAgents.set(resp.big_picture);
 		if (resp.design_level) designLevelAgents.set(resp.design_level);

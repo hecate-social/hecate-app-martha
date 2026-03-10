@@ -12,7 +12,7 @@ export const visionError = writable<string | null>(null);
 export async function submitVision(ventureId: string, vision: string): Promise<boolean> {
 	try {
 		const api = getApi();
-		await api.post(`/api/ventures/${ventureId}/vision`, { vision });
+		await api.post(`/ventures/${ventureId}/vision`, { vision });
 		await fetchActiveVenture();
 		return true;
 	} catch (e: unknown) {
@@ -27,7 +27,7 @@ export async function refineVision(ventureId: string, vision: string): Promise<b
 		isRefining.set(true);
 		const api = getApi();
 		const resp = await api.post<{ refined: string }>(
-			`/api/ventures/${ventureId}/vision/refine`,
+			`/ventures/${ventureId}/vision/refine`,
 			{ vision }
 		);
 		refinementResult.set(resp.refined);
