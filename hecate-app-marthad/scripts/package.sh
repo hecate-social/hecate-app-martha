@@ -38,6 +38,7 @@ DOMAIN_APPS=(
 for ebin_dir in "$ROOT_DIR/_build/default/lib/hecate_app_marthad/ebin"; do
     if [ -d "$ebin_dir" ]; then
         cp "$ebin_dir"/*.beam "$STAGING_DIR/ebin/" 2>/dev/null || true
+        cp "$ebin_dir"/*.app "$STAGING_DIR/ebin/" 2>/dev/null || true
     fi
 done
 
@@ -45,11 +46,13 @@ for app in "${DOMAIN_APPS[@]}"; do
     ebin_dir="$ROOT_DIR/_build/default/lib/$app/ebin"
     if [ -d "$ebin_dir" ]; then
         cp "$ebin_dir"/*.beam "$STAGING_DIR/ebin/" 2>/dev/null || true
+        cp "$ebin_dir"/*.app "$STAGING_DIR/ebin/" 2>/dev/null || true
     fi
 done
 
 BEAM_COUNT=$(find "$STAGING_DIR/ebin" -name '*.beam' | wc -l)
-echo "  $BEAM_COUNT .beam files"
+APP_COUNT=$(find "$STAGING_DIR/ebin" -name '*.app' | wc -l)
+echo "  $BEAM_COUNT .beam files, $APP_COUNT .app files"
 
 ## Copy static assets if they exist
 STATIC_DIR="$ROOT_DIR/priv/static"

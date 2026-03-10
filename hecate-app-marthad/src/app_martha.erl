@@ -16,6 +16,12 @@
 
 -export([init/1, routes/0, store_config/0, static_dir/0, manifest/0, flag_maps/0]).
 
+-define(DOMAIN_APPS, [
+    guide_venture_lifecycle, project_ventures, query_ventures,
+    guide_division_planning, project_division_plannings, query_division_plannings,
+    guide_division_crafting, project_division_craftings, query_division_craftings
+]).
+
 -spec init(map()) -> {ok, map()} | {error, term()}.
 init(#{plugin_name := PluginName, store_id := StoreId, data_dir := DataDir}) ->
     logger:info("[app-martha] Initializing plugin ~s (store: ~p, data: ~s)",
@@ -25,6 +31,9 @@ init(#{plugin_name := PluginName, store_id := StoreId, data_dir := DataDir}) ->
         store_id => StoreId,
         data_dir => DataDir
     }),
+    %% Load OTP application metadata so application:get_key/2 works
+    %% for route discovery (app_marthad_api_routes:discover_routes/0).
+    lists:foreach(fun(App) -> application:load(App) end, ?DOMAIN_APPS),
     case app_martha_sup:start_link() of
         {ok, Pid} ->
             logger:info("[app-martha] Supervision tree started (~p)", [Pid]),
