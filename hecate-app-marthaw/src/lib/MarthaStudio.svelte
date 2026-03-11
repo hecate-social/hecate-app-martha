@@ -35,7 +35,9 @@
 	import DivisionNav from './guide_venture/DivisionNav.svelte';
 	import VisionOracle from './compose_vision/VisionOracle.svelte';
 	import StormVentureBigPicture from './storm_venture_big_picture/StormVentureBigPicture.svelte';
+	import StormDivision from './storm_division/StormDivision.svelte';
 	import PlanDivision from './plan_division/PlanDivision.svelte';
+	import KanbanDivision from './kanban_division/KanbanDivision.svelte';
 	import CraftDivision from './craft_division/CraftDivision.svelte';
 	import PhaseProgress from './shared/PhaseProgress.svelte';
 	import EventStreamViewer from './shared/EventStreamViewer.svelte';
@@ -454,8 +456,12 @@
 					<PhaseProgress />
 
 					<div class="flex-1 overflow-y-auto">
-						{#if $selectedPhase === 'planning'}
+						{#if $selectedPhase === 'storming'}
+							<StormDivision />
+						{:else if $selectedPhase === 'planning'}
 							<PlanDivision />
+						{:else if $selectedPhase === 'kanban'}
+							<KanbanDivision />
 						{:else if $selectedPhase === 'crafting'}
 							<CraftDivision />
 						{/if}

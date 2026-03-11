@@ -3,12 +3,12 @@
 %%% Stream: division-crafting-{division_id}
 %%% Store: martha_store
 %%%
-%%% Lifecycle:
-%%%   1. initiate_crafting (birth event, triggered by planning_concluded PM)
-%%%   2. open_crafting / shelve_crafting / resume_crafting / conclude_crafting
-%%%   3. generate_module / generate_test / run_test_suite / record_test_result
-%%%   4. deliver_release / stage_delivery
-%%%   5. archive_crafting (walking skeleton)
+%%% Lifecycle (circular, not linear):
+%%%   1. initiate_crafting (birth event, auto-opens, triggered by PM)
+%%%   2. generate_module / generate_test / run_test_suite / record_test_result
+%%%   3. deliver_release / stage_delivery
+%%%   4. shelve_crafting / resume_crafting (pause/resume cycle)
+%%%   5. archive_crafting (walking skeleton — only exit state)
 %%% @end
 -module(division_crafting_aggregate).
 
@@ -29,7 +29,6 @@
     initiated_by   :: binary() | undefined,
     opened_at      :: non_neg_integer() | undefined,
     shelved_at     :: non_neg_integer() | undefined,
-    concluded_at   :: non_neg_integer() | undefined,
     shelve_reason  :: binary() | undefined,
     generated_modules = #{} :: map(),
     generated_tests = #{} :: map(),
@@ -79,7 +78,7 @@ execute(#division_crafting_state{status = S} = State, Payload) when S band ?CRAF
         <<"open_crafting">>     -> execute_open_crafting(Payload, State);
         <<"shelve_crafting">>   -> execute_shelve_crafting(Payload, State);
         <<"resume_crafting">>   -> execute_resume_crafting(Payload, State);
-        <<"conclude_crafting">> -> execute_conclude_crafting(Payload, State);
+        %% No conclude — crafting is iterative, only archived as exit state
         %% Domain commands (require CRAFTING_OPEN)
         <<"generate_module">>     -> require_open(S, fun() -> execute_generate_module(Payload) end);
         <<"generate_test">>       -> require_open(S, fun() -> execute_generate_test(Payload) end);
@@ -126,14 +125,6 @@ execute_resume_crafting(Payload, #division_crafting_state{status = S}) ->
         _ ->
             {ok, Cmd} = resume_crafting_v1:from_map(Payload),
             convert_events(maybe_resume_crafting:handle(Cmd), fun crafting_resumed_v1:to_map/1)
-    end.
-
-execute_conclude_crafting(Payload, #division_crafting_state{status = S}) ->
-    case S band ?CRAFTING_OPEN of
-        0 -> {error, crafting_not_open};
-        _ ->
-            {ok, Cmd} = conclude_crafting_v1:from_map(Payload),
-            convert_events(maybe_conclude_crafting:handle(Cmd), fun crafting_concluded_v1:to_map/1)
     end.
 
 execute_generate_module(Payload) ->
@@ -186,9 +177,6 @@ apply_event(#{<<"event_type">> := <<"crafting_shelved_v1">>} = E, S)  -> apply_s
 apply_event(#{event_type := <<"crafting_shelved_v1">>} = E, S)        -> apply_shelved(E, S);
 apply_event(#{<<"event_type">> := <<"crafting_resumed_v1">>} = _E, S) -> apply_resumed(S);
 apply_event(#{event_type := <<"crafting_resumed_v1">>} = _E, S)       -> apply_resumed(S);
-apply_event(#{<<"event_type">> := <<"crafting_concluded_v1">>} = E, S) -> apply_concluded(E, S);
-apply_event(#{event_type := <<"crafting_concluded_v1">>} = E, S)       -> apply_concluded(E, S);
-
 %% Domain events
 apply_event(#{<<"event_type">> := <<"module_generated_v1">>} = E, S)      -> apply_module_generated(E, S);
 apply_event(#{event_type := <<"module_generated_v1">>} = E, S)            -> apply_module_generated(E, S);
@@ -213,9 +201,12 @@ apply_initiated(E, State) ->
         division_id = get_value(division_id, E),
         venture_id = get_value(venture_id, E),
         context_name = get_value(context_name, E),
-        status = evoq_bit_flags:set(0, ?CRAFTING_INITIATED),
+        status = evoq_bit_flags:set(
+            evoq_bit_flags:set(0, ?CRAFTING_INITIATED),
+            ?CRAFTING_OPEN),
         initiated_at = get_value(initiated_at, E),
-        initiated_by = get_value(initiated_by, E)
+        initiated_by = get_value(initiated_by, E),
+        opened_at = get_value(initiated_at, E)
     }.
 
 apply_archived(#division_crafting_state{status = Status} = State) ->
@@ -243,14 +234,6 @@ apply_resumed(#division_crafting_state{status = Status} = State) ->
         status = S1,
         shelved_at = undefined,
         shelve_reason = undefined
-    }.
-
-apply_concluded(E, #division_crafting_state{status = Status} = State) ->
-    S0 = evoq_bit_flags:unset(Status, ?CRAFTING_OPEN),
-    S1 = evoq_bit_flags:set(S0, ?CRAFTING_CONCLUDED),
-    State#division_crafting_state{
-        status = S1,
-        concluded_at = get_value(concluded_at, E)
     }.
 
 apply_module_generated(E, #division_crafting_state{generated_modules = Modules} = State) ->

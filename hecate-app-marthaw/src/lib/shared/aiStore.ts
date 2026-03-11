@@ -36,16 +36,12 @@ function loadPhaseModelPrefs(): PhaseModelPrefs {
 		const raw = localStorage.getItem(PHASE_MODEL_PREFS_KEY);
 		if (raw) {
 			const parsed = JSON.parse(raw);
-			// Migrate old 4-phase prefs to 2-phase
-			if ('dna' in parsed && !('planning' in parsed)) {
-				return { planning: null, crafting: null };
-			}
-			return parsed;
+			return { storming: null, planning: null, kanban: null, crafting: null, ...parsed };
 		}
 	} catch {
 		// ignore
 	}
-	return { planning: null, crafting: null };
+	return { storming: null, planning: null, kanban: null, crafting: null };
 }
 
 function savePhaseModelPrefs(prefs: PhaseModelPrefs): void {
@@ -108,12 +104,28 @@ export function parseAgentEvents(text: string): string[] {
 // --- Phase Metadata ---
 export const PHASES: PhaseInfo[] = [
 	{
+		code: 'storming',
+		name: 'Storming',
+		shortName: 'Storming',
+		description: 'Design aggregates, events, desks, and dependencies',
+		role: 'storming',
+		color: 'phase-storming'
+	},
+	{
 		code: 'planning',
 		name: 'Planning',
 		shortName: 'Planning',
-		description: 'Design aggregates, plan desks, map dependencies',
+		description: 'Lifecycle management for the division',
 		role: 'planning',
 		color: 'phase-planning'
+	},
+	{
+		code: 'kanban',
+		name: 'Kanban',
+		shortName: 'Kanban',
+		description: 'Work items board for desk crafting',
+		role: 'kanban',
+		color: 'phase-kanban'
 	},
 	{
 		code: 'crafting',

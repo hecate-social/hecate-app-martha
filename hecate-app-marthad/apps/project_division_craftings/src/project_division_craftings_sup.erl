@@ -50,13 +50,6 @@ init([]) ->
             restart => permanent,
             type => supervisor
         },
-        %% Projection: crafting_concluded_v1 -> division_craftings table
-        #{
-            id => crafting_concluded_v1_to_division_craftings_sup,
-            start => {crafting_concluded_v1_to_division_craftings_sup, start_link, []},
-            restart => permanent,
-            type => supervisor
-        },
         %% Projection: module_generated_v1 -> generated_modules table
         #{
             id => module_generated_v1_to_generated_modules_sup,

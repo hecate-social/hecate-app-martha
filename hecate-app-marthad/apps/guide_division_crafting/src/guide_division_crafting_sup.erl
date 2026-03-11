@@ -42,10 +42,6 @@ init([]) ->
         #{id => crafting_resumed_v1_to_pg,
           start => {crafting_resumed_v1_to_pg, start_link, []},
           restart => permanent, type => worker},
-        #{id => crafting_concluded_v1_to_pg,
-          start => {crafting_concluded_v1_to_pg, start_link, []},
-          restart => permanent, type => worker},
-
         %% Domain
         #{id => module_generated_v1_to_pg,
           start => {module_generated_v1_to_pg, start_link, []},
@@ -70,13 +66,11 @@ init([]) ->
 
         #{id => crafting_initiated_v1_to_mesh,
           start => {crafting_initiated_v1_to_mesh, start_link, []},
-          restart => permanent, type => worker},
+          restart => permanent, type => worker}
 
         %% ── Process managers ─────────────────────────────────────────────────
-
-        #{id => on_planning_concluded_initiate_crafting,
-          start => {on_planning_concluded_initiate_crafting, start_link, []},
-          restart => permanent, type => worker}
+        %% None — crafting is initiated by agents via the division kanban board,
+        %% not by automatic PM coupling to planning.
     ],
 
     {ok, {SupFlags, Children}}.

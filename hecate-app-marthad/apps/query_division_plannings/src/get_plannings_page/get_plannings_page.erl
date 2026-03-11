@@ -6,7 +6,7 @@ get(Filters) ->
     Limit = maps:get(limit, Filters, 50),
     Offset = maps:get(offset, Filters, 0),
     Sql = "SELECT division_id, venture_id, context_name, status, status_label, "
-          "initiated_at, initiated_by, opened_at, shelved_at, concluded_at "
+          "initiated_at, initiated_by, opened_at, shelved_at, submitted_at "
           "FROM division_plannings "
           "ORDER BY initiated_at DESC "
           "LIMIT ?1 OFFSET ?2",
@@ -18,7 +18,7 @@ get(Filters) ->
     end.
 
 row_to_map([DivisionId, VentureId, ContextName, Status, StatusLabel,
-            InitiatedAt, InitiatedBy, OpenedAt, ShelvedAt, ConcludedAt]) ->
+            InitiatedAt, InitiatedBy, OpenedAt, ShelvedAt, SubmittedAt]) ->
     #{
         division_id => DivisionId,
         venture_id => VentureId,
@@ -29,5 +29,5 @@ row_to_map([DivisionId, VentureId, ContextName, Status, StatusLabel,
         initiated_by => InitiatedBy,
         opened_at => OpenedAt,
         shelved_at => ShelvedAt,
-        concluded_at => ConcludedAt
+        submitted_at => SubmittedAt
     }.

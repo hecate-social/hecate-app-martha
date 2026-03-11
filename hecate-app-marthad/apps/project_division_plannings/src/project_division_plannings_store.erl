@@ -1,7 +1,9 @@
 %%% @doc SQLite store for project_division_plannings read models.
 %%%
-%%% Tables: division_plannings, designed_aggregates, designed_events,
-%%%          planned_desks, planned_dependencies
+%%% Table: division_plannings (lifecycle only)
+%%%
+%%% Content tables (designed_aggregates, designed_events, planned_desks,
+%%% planned_dependencies) have moved to project_division_stormings.
 %%% @end
 -module(project_division_plannings_store).
 -behaviour(gen_server).
@@ -112,54 +114,10 @@ create_tables(Db) ->
             initiated_by TEXT,
             opened_at INTEGER,
             shelved_at INTEGER,
-            concluded_at INTEGER
+            submitted_at INTEGER
         );",
         "CREATE INDEX IF NOT EXISTS idx_plannings_venture ON division_plannings(venture_id);",
-        "CREATE INDEX IF NOT EXISTS idx_plannings_status ON division_plannings(status);",
-
-        "CREATE TABLE IF NOT EXISTS designed_aggregates (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            division_id TEXT NOT NULL,
-            aggregate_name TEXT NOT NULL,
-            description TEXT,
-            stream_prefix TEXT,
-            fields TEXT,
-            designed_at INTEGER NOT NULL,
-            UNIQUE(division_id, aggregate_name)
-        );",
-
-        "CREATE TABLE IF NOT EXISTS designed_events (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            division_id TEXT NOT NULL,
-            event_name TEXT NOT NULL,
-            description TEXT,
-            aggregate_name TEXT,
-            fields TEXT,
-            designed_at INTEGER NOT NULL,
-            UNIQUE(division_id, event_name)
-        );",
-
-        "CREATE TABLE IF NOT EXISTS planned_desks (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            division_id TEXT NOT NULL,
-            desk_name TEXT NOT NULL,
-            description TEXT,
-            department TEXT,
-            commands TEXT,
-            planned_at INTEGER NOT NULL,
-            UNIQUE(division_id, desk_name)
-        );",
-
-        "CREATE TABLE IF NOT EXISTS planned_dependencies (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            division_id TEXT NOT NULL,
-            dependency_id TEXT NOT NULL,
-            from_desk TEXT,
-            to_desk TEXT,
-            dep_type TEXT,
-            planned_at INTEGER NOT NULL,
-            UNIQUE(division_id, dependency_id)
-        );"
+        "CREATE INDEX IF NOT EXISTS idx_plannings_status ON division_plannings(status);"
     ],
     lists:foreach(fun(Sql) -> ok = esqlite3:exec(Db, Sql) end, Stmts),
     ok.

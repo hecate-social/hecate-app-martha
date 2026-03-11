@@ -8,27 +8,17 @@ get(Filters) ->
     VentureId = maps:get(venture_id, Filters),
     Limit = maps:get(limit, Filters, 50),
     Offset = maps:get(offset, Filters, 0),
-    Sql = "SELECT division_id, venture_id, context_name, description, "
-          "identified_by, discovered_at "
-          "FROM discovered_divisions WHERE venture_id = ?1 "
-          "ORDER BY discovered_at DESC "
-          "LIMIT ?2 OFFSET ?3",
-    case project_ventures_store:query(Sql, [VentureId, Limit, Offset]) of
-        {ok, Rows} ->
-            {ok, [row_to_map(R) || R <- Rows]};
+    case project_ventures_store:list_divisions_by_venture(VentureId) of
+        {ok, All} ->
+            Paginated = paginate(All, Offset, Limit),
+            {ok, Paginated};
         {error, Reason} ->
             {error, Reason}
     end.
 
-row_to_map({DivisionId, VentureId, ContextName, Description,
-            IdentifiedBy, DiscoveredAt}) ->
-    #{
-        division_id => DivisionId,
-        venture_id => VentureId,
-        context_name => ContextName,
-        description => Description,
-        identified_by => IdentifiedBy,
-        discovered_at => DiscoveredAt
-    };
-row_to_map(Row) when is_list(Row) ->
-    row_to_map(list_to_tuple(Row)).
+paginate(List, Offset, Limit) ->
+    lists:sublist(safe_drop(List, Offset), Limit).
+
+safe_drop(List, 0) -> List;
+safe_drop([], _) -> [];
+safe_drop([_ | T], N) -> safe_drop(T, N - 1).

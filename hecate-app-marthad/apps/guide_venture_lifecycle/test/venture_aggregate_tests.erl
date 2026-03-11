@@ -201,10 +201,17 @@ exec_refine_vision_ok() ->
     ?assertEqual(<<"vision_refined_v1">>, maps:get(<<"event_type">>, Event)).
 
 exec_refine_after_submit() ->
+    %% Vision can always be adjusted — refining after submit succeeds
+    %% and clears SUBMITTED so it must be re-submitted
     Cmd = #{<<"command_type">> => <<"refine_vision">>,
             <<"venture_id">> => <<"v-test-1">>},
-    ?assertEqual({error, vision_already_submitted},
-                 venture_aggregate:execute(submitted_state(), Cmd)).
+    {ok, [Event]} = venture_aggregate:execute(submitted_state(), Cmd),
+    ?assertEqual(<<"vision_refined_v1">>, maps:get(<<"event_type">>, Event)),
+    %% Applying the event should clear SUBMITTED
+    State1 = venture_aggregate:apply(submitted_state(), Event),
+    Status = State1#venture_state.status,
+    ?assert(Status band ?VL_VISION_REFINED =/= 0),
+    ?assert(Status band ?VL_SUBMITTED =:= 0).
 
 exec_submit_vision_ok() ->
     Cmd = #{<<"command_type">> => <<"submit_vision">>,

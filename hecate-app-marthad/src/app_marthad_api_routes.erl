@@ -15,9 +15,12 @@
 %% Martha OTP apps that may contain API handlers.
 -define(MARTHA_APPS, [
     guide_venture_lifecycle, project_ventures, query_ventures,
-    guide_division_planning, guide_division_crafting,
-    project_division_plannings, project_division_craftings,
-    query_division_plannings, query_division_craftings
+    guide_division_planning, guide_division_storming, guide_division_crafting,
+    guide_kanban_lifecycle,
+    project_division_plannings, project_division_stormings,
+    project_division_craftings, project_division_kanbans,
+    query_division_plannings, query_division_stormings,
+    query_division_craftings, query_division_kanbans
 ]).
 
 %% @doc Cowboy handler init - dispatches to domain route handlers.

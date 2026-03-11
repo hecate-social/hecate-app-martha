@@ -1,0 +1,17 @@
+{application, guide_division_storming, [
+    {description, "Division EventStorming content — aggregates, events, desks, dependencies"},
+    {vsn, "0.1.0"},
+    {registered, []},
+    {mod, {guide_division_storming_app, []}},
+    {applications, [
+        kernel,
+        stdlib,
+        crypto,
+        evoq,
+        hecate_app_marthad
+    ]},
+    {env, []},
+    {modules, []},
+    {licenses, ["Apache-2.0"]},
+    {links, [{"GitHub", "https://github.com/hecate-social/hecate-app-martha"}]}
+]}.

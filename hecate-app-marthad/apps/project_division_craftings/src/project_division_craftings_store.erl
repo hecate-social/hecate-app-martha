@@ -112,7 +112,7 @@ create_tables(Db) ->
             initiated_by TEXT,
             opened_at INTEGER,
             shelved_at INTEGER,
-            concluded_at INTEGER
+            shelved_reason TEXT
         );",
         "CREATE INDEX IF NOT EXISTS idx_craftings_venture ON division_craftings(venture_id);",
         "CREATE INDEX IF NOT EXISTS idx_craftings_status ON division_craftings(status);",

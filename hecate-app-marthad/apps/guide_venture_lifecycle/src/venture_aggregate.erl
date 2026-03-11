@@ -96,14 +96,9 @@ execute_initiate_venture(Payload) ->
     {ok, Cmd} = initiate_venture_v1:from_map(Payload),
     convert_events(maybe_initiate_venture:handle(Cmd), fun venture_initiated_v1:to_map/1).
 
-execute_refine_vision(Payload, #venture_state{status = S}) ->
-    case S band ?VL_SUBMITTED of
-        0 ->
-            {ok, Cmd} = refine_vision_v1:from_map(Payload),
-            convert_events(maybe_refine_vision:handle(Cmd), fun vision_refined_v1:to_map/1);
-        _ ->
-            {error, vision_already_submitted}
-    end.
+execute_refine_vision(Payload, _State) ->
+    {ok, Cmd} = refine_vision_v1:from_map(Payload),
+    convert_events(maybe_refine_vision:handle(Cmd), fun vision_refined_v1:to_map/1).
 
 execute_submit_vision(Payload, #venture_state{status = S}) ->
     case S band ?VL_SUBMITTED of
@@ -165,15 +160,9 @@ execute_archive_venture(Payload, _State) ->
     {ok, Cmd} = archive_venture_v1:from_map(Payload),
     convert_events(maybe_archive_venture:handle(Cmd), fun venture_archived_v1:to_map/1).
 
-execute_scaffold_venture_repo(Payload, #venture_state{status = S}) ->
-    %% Guard: must be initiated, vision must not already be submitted
-    case S band ?VL_SUBMITTED of
-        0 ->
-            {ok, Cmd} = scaffold_venture_repo_v1:from_map(Payload),
-            convert_events(maybe_scaffold_venture_repo:handle(Cmd), fun venture_repo_scaffolded_v1:to_map/1);
-        _ ->
-            {error, vision_already_submitted}
-    end.
+execute_scaffold_venture_repo(Payload, _State) ->
+    {ok, Cmd} = scaffold_venture_repo_v1:from_map(Payload),
+    convert_events(maybe_scaffold_venture_repo:handle(Cmd), fun venture_repo_scaffolded_v1:to_map/1).
 
 %% --- Big Picture Event Storming command handlers ---
 
@@ -405,7 +394,11 @@ apply_vision_refined(E, #venture_state{status = Status} = State) ->
     S2 = maybe_update(repos, E, S1),
     S3 = maybe_update(skills, E, S2),
     S4 = maybe_update(context_map, E, S3),
-    S4#venture_state{status = evoq_bit_flags:set(Status, ?VL_VISION_REFINED)}.
+    %% Refining the vision clears SUBMITTED — it must be re-submitted
+    NewStatus = evoq_bit_flags:unset(
+        evoq_bit_flags:set(Status, ?VL_VISION_REFINED),
+        ?VL_SUBMITTED),
+    S4#venture_state{status = NewStatus}.
 
 apply_vision_submitted(_E, #venture_state{status = Status} = State) ->
     State#venture_state{status = evoq_bit_flags:set(Status, ?VL_SUBMITTED)}.

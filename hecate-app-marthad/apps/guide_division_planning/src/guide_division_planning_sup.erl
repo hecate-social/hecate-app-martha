@@ -4,6 +4,9 @@
 %%% - PG emitters: subscribe to evoq, broadcast to pg groups (internal)
 %%% - Mesh emitters: subscribe to evoq, publish to mesh (external)
 %%% - Process managers: cross-domain integration
+%%%
+%%% Content emitters (aggregate_designed, event_designed, desk_planned,
+%%% dependency_planned) have moved to guide_division_storming.
 %%% @end
 -module(guide_division_planning_sup).
 -behaviour(supervisor).
@@ -42,22 +45,8 @@ init([]) ->
         #{id => planning_resumed_v1_to_pg,
           start => {planning_resumed_v1_to_pg, start_link, []},
           restart => permanent, type => worker},
-        #{id => planning_concluded_v1_to_pg,
-          start => {planning_concluded_v1_to_pg, start_link, []},
-          restart => permanent, type => worker},
-
-        %% Design + plan desks
-        #{id => aggregate_designed_v1_to_pg,
-          start => {aggregate_designed_v1_to_pg, start_link, []},
-          restart => permanent, type => worker},
-        #{id => event_designed_v1_to_pg,
-          start => {event_designed_v1_to_pg, start_link, []},
-          restart => permanent, type => worker},
-        #{id => desk_planned_v1_to_pg,
-          start => {desk_planned_v1_to_pg, start_link, []},
-          restart => permanent, type => worker},
-        #{id => dependency_planned_v1_to_pg,
-          start => {dependency_planned_v1_to_pg, start_link, []},
+        #{id => planning_submitted_v1_to_pg,
+          start => {planning_submitted_v1_to_pg, start_link, []},
           restart => permanent, type => worker},
 
         %% ── Mesh emitters (external, subscribe via evoq -> publish to mesh) ──
@@ -68,8 +57,8 @@ init([]) ->
 
         %% ── Process managers ──
 
-        #{id => on_division_identified_initiate_planning,
-          start => {on_division_identified_initiate_planning, start_link, []},
+        #{id => on_division_identified_initiate_division_planning,
+          start => {on_division_identified_initiate_division_planning, start_link, []},
           restart => permanent, type => worker}
     ],
 

@@ -3,17 +3,13 @@
 	import { selectedPhase, openPhase, shelvePhase, resumePhase, concludePhase, isLoading } from '$lib/shared/phaseStore.js';
 	import { PHASES, openAIAssist } from '$lib/shared/aiStore.js';
 	import {
-		phaseStatus,
-		hasFlag,
-		PHASE_OPEN,
-		PHASE_CONCLUDED,
-		PHASE_SHELVED,
-		PHASE_INITIATED,
+		phaseStatusLabel,
+		phaseAvailableActions,
 		type PhaseCode
 	} from '$lib/types.js';
 
-	let currentPhaseStatus = $derived(
-		$selectedDivision ? phaseStatus($selectedDivision, $selectedPhase) : 0
+	let currentActions = $derived(
+		$selectedDivision ? phaseAvailableActions($selectedDivision, $selectedPhase) : []
 	);
 
 	function setPhase(code: PhaseCode) {
@@ -23,11 +19,49 @@
 	function phaseColor(code: PhaseCode, isActive: boolean): string {
 		if (!isActive) return '';
 		switch (code) {
+			case 'storming':
+				return 'border-es-event text-es-event';
 			case 'planning':
 				return 'border-phase-planning text-phase-planning';
+			case 'kanban':
+				return 'border-hecate-400 text-hecate-400';
 			case 'crafting':
 				return 'border-phase-crafting text-phase-crafting';
 		}
+	}
+
+	/** Derive phase visual state from available_actions + label presence.
+	 *  No label parsing — only structural checks. */
+	function phaseVisual(label: string, actions: string[]): { icon: string; css: string } {
+		if (!label) return { icon: '\u{25CB}', css: 'text-surface-500' };
+		if (actions.length === 0) return { icon: '\u{2713}', css: 'text-health-ok' };
+		if (actions.includes('resume')) return { icon: '\u{25D0}', css: 'text-health-warn' };
+		if (actions.includes('shelve') || actions.includes('conclude') || actions.includes('archive'))
+			return { icon: '\u{25CF}', css: 'text-hecate-400 animate-pulse' };
+		if (actions.includes('open')) return { icon: '\u{25CB}', css: 'text-surface-300' };
+		return { icon: '\u{25CB}', css: 'text-surface-500' };
+	}
+
+	/** Map action name to button style. */
+	function actionStyle(action: string): string {
+		switch (action) {
+			case 'open':
+				return 'bg-hecate-600/20 text-hecate-300 hover:bg-hecate-600/30';
+			case 'shelve':
+				return 'text-surface-400 hover:text-health-warn hover:bg-surface-700';
+			case 'conclude':
+				return 'text-surface-400 hover:text-health-ok hover:bg-surface-700';
+			case 'resume':
+				return 'bg-health-warn/10 text-health-warn hover:bg-health-warn/20';
+			case 'archive':
+				return 'text-surface-400 hover:text-surface-200 hover:bg-surface-700';
+			default:
+				return 'text-surface-400 hover:bg-surface-700';
+		}
+	}
+
+	function actionLabel(action: string): string {
+		return action.charAt(0).toUpperCase() + action.slice(1);
 	}
 
 	async function handlePhaseAction(action: string) {
@@ -57,13 +91,15 @@
 		<div class="flex items-center gap-1">
 			<!-- Phase tabs -->
 			{#each PHASES as phase, i}
-				{@const ps = phaseStatus($selectedDivision, phase.code)}
+				{@const label = phaseStatusLabel($selectedDivision, phase.code)}
+				{@const actions = phaseAvailableActions($selectedDivision, phase.code)}
 				{@const isActive = $selectedPhase === phase.code}
-				{@const isConcluded = hasFlag(ps, PHASE_CONCLUDED)}
+				{@const { icon, css } = phaseVisual(label, actions)}
+				{@const isTerminal = label && actions.length === 0}
 
 				{#if i > 0}
 					<div
-						class="w-4 h-px {isConcluded ? 'bg-health-ok/40' : 'bg-surface-600'}"
+						class="w-4 h-px {isTerminal ? 'bg-health-ok/40' : 'bg-surface-600'}"
 					></div>
 				{/if}
 
@@ -75,19 +111,7 @@
 						? `bg-surface-700 border-current ${phaseColor(phase.code, true)}`
 						: 'border-transparent text-surface-400 hover:text-surface-200 hover:bg-surface-700/50'}"
 				>
-					{#if isConcluded}
-						<span class="text-health-ok text-[10px]">{'\u{2713}'}</span>
-					{:else if hasFlag(ps, PHASE_OPEN)}
-						<span class="text-hecate-400 text-[10px] animate-pulse"
-							>{'\u{25CF}'}</span
-						>
-					{:else if hasFlag(ps, PHASE_SHELVED)}
-						<span class="text-health-warn text-[10px]">{'\u{25D0}'}</span>
-					{:else if hasFlag(ps, PHASE_INITIATED)}
-						<span class="text-surface-300 text-[10px]">{'\u{25CB}'}</span>
-					{:else}
-						<span class="text-surface-500 text-[10px]">{'\u{25CB}'}</span>
-					{/if}
+					<span class="{css} text-[10px]">{icon}</span>
 					<span>{phase.shortName}</span>
 				</button>
 			{/each}
@@ -99,45 +123,23 @@
 				{PHASES.find((p) => p.code === $selectedPhase)?.name}
 			</span>
 
-			<!-- Phase lifecycle buttons -->
-			{#if hasFlag(currentPhaseStatus, PHASE_INITIATED) && !hasFlag(currentPhaseStatus, PHASE_OPEN) && !hasFlag(currentPhaseStatus, PHASE_CONCLUDED) && !hasFlag(currentPhaseStatus, PHASE_SHELVED)}
-				<button
-					onclick={() => handlePhaseAction('open')}
-					disabled={$isLoading}
-					class="text-[10px] px-2 py-0.5 rounded bg-hecate-600/20 text-hecate-300
-						hover:bg-hecate-600/30 transition-colors disabled:opacity-50"
-				>
-					Open
-				</button>
-			{:else if !hasFlag(currentPhaseStatus, PHASE_INITIATED) && !hasFlag(currentPhaseStatus, PHASE_OPEN) && !hasFlag(currentPhaseStatus, PHASE_CONCLUDED)}
-				<!-- Not yet initiated — pending -->
-				<span class="text-[10px] text-surface-500 mr-1">Pending</span>
-			{:else if hasFlag(currentPhaseStatus, PHASE_OPEN)}
-				<button
-					onclick={() => handlePhaseAction('shelve')}
-					disabled={$isLoading}
-					class="text-[10px] px-2 py-0.5 rounded text-surface-400
-						hover:text-health-warn hover:bg-surface-700 transition-colors disabled:opacity-50"
-				>
-					Shelve
-				</button>
-				<button
-					onclick={() => handlePhaseAction('conclude')}
-					disabled={$isLoading}
-					class="text-[10px] px-2 py-0.5 rounded text-surface-400
-						hover:text-health-ok hover:bg-surface-700 transition-colors disabled:opacity-50"
-				>
-					Conclude
-				</button>
-			{:else if hasFlag(currentPhaseStatus, PHASE_SHELVED)}
-				<button
-					onclick={() => handlePhaseAction('resume')}
-					disabled={$isLoading}
-					class="text-[10px] px-2 py-0.5 rounded bg-health-warn/10 text-health-warn
-						hover:bg-health-warn/20 transition-colors disabled:opacity-50"
-				>
-					Resume
-				</button>
+			<!-- Phase lifecycle buttons — driven by backend available_actions -->
+			{#if currentActions.length === 0}
+				{@const label = phaseStatusLabel($selectedDivision, $selectedPhase)}
+				{#if !label}
+					<span class="text-[10px] text-surface-500 mr-1">Pending</span>
+				{/if}
+			{:else}
+				{#each currentActions as action}
+					<button
+						onclick={() => handlePhaseAction(action)}
+						disabled={$isLoading}
+						class="text-[10px] px-2 py-0.5 rounded transition-colors disabled:opacity-50
+							{actionStyle(action)}"
+					>
+						{actionLabel(action)}
+					</button>
+				{/each}
 			{/if}
 
 			<!-- AI Assist toggle -->

@@ -2,16 +2,7 @@
 	import { divisions, selectedDivisionId } from '$lib/guide_venture/guide_venture.js';
 	import { selectedPhase } from '$lib/shared/phaseStore.js';
 	import { PHASES } from '$lib/shared/aiStore.js';
-	import {
-		phaseLabel,
-		phaseStatusClass,
-		phaseStatus,
-		hasFlag,
-		PHASE_OPEN,
-		PHASE_CONCLUDED,
-		PHASE_SHELVED
-	} from '$lib/types.js';
-	import type { PhaseCode } from '$lib/types.js';
+	import { phaseStatusLabel, phaseAvailableActions, type PhaseCode } from '$lib/types.js';
 
 	function selectDivision(divId: string) {
 		selectedDivisionId.set(divId);
@@ -22,11 +13,25 @@
 		selectedPhase.set(phase);
 	}
 
-	function phaseIcon(status: number): string {
-		if (hasFlag(status, PHASE_CONCLUDED)) return '\u{25CF}';
-		if (hasFlag(status, PHASE_OPEN)) return '\u{25D0}';
-		if (hasFlag(status, PHASE_SHELVED)) return '\u{25CB}';
-		return '\u{25CB}';
+	/** Derive visual state from available_actions + label presence.
+	 *  No label parsing — only structural checks. */
+	function phaseVisual(label: string, actions: string[]): { icon: string; css: string } {
+		if (!label) return { icon: '\u{25CB}', css: 'text-surface-500' };
+		if (actions.length === 0) return { icon: '\u{25CF}', css: 'text-health-ok' };
+		if (actions.includes('resume')) return { icon: '\u{25CB}', css: 'text-health-warn' };
+		if (actions.includes('shelve') || actions.includes('conclude') || actions.includes('archive'))
+			return { icon: '\u{25D0}', css: 'text-hecate-400' };
+		if (actions.includes('open')) return { icon: '\u{25CB}', css: 'text-surface-300' };
+		return { icon: '\u{25CB}', css: 'text-surface-500' };
+	}
+
+	function labelCss(label: string, actions: string[]): string {
+		if (!label) return 'text-surface-500';
+		if (actions.length === 0) return 'text-health-ok';
+		if (actions.includes('resume')) return 'text-health-warn';
+		if (actions.includes('shelve') || actions.includes('conclude') || actions.includes('archive'))
+			return 'text-hecate-400';
+		return 'text-surface-300';
 	}
 </script>
 
@@ -56,7 +61,9 @@
 				{#if isSelected}
 					<div class="ml-2 mt-1 space-y-0.5">
 						{#each PHASES as phase}
-							{@const ps = phaseStatus(div, phase.code)}
+							{@const label = phaseStatusLabel(div, phase.code)}
+							{@const actions = phaseAvailableActions(div, phase.code)}
+							{@const { icon, css } = phaseVisual(label, actions)}
 							<button
 								onclick={() => selectPhase(div.division_id, phase.code)}
 								class="w-full flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px]
@@ -65,10 +72,10 @@
 									? 'bg-surface-600/50 text-surface-100'
 									: 'text-surface-400 hover:text-surface-300'}"
 							>
-								<span class={phaseStatusClass(ps)}>{phaseIcon(ps)}</span>
+								<span class={css}>{icon}</span>
 								<span>{phase.shortName}</span>
-								<span class="ml-auto text-[9px] {phaseStatusClass(ps)}">
-									{phaseLabel(ps)}
+								<span class="ml-auto text-[9px] {labelCss(label, actions)}">
+									{label || 'Pending'}
 								</span>
 							</button>
 						{/each}

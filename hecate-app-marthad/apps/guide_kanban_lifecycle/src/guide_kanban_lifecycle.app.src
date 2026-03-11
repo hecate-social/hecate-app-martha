@@ -1,0 +1,17 @@
+{application, guide_kanban_lifecycle, [
+    {description, "Division kanban board — coordination buffer between planning and crafting agents"},
+    {vsn, "0.1.0"},
+    {registered, []},
+    {mod, {guide_kanban_lifecycle_app, []}},
+    {applications, [
+        kernel,
+        stdlib,
+        crypto,
+        evoq,
+        hecate_app_marthad
+    ]},
+    {env, []},
+    {modules, []},
+    {licenses, ["Apache-2.0"]},
+    {links, [{"GitHub", "https://github.com/hecate-social/hecate-app-martha"}]}
+]}.

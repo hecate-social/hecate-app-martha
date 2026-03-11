@@ -36,8 +36,18 @@ export interface Division {
 	description: string;
 	status: number;
 	phase: string;
+	storming_status: number;
+	storming_status_label: string;
 	planning_status: number;
+	planning_status_label: string;
+	kanban_status: number;
+	kanban_status_label: string;
 	crafting_status: number;
+	crafting_status_label: string;
+	storming_available_actions: string[];
+	planning_available_actions: string[];
+	kanban_available_actions: string[];
+	crafting_available_actions: string[];
 	created_at: string;
 	updated_at: string;
 }
@@ -148,50 +158,50 @@ export type MarthaErrorCode =
 	| 'deployment_failed'
 	| 'health_check_failed';
 
-/** Venture lifecycle status bit flags */
-export const VL_DISCOVERING = 1;
-export const VL_DISCOVERY_PAUSED = 2;
-export const VL_ARCHIVED = 4;
+/** Venture lifecycle status bit flags (must match venture_lifecycle_status.hrl) */
+export const VL_INITIATED = 1;
+export const VL_VISION_REFINED = 2;
+export const VL_SUBMITTED = 4;
+export const VL_DISCOVERING = 8;
+export const VL_DISCOVERY_PAUSED = 16;
+export const VL_DISCOVERY_COMPLETED = 32;
+export const VL_ARCHIVED = 64;
+export const VL_STORMING = 128;
+export const VL_STORM_SHELVED = 256;
 
-/** Phase status bit flags (match Erlang planning_status.hrl / crafting_status.hrl) */
-export const PHASE_INITIATED = 1;
-export const PHASE_ARCHIVED = 2;
-export const PHASE_OPEN = 4;
-export const PHASE_SHELVED = 8;
-export const PHASE_CONCLUDED = 16;
+export type PhaseCode = 'storming' | 'planning' | 'kanban' | 'crafting';
 
-export type PhaseCode = 'planning' | 'crafting';
-
+/** Bitwise flag check — used for venture-level status grouping. */
 export function hasFlag(status: number, flag: number): boolean {
 	return (status & flag) !== 0;
 }
 
-export function phaseStatus(division: Division, phase: PhaseCode): number {
+/** Get the pre-computed status label for a phase (from backend projection). */
+export function phaseStatusLabel(division: Division, phase: PhaseCode): string {
 	switch (phase) {
+		case 'storming':
+			return division.storming_status_label ?? '';
 		case 'planning':
-			return division.planning_status ?? 0;
+			return division.planning_status_label ?? '';
+		case 'kanban':
+			return division.kanban_status_label ?? '';
 		case 'crafting':
-			return division.crafting_status ?? 0;
+			return division.crafting_status_label ?? '';
 	}
 }
 
-export function phaseLabel(division: Division | number, phase?: PhaseCode): string {
-	const s = typeof division === 'number' ? division : phaseStatus(division, phase!);
-	if (hasFlag(s, PHASE_CONCLUDED)) return 'Concluded';
-	if (hasFlag(s, PHASE_SHELVED)) return 'Shelved';
-	if (hasFlag(s, PHASE_OPEN)) return 'Open';
-	if (hasFlag(s, PHASE_ARCHIVED)) return 'Archived';
-	if (hasFlag(s, PHASE_INITIATED)) return 'Initiated';
-	return 'Pending';
-}
-
-export function phaseStatusClass(status: number): string {
-	if (hasFlag(status, PHASE_CONCLUDED)) return 'text-health-ok';
-	if (hasFlag(status, PHASE_OPEN)) return 'text-hecate-400';
-	if (hasFlag(status, PHASE_SHELVED)) return 'text-health-warn';
-	if (hasFlag(status, PHASE_ARCHIVED)) return 'text-surface-500';
-	if (hasFlag(status, PHASE_INITIATED)) return 'text-surface-300';
-	return 'text-surface-500';
+/** Get the available lifecycle actions for a phase (from backend projection). */
+export function phaseAvailableActions(division: Division, phase: PhaseCode): string[] {
+	switch (phase) {
+		case 'storming':
+			return division.storming_available_actions ?? [];
+		case 'planning':
+			return division.planning_available_actions ?? [];
+		case 'kanban':
+			return division.kanban_available_actions ?? [];
+		case 'crafting':
+			return division.crafting_available_actions ?? [];
+	}
 }
 
 /** Design-level desk card types */

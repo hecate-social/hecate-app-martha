@@ -1,4 +1,7 @@
 %%% @doc Top-level supervisor for project_division_plannings.
+%%%
+%%% Content projections (aggregate_designed, event_designed, desk_planned,
+%%% dependency_planned) have moved to project_division_stormings.
 -module(project_division_plannings_sup).
 -behaviour(supervisor).
 -export([start_link/0, init/1]).
@@ -50,38 +53,10 @@ init([]) ->
             restart => permanent,
             type => supervisor
         },
-        %% Projection: planning_concluded_v1 -> division_plannings table
+        %% Projection: planning_submitted_v1 -> division_plannings table
         #{
-            id => planning_concluded_v1_to_division_plannings_sup,
-            start => {planning_concluded_v1_to_division_plannings_sup, start_link, []},
-            restart => permanent,
-            type => supervisor
-        },
-        %% Projection: aggregate_designed_v1 -> designed_aggregates table
-        #{
-            id => aggregate_designed_v1_to_designed_aggregates_sup,
-            start => {aggregate_designed_v1_to_designed_aggregates_sup, start_link, []},
-            restart => permanent,
-            type => supervisor
-        },
-        %% Projection: event_designed_v1 -> designed_events table
-        #{
-            id => event_designed_v1_to_designed_events_sup,
-            start => {event_designed_v1_to_designed_events_sup, start_link, []},
-            restart => permanent,
-            type => supervisor
-        },
-        %% Projection: desk_planned_v1 -> planned_desks table
-        #{
-            id => desk_planned_v1_to_planned_desks_sup,
-            start => {desk_planned_v1_to_planned_desks_sup, start_link, []},
-            restart => permanent,
-            type => supervisor
-        },
-        %% Projection: dependency_planned_v1 -> planned_dependencies table
-        #{
-            id => dependency_planned_v1_to_planned_dependencies_sup,
-            start => {dependency_planned_v1_to_planned_dependencies_sup, start_link, []},
+            id => planning_submitted_v1_to_division_plannings_sup,
+            start => {planning_submitted_v1_to_division_plannings_sup, start_link, []},
             restart => permanent,
             type => supervisor
         }

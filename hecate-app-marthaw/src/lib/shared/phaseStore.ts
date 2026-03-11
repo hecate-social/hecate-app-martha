@@ -4,13 +4,18 @@ import { activeVenture, divisions, fetchDivisions } from '../guide_venture/guide
 import type { PhaseCode } from '../types.js';
 
 // --- State ---
-export const selectedPhase = writable<PhaseCode>('planning');
+export const selectedPhase = writable<PhaseCode>('storming');
 export const phaseError = writable<string | null>(null);
 export const isLoading = writable(false);
 
 /** Map phase code to its API path prefix */
 function phaseApiPrefix(phase: PhaseCode): string {
-	return phase === 'planning' ? 'plannings' : 'craftings';
+	switch (phase) {
+		case 'storming': return 'stormings';
+		case 'planning': return 'plannings';
+		case 'kanban': return 'kanbans';
+		case 'crafting': return 'craftings';
+	}
 }
 
 // --- Actions ---

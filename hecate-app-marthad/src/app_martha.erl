@@ -11,15 +11,21 @@
 -behaviour(hecate_plugin).
 
 -include_lib("hecate_sdk/include/hecate_plugin.hrl").
+-include_lib("guide_division_storming/include/storming_status.hrl").
 -include_lib("guide_division_planning/include/planning_status.hrl").
+-include_lib("guide_kanban_lifecycle/include/kanban_status.hrl").
 -include_lib("guide_division_crafting/include/crafting_status.hrl").
 
 -export([init/1, routes/0, store_config/0, static_dir/0, manifest/0, flag_maps/0]).
 
 -define(DOMAIN_APPS, [
     guide_venture_lifecycle, project_ventures, query_ventures,
-    guide_division_planning, project_division_plannings, query_division_plannings,
-    guide_division_crafting, project_division_craftings, query_division_craftings
+    guide_division_planning, guide_division_storming, guide_division_crafting,
+    guide_kanban_lifecycle,
+    project_division_plannings, project_division_stormings,
+    project_division_craftings, project_division_kanbans,
+    query_division_plannings, query_division_stormings,
+    query_division_craftings, query_division_kanbans
 ]).
 
 -spec init(map()) -> {ok, map()} | {error, term()}.
@@ -70,7 +76,7 @@ manifest() ->
     #{
         name => <<"hecate-app-martha">>,
         display_name => <<"Martha">>,
-        version => <<"0.2.3">>,
+        version => <<"0.2.4">>,
         description => <<"AI-Assisted Application Lifecycle">>,
         icon => <<"\xF0\x9F\xA7\x91\xE2\x80\x8D\xF0\x9F\x92\xBB"/utf8>>,
         tag => <<"martha-studio">>,
@@ -80,7 +86,9 @@ manifest() ->
 -spec flag_maps() -> #{binary() => evoq_bit_flags:flag_map()}.
 flag_maps() ->
     #{
+        <<"storming_status">> => ?STORMING_FLAG_MAP,
         <<"planning_status">> => ?PLANNING_FLAG_MAP,
+        <<"kanban_status">> => ?KANBAN_FLAG_MAP,
         <<"crafting_status">> => ?CRAFTING_FLAG_MAP
     }.
 
