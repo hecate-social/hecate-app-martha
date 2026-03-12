@@ -1,8 +1,8 @@
 {
   "name": "hecate-app-martha",
   "display_name": "Martha",
-  "version": "0.3.0",
-  "icon": "\ud83e\uddd1\u200d\ud83d\udcbb",
+  "version": "0.3.1",
+  "icon": "dog2",
   "description": "AI-Assisted Application Lifecycle",
   "callback_module": "app_martha",
   "plugin_type": "in_vm",
@@ -20,7 +20,7 @@
     "fee_currency": "EUR",
     "node_limit": 0,
     "min_daemon_version": "0.14.0",
-    "group_name": "AI",
-    "group_icon": "brain"
+    "group_name": "CREATE",
+    "group_icon": "hammer_and_wrench"
   }
 }

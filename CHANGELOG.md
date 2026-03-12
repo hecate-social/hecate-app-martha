@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1] - 2026-03-12
+
+### Fixed
+
+- **App icon**: Replace broken ZWJ emoji with `dog2` gemoji shortcode (renders on WebKitGTK)
+- **Group**: Renamed from "AI" to "CREATE" with `hammer_and_wrench` icon
+
 ## [0.3.0] - 2026-03-12
 
 ### Added
