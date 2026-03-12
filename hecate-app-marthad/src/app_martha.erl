@@ -77,9 +77,9 @@ manifest() ->
     #{
         name => <<"hecate-app-martha">>,
         display_name => <<"Martha">>,
-        version => <<"0.3.1">>,
+        version => <<"0.3.2">>,
         description => <<"AI-Assisted Application Lifecycle">>,
-        icon => <<"\xF0\x9F\xA7\x91\xE2\x80\x8D\xF0\x9F\x92\xBB"/utf8>>,
+        icon => <<"dog2">>,
         tag => <<"martha-studio">>,
         min_sdk_version => <<"0.1.0">>
     }.

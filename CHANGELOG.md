@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.3.2] - 2026-03-12
+
+### Fixed
+
+- **API routes broken in-VM**: Package tarball was missing `.app` files — `application:load()`
+  failed silently, route discovery returned empty, API returned HTML instead of JSON
+- **Icon in manifest callback**: `app_martha:manifest/0` still had old ZWJ emoji bytes,
+  now returns `<<"dog2">>` matching manifest.json
+
 ## [0.3.1] - 2026-03-12
 
 ### Fixed

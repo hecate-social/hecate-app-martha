@@ -5,7 +5,7 @@ set -euo pipefail
 ##
 ## Output: _build/plugin/hecate-app-martha.tar.gz
 ## Contents:
-##   ebin/           - All compiled .beam files (consolidated from all apps)
+##   ebin/           - All compiled .beam + .app files (consolidated from all apps)
 ##   priv/static/    - Frontend assets (if built)
 ##   manifest.json   - Plugin metadata
 
@@ -48,6 +48,7 @@ for ebin_dir in \
     "$ROOT_DIR/_build/default/lib/hecate_app_marthad/ebin"; do
     if [ -d "$ebin_dir" ]; then
         cp "$ebin_dir"/*.beam "$STAGING_DIR/ebin/" 2>/dev/null || true
+        cp "$ebin_dir"/*.app "$STAGING_DIR/ebin/" 2>/dev/null || true
     fi
 done
 
@@ -55,10 +56,12 @@ for app in "${DOMAIN_APPS[@]}"; do
     ebin_dir="$ROOT_DIR/_build/default/lib/$app/ebin"
     if [ -d "$ebin_dir" ]; then
         cp "$ebin_dir"/*.beam "$STAGING_DIR/ebin/" 2>/dev/null || true
+        cp "$ebin_dir"/*.app "$STAGING_DIR/ebin/" 2>/dev/null || true
     fi
 done
 
 echo "  $(find "$STAGING_DIR/ebin" -name '*.beam' | wc -l) .beam files"
+echo "  $(find "$STAGING_DIR/ebin" -name '*.app' | wc -l) .app files"
 
 ## Copy static assets if they exist
 STATIC_DIR="$ROOT_DIR/priv/static"
