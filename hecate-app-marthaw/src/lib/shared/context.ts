@@ -1,4 +1,4 @@
-import type { ChatMessage, StreamChunk } from '../types.js';
+import type { ChatMessage, StreamChunk, LLMModel } from '../types.js';
 
 /** Base URL for the hecate-daemon custom protocol (LLM lives on daemon, not plugin) */
 const DAEMON_BASE = 'hecate://localhost';
@@ -17,14 +17,23 @@ export interface StudioContext {
 	};
 }
 
-/** Fetch available LLM models from hecate-daemon directly. */
-export async function fetchModels(): Promise<string[]> {
+/** Fetch available LLM models with full metadata from hecate-daemon. */
+export async function fetchModels(): Promise<LLMModel[]> {
 	try {
 		const resp = await fetch(`${DAEMON_BASE}/api/llm/models`);
 		if (!resp.ok) return [];
 		const data = await resp.json();
 		if (data.ok && Array.isArray(data.models)) {
-			return data.models.map((m: { name: string }) => m.name);
+			return data.models.map((m: Record<string, unknown>) => ({
+				name: String(m.name ?? ''),
+				context_length: Number(m.context_length ?? 0),
+				family: String(m.family ?? ''),
+				parameter_size: String(m.parameter_size ?? ''),
+				format: String(m.format ?? 'api'),
+				provider: String(m.provider ?? ''),
+				quantization: m.quantization ? String(m.quantization) : undefined,
+				size_bytes: m.size_bytes ? Number(m.size_bytes) : undefined
+			}));
 		}
 		return [];
 	} catch {

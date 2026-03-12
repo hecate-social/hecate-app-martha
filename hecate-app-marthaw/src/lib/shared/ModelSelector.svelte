@@ -1,12 +1,19 @@
 <script lang="ts">
-	import { availableModels, modelAffinity } from './aiStore.js';
+	import {
+		availableModels,
+		modelAffinity,
+		formatContextLength,
+		topRecommendations,
+		type PhaseCode
+	} from './aiStore.js';
+	import type { LLMModel } from '../types.js';
 
 	interface Props {
 		currentModel: string | null;
 		onSelect: (name: string) => void;
 		showPhaseInfo?: boolean;
 		phasePreference?: string | null;
-		phaseAffinity?: 'code' | 'general';
+		phaseAffinity?: 'code' | 'general' | 'creative';
 		onPinModel?: (name: string) => void;
 		onClearPin?: () => void;
 		phaseName?: string;
@@ -29,33 +36,28 @@
 	let searchEl: HTMLInputElement | undefined = $state();
 	let expandedProviders = $state(new Set<string>());
 
-	const PROVIDER_ORDER = ['Anthropic', 'OpenAI', 'Google', 'Groq', 'Meta', 'Ollama', 'Alibaba', 'Other'];
+	const PROVIDER_ORDER = ['Anthropic', 'OpenAI', 'Google', 'Groq', 'Ollama', 'Other'];
 
-	// Top recommended model per provider (first in list = highest priority)
-	const RECOMMENDED: Record<string, RegExp> = {
-		Anthropic: /^claude-sonnet/,
-		OpenAI: /^gpt-4o$/,
-		Google: /^gemini-2\.5-flash$/,
-		Groq: /^llama-3\.3/,
-		Ollama: /./
-	};
-
-	type ModelGroup = { provider: string; models: string[]; recommended: string | null };
+	type ModelGroup = { provider: string; models: LLMModel[] };
 
 	let groupedModels = $derived.by(() => {
 		const models = $availableModels;
 		const q = searchQuery.toLowerCase();
-		const filtered = q ? models.filter((m) => m.toLowerCase().includes(q)) : models;
+		const filtered = q
+			? models.filter((m) =>
+				m.name.toLowerCase().includes(q) ||
+				m.provider.toLowerCase().includes(q) ||
+				m.family.toLowerCase().includes(q))
+			: models;
 
-		const groups = new Map<string, string[]>();
-		for (const name of filtered) {
-			const provider = guessProvider(name);
+		const groups = new Map<string, LLMModel[]>();
+		for (const m of filtered) {
+			const provider = normalizeProviderName(m.provider);
 			const list = groups.get(provider) ?? [];
-			list.push(name);
+			list.push(m);
 			groups.set(provider, list);
 		}
 
-		// Sort by defined order, then alphabetical for unknowns
 		const result: ModelGroup[] = [];
 		const ordered = [...groups.keys()].sort((a, b) => {
 			const ai = PROVIDER_ORDER.indexOf(a);
@@ -67,34 +69,56 @@
 
 		for (const provider of ordered) {
 			const list = groups.get(provider) ?? [];
-			const pattern = RECOMMENDED[provider];
-			const rec = pattern ? list.find((m) => pattern.test(m)) ?? null : null;
-			result.push({ provider, models: list, recommended: rec });
+			// Sort within provider: larger context first, then alphabetical
+			list.sort((a, b) => b.context_length - a.context_length || a.name.localeCompare(b.name));
+			result.push({ provider, models: list });
 		}
 		return result;
 	});
 
-	// Flat list of recommended models (shown at top)
+	// Smart recommendations based on current phase affinity
 	let recommended = $derived(
-		groupedModels
-			.filter((g) => g.recommended !== null)
-			.map((g) => ({ provider: g.provider, model: g.recommended! }))
+		topRecommendations($availableModels, phaseAffinity as 'code' | 'general' | 'creative', 4)
 	);
 
-	// Total model count for display
-	let totalCount = $derived(groupedModels.reduce((sum, g) => sum + g.models.length, 0));
+	let totalCount = $derived($availableModels.length);
 
-	function guessProvider(name: string): string {
-		if (name.startsWith('claude') || name.startsWith('anthropic')) return 'Anthropic';
-		if (name.startsWith('gemini')) return 'Google';
-		if (name.startsWith('llama') || name.startsWith('meta-llama')) return 'Meta';
-		if (name.startsWith('qwen')) return 'Alibaba';
-		if (name.startsWith('groq/')) return 'Groq';
-		if (name.startsWith('openai/') || name.startsWith('gpt') || name.startsWith('o1') || name.startsWith('o3') || name.startsWith('o4')) return 'OpenAI';
-		if (name.startsWith('allam')) return 'Groq';
-		if (name.startsWith('moonshotai/')) return 'Groq';
-		if (name.includes('/')) return name.split('/')[0];
-		return 'Ollama';
+	// Current model metadata
+	let currentModelInfo = $derived(
+		$availableModels.find((m) => m.name === currentModel) ?? null
+	);
+
+	function normalizeProviderName(provider: string): string {
+		const lower = provider.toLowerCase();
+		if (lower.includes('anthropic')) return 'Anthropic';
+		if (lower.includes('openai')) return 'OpenAI';
+		if (lower.includes('google') || lower.includes('gemini')) return 'Google';
+		if (lower.includes('groq')) return 'Groq';
+		if (lower.includes('ollama')) return 'Ollama';
+		if (!provider) return 'Other';
+		return provider.charAt(0).toUpperCase() + provider.slice(1);
+	}
+
+	function providerIcon(provider: string): string {
+		switch (provider) {
+			case 'Anthropic': return '\u{25C6}';
+			case 'OpenAI': return '\u{25CB}';
+			case 'Google': return '\u{25B3}';
+			case 'Groq': return '\u{26A1}';
+			case 'Ollama': return '\u{2302}';
+			default: return '\u{25CF}';
+		}
+	}
+
+	function modelBadges(m: LLMModel): Array<{ label: string; css: string }> {
+		const badges: Array<{ label: string; css: string }> = [];
+		const ctx = formatContextLength(m.context_length);
+		if (ctx) badges.push({ label: ctx, css: 'text-surface-400 bg-surface-700' });
+		if (m.format !== 'api') badges.push({ label: 'local', css: 'text-emerald-400 bg-emerald-500/10' });
+		if (modelAffinity(m.name) === 'code') badges.push({ label: 'code', css: 'text-hecate-400 bg-hecate-500/10' });
+		if (m.parameter_size && m.parameter_size !== '' && m.parameter_size !== 'unknown')
+			badges.push({ label: m.parameter_size, css: 'text-surface-400 bg-surface-700' });
+		return badges;
 	}
 
 	function handleSelect(name: string) {
@@ -137,7 +161,6 @@
 	$effect(() => {
 		if (isOpen) {
 			document.addEventListener('click', handleClickOutside, true);
-			// Focus search on open
 			requestAnimationFrame(() => searchEl?.focus());
 		} else {
 			document.removeEventListener('click', handleClickOutside, true);
@@ -151,13 +174,16 @@
 	<button
 		onclick={() => (isOpen = !isOpen)}
 		class="text-[10px] px-2 py-0.5 rounded bg-surface-700 text-surface-300
-			hover:bg-surface-600 transition-colors truncate max-w-[200px] flex items-center gap-1"
-		title={currentModel ?? 'No model selected'}
+			hover:bg-surface-600 transition-colors truncate max-w-[220px] flex items-center gap-1"
+		title={currentModel ? `${currentModel}${currentModelInfo ? ` (${currentModelInfo.provider}, ${formatContextLength(currentModelInfo.context_length)} ctx)` : ''}` : 'No model selected'}
 	>
 		{#if currentModel}
 			<span class="truncate">{shortName(currentModel)}</span>
-			{#if modelAffinity(currentModel) === 'code'}
-				<span class="text-[8px] text-hecate-400">{'\u{2022}'}</span>
+			{#if currentModelInfo}
+				{@const ctx = formatContextLength(currentModelInfo.context_length)}
+				{#if ctx}
+					<span class="text-[8px] text-surface-500">{ctx}</span>
+				{/if}
 			{/if}
 		{:else}
 			<span class="text-surface-500">Select model</span>
@@ -170,7 +196,7 @@
 		<!-- svelte-ignore a11y_no_static_element_interactions -->
 		<div
 			onkeydown={handleKeydown}
-			class="absolute top-full left-0 mt-1 w-80 max-h-[420px] overflow-hidden
+			class="absolute top-full left-0 mt-1 w-96 max-h-[460px] overflow-hidden
 				bg-surface-800 border border-surface-600 rounded-lg shadow-xl z-50
 				flex flex-col"
 		>
@@ -193,6 +219,8 @@
 						Phase: <span class="text-surface-200">{phaseName}</span>
 						{#if phaseAffinity === 'code'}
 							<span class="text-hecate-400 ml-1">(code-optimized)</span>
+						{:else if phaseAffinity === 'creative'}
+							<span class="text-orange-400 ml-1">(creative)</span>
 						{/if}
 					</span>
 					{#if phasePreference}
@@ -211,30 +239,39 @@
 			<div class="overflow-y-auto flex-1">
 				{#if groupedModels.length === 0}
 					<div class="p-3 text-center text-[11px] text-surface-500">
-						{$availableModels.length === 0 ? 'No models available' : 'No matching models'}
+						{totalCount === 0 ? 'No models available' : 'No matching models'}
 					</div>
 				{/if}
 
-				<!-- Recommended section (always visible when not searching) -->
+				<!-- Smart recommendations (always visible when not searching) -->
 				{#if !searchQuery && recommended.length > 0}
 					<div class="py-1 border-b border-surface-700">
 						<div class="px-2 py-1 text-[9px] text-hecate-400 uppercase tracking-wider font-medium">
-							Recommended
+							Recommended{phaseAffinity !== 'general' ? ` for ${phaseAffinity}` : ''}
 						</div>
-						{#each recommended as { provider, model }}
-							{@const isSelected = model === currentModel}
+						{#each recommended as { model: rec, tier }}
+							{@const isSelected = rec.name === currentModel}
+							{@const badges = modelBadges(rec)}
 							<!-- svelte-ignore a11y_click_events_have_key_events -->
 							<!-- svelte-ignore a11y_no_static_element_interactions -->
 							<div
-								onclick={() => handleSelect(model)}
+								onclick={() => handleSelect(rec.name)}
 								class="w-full text-left px-2 py-1.5 text-[11px] flex items-center gap-1.5
 									transition-colors cursor-pointer
 									{isSelected
 									? 'bg-hecate-600/20 text-hecate-300'
 									: 'text-surface-200 hover:bg-surface-700'}"
 							>
-								<span class="truncate flex-1">{model}</span>
-								<span class="text-[9px] text-surface-500 shrink-0">{provider}</span>
+								<span class="text-[8px] text-surface-500 w-3 text-center shrink-0">{providerIcon(normalizeProviderName(rec.provider))}</span>
+								<span class="truncate flex-1">{rec.name}</span>
+								{#each badges as badge}
+									<span class="text-[8px] px-1 py-0.5 rounded {badge.css} shrink-0">{badge.label}</span>
+								{/each}
+								<span class="text-[8px] px-1 py-0.5 rounded shrink-0
+									{tier === 'flagship' ? 'text-amber-400 bg-amber-500/10' :
+									 tier === 'balanced' ? 'text-blue-400 bg-blue-500/10' :
+									 tier === 'fast' ? 'text-emerald-400 bg-emerald-500/10' :
+									 'text-surface-400 bg-surface-700'}">{tier}</span>
 								{#if isSelected}
 									<span class="text-[9px] text-hecate-400 shrink-0">{'\u{2713}'}</span>
 								{/if}
@@ -247,45 +284,43 @@
 				{#each groupedModels as group}
 					{@const isExpanded = searchQuery !== '' || expandedProviders.has(group.provider)}
 					<div class="py-0.5">
-						<!-- Provider header (clickable to expand/collapse) -->
+						<!-- Provider header -->
 						<!-- svelte-ignore a11y_click_events_have_key_events -->
 						<!-- svelte-ignore a11y_no_static_element_interactions -->
 						<div
 							onclick={() => !searchQuery && toggleProvider(group.provider)}
-							class="px-2 py-1 text-[9px] uppercase tracking-wider font-medium flex items-center gap-1
+							class="px-2 py-1 text-[9px] uppercase tracking-wider font-medium flex items-center gap-1.5
 								{searchQuery ? 'text-surface-500' : 'text-surface-500 hover:text-surface-300 cursor-pointer'}"
 						>
 							{#if !searchQuery}
 								<span class="text-[8px] w-3 text-center">{isExpanded ? '\u{25BC}' : '\u{25B6}'}</span>
 							{/if}
+							<span class="text-[9px]">{providerIcon(group.provider)}</span>
 							<span>{group.provider}</span>
 							<span class="text-surface-600 font-normal">({group.models.length})</span>
 						</div>
 
-						<!-- Models (visible when expanded or searching) -->
+						<!-- Models -->
 						{#if isExpanded}
-							{#each group.models as name}
-								{@const isSelected = name === currentModel}
-								{@const isPinned = name === phasePreference}
-								{@const isRec = name === group.recommended && !searchQuery}
+							{#each group.models as m}
+								{@const isSelected = m.name === currentModel}
+								{@const isPinned = m.name === phasePreference}
+								{@const badges = modelBadges(m)}
 								<!-- svelte-ignore a11y_click_events_have_key_events -->
 								<!-- svelte-ignore a11y_no_static_element_interactions -->
 								<div
-									onclick={() => handleSelect(name)}
+									onclick={() => handleSelect(m.name)}
 									class="w-full text-left px-2 py-1.5 text-[11px] flex items-center gap-1.5
 										transition-colors cursor-pointer
-										{searchQuery ? 'pl-2' : 'pl-6'}
+										{searchQuery ? 'pl-2' : 'pl-7'}
 										{isSelected
 										? 'bg-hecate-600/20 text-hecate-300'
 										: 'text-surface-200 hover:bg-surface-700'}"
 								>
-									<span class="truncate flex-1">{name}</span>
-									{#if isRec}
-										<span class="text-[8px] text-hecate-500 shrink-0">{'\u{2605}'}</span>
-									{/if}
-									{#if modelAffinity(name) === 'code'}
-										<span class="text-[8px] text-hecate-400 shrink-0" title="Code model">{'\u{2022}'} code</span>
-									{/if}
+									<span class="truncate flex-1">{m.name}</span>
+									{#each badges as badge}
+										<span class="text-[8px] px-1 py-0.5 rounded {badge.css} shrink-0">{badge.label}</span>
+									{/each}
 									{#if isPinned}
 										<span class="text-[8px] text-hecate-400 shrink-0" title="Pinned for this phase">{'\u{1F4CC}'}</span>
 									{/if}
@@ -294,7 +329,7 @@
 									{/if}
 									{#if showPhaseInfo && onPinModel && !isPinned}
 										<button
-											onclick={(e: MouseEvent) => { e.stopPropagation(); onPinModel?.(name); }}
+											onclick={(e: MouseEvent) => { e.stopPropagation(); onPinModel?.(m.name); }}
 											class="text-[8px] text-surface-600 hover:text-hecate-400 shrink-0"
 											title="Pin for {phaseName} phase"
 										>

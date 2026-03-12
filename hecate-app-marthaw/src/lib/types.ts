@@ -228,6 +228,18 @@ export interface DeskCard {
 	events: DeskCardEvent[];
 }
 
+/** LLM model metadata (from daemon /api/llm/models) */
+export interface LLMModel {
+	name: string;
+	context_length: number;
+	family: string;
+	parameter_size: string;
+	format: string;
+	provider: string;
+	quantization?: string;
+	size_bytes?: number;
+}
+
 /** LLM chat types */
 export interface ChatMessage {
 	role: 'system' | 'user' | 'assistant';
