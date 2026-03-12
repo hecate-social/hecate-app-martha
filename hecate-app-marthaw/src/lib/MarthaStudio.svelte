@@ -170,7 +170,7 @@
 			<div class="border-b border-surface-600 bg-surface-800/50 px-4 py-3 shrink-0">
 				<div class="flex items-center gap-3">
 					<span class="text-hecate-400 text-lg">{'\u{25C6}'}</span>
-					<h1 class="text-sm font-semibold text-surface-100">Martha Studio</h1>
+					<h1 class="text-sm font-semibold text-surface-100">Ventures</h1>
 
 					<!-- Connection status -->
 					<div class="flex items-center gap-1.5 text-[10px]">

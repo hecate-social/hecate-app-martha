@@ -53,7 +53,7 @@ export async function fetchVentures(): Promise<void> {
 export async function fetchActiveVenture(): Promise<void> {
 	try {
 		const api = getApi();
-		const resp = await api.get<{ venture: Venture }>('/ventures/active');
+		const resp = await api.get<{ venture: Venture }>('/venture');
 		activeVenture.set(resp.venture);
 	} catch {
 		activeVenture.set(null);
@@ -76,9 +76,23 @@ export async function initiateVenture(name: string, brief: string): Promise<bool
 	try {
 		isLoading.set(true);
 		const api = getApi();
-		await api.post('/ventures/initiate', { name, brief, initiated_by: 'hecate-web' });
-		await fetchVentures();
-		await fetchActiveVenture();
+		const resp = await api.post<{ venture_id: string; name: string; brief: string; status: number; status_label: string; initiated_at: number; initiated_by: string }>('/ventures/initiate', { name, brief, initiated_by: 'hecate-web' });
+		// Optimistically add the new venture to the store from the API response,
+		// avoiding the race condition where the projection hasn't processed the event yet.
+		const newVenture: Venture = {
+			venture_id: resp.venture_id,
+			name: resp.name,
+			vision: '',
+			brief: resp.brief || '',
+			status: resp.status,
+			status_label: resp.status_label,
+			phase: 'initiated',
+			initiated_at: resp.initiated_at,
+			created_at: String(resp.initiated_at),
+			updated_at: String(resp.initiated_at)
+		};
+		ventures.update((v) => [...v, newVenture]);
+		activeVenture.set(newVenture);
 		return true;
 	} catch (e: unknown) {
 		const err = e as { message?: string };
