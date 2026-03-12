@@ -1,14 +1,11 @@
 %%% @doc Hecate Martha daemon application.
 %%%
-%%% Standalone mode startup:
-%%% 1. Ensures the namespace directory layout exists
-%%% 2. Starts ReckonDB infrastructure and martha_store
-%%% 3. Starts Cowboy on a Unix domain socket
-%%% 4. Starts domain supervisors via app_martha_sup
+%%% In in-VM mode, app_martha:init/1 is the entry point called by
+%%% hecate_plugin_loader. This application start is a no-op.
 %%%
-%%% In-VM mode: hecate_plugin_loader calls app_martha:init/1 instead.
-%%% The store is created by the loader, and routes are mounted by the
-%%% daemon's cowboy instance.
+%%% In standalone mode, start/2 bootstraps stores, Cowboy, and the
+%%% supervision tree. Standalone is detected by the absence of the
+%%% app_martha_config persistent_term (set by plugin loader).
 %%% @end
 -module(hecate_app_marthad_app).
 -behaviour(application).
@@ -18,24 +15,40 @@
 -export([start/2, stop/1]).
 
 %% reckon_db is excluded from dialyzer PLT (no debug_info in hex dep beams).
--dialyzer({nowarn_function, [start_martha_store/0, start_orchestration_store/0]}).
+-dialyzer({nowarn_function, [start_standalone/0, start_martha_store/0, start_orchestration_store/0]}).
 
 start(_StartType, _StartArgs) ->
+    case persistent_term:get(app_martha_config, undefined) of
+        #{} ->
+            %% In-VM mode: plugin loader handles stores, routes, and cowboy.
+            %% app_martha:init/1 already started app_martha_sup.
+            logger:info("[hecate_app_marthad] Application started (in-VM mode)"),
+            {ok, self()};
+        _ ->
+            start_standalone()
+    end.
+
+stop(_State) ->
+    case persistent_term:get(app_martha_config, undefined) of
+        #{} ->
+            ok;
+        _ ->
+            ok = cowboy:stop_listener(app_marthad_http),
+            cleanup_socket(),
+            ok
+    end.
+
+%%% Internal
+
+start_standalone() ->
     ok = app_marthad_paths:ensure_layout(),
     ok = ensure_pg_scope(),
     ok = start_martha_store(),
     ok = start_orchestration_store(),
     ok = start_cowboy(),
-    logger:info("[hecate_app_marthad] Started, socket at ~s",
+    logger:info("[hecate_app_marthad] Started standalone, socket at ~s",
                 [app_marthad_paths:socket_path("api.sock")]),
     app_martha_sup:start_link().
-
-stop(_State) ->
-    ok = cowboy:stop_listener(app_marthad_http),
-    cleanup_socket(),
-    ok.
-
-%%% Internal
 
 ensure_pg_scope() ->
     case pg:start_link(hecate_app_marthad) of
