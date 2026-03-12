@@ -168,6 +168,8 @@ export const VL_DISCOVERY_COMPLETED = 32;
 export const VL_ARCHIVED = 64;
 export const VL_STORMING = 128;
 export const VL_STORM_SHELVED = 256;
+export const VL_PREPARING = 512;
+export const VL_PREPARATION_DONE = 1024;
 
 export type PhaseCode = 'storming' | 'planning' | 'kanban' | 'crafting';
 

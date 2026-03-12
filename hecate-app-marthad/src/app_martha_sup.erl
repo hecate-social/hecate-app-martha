@@ -1,6 +1,6 @@
 %%% @doc Top-level supervisor for the Martha in-VM plugin.
 %%%
-%%% Supervises all 18 domain application supervisors across 6 processes.
+%%% Supervises domain application supervisors.
 %%% @end
 -module(app_martha_sup).
 -behaviour(supervisor).
@@ -18,33 +18,25 @@ init([]) ->
         child(project_ventures_sup),
         child(query_ventures_sup),
 
-        %% Division Planning (CMD + PRJ + QRY)
-        child(guide_division_planning_sup),
-        child(project_division_plannings_sup),
-        child(query_division_plannings_sup),
-
-        %% Division Storming (CMD + PRJ + QRY)
-        child(guide_division_storming_sup),
-        child(project_division_stormings_sup),
-        child(query_division_stormings_sup),
-
-        %% Kanban Lifecycle (CMD + PRJ + QRY)
-        child(guide_kanban_lifecycle_sup),
-        child(project_division_kanbans_sup),
-        child(query_division_kanbans_sup),
-
-        %% Division Crafting (CMD + PRJ + QRY)
-        child(guide_division_crafting_sup),
-        child(project_division_craftings_sup),
-        child(query_division_craftings_sup),
+        %% Division lifecycle (CMD + PRJ + QRY) — unified from 12 apps
+        child(guide_division_lifecycle_sup),
+        child(project_divisions_sup),
+        child(query_divisions_sup),
 
         %% Agent Orchestration (CMD + PRJ + QRY)
         child(orchestrate_agents_sup),
         child(project_agent_sessions_sup),
-        child(query_agent_sessions_sup)
+        child(query_agent_sessions_sup),
+
+        %% Web SSE event bridge (subscribes to $all, forwards to SSE clients)
+        worker(app_marthad_event_bridge)
     ],
     {ok, {SupFlags, Children}}.
 
 child(Mod) ->
     #{id => Mod, start => {Mod, start_link, []},
       restart => permanent, type => supervisor}.
+
+worker(Mod) ->
+    #{id => Mod, start => {Mod, start_link, []},
+      restart => permanent, type => worker}.

@@ -1,0 +1,11 @@
+{application, query_divisions, [
+    {description, "Unified division queries (ETS read model access)"},
+    {vsn, "0.1.0"},
+    {registered, []},
+    {mod, {query_divisions_app, []}},
+    {applications, [kernel, stdlib, project_divisions]},
+    {env, []},
+    {modules, []},
+    {licenses, ["Apache-2.0"]},
+    {links, [{"GitHub", "https://github.com/hecate-apps/hecate-app-martha"}]}
+]}.

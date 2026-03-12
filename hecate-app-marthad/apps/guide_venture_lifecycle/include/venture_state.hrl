@@ -21,6 +21,11 @@
     discovery_paused_at    :: non_neg_integer() | undefined,
     discovery_completed_at :: non_neg_integer() | undefined,
     discovery_pause_reason :: binary() | undefined,
+    %% Knowledge Preparation (post-vision, pre-storm)
+    research_topics = []       :: [binary()],
+    research_briefs = #{}      :: #{binary() => map()},
+    preparation_started_at     :: non_neg_integer() | undefined,
+    preparation_completed_at   :: non_neg_integer() | undefined,
     %% Big Picture Event Storming
     storm_number = 0           :: non_neg_integer(),
     storm_phase = undefined    :: atom(),

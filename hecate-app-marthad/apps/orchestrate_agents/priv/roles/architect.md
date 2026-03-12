@@ -6,6 +6,8 @@ phase: storming->planning
 context:
   - philosophy/CARTWHEEL.md
   - philosophy/HECATE_VENTURE_LIFECYCLE.md
+  - philosophy/SCREAMING_ARCHITECTURE.md
+  - philosophy/PROCESS_MANAGERS.md
   - skills/NAMING_CONVENTIONS.md
   - skills/codegen/erlang/EVOQ_BEHAVIOURS.md
   - examples/BIT_FLAGS_STATUS.md
@@ -65,6 +67,14 @@ Given the Stormer's EventStorm output for a division, produce:
 ├── {event}_v1_to_pg (emitter)
 ├── {event}_v1_to_pg (emitter)
 └── on_{event}_{action} (PM)
+
+## Directory Layout (Screaming Architecture)
+
+src/
+├── {aggregate}.erl
+├── {verb}_{subject}/          ← desk (command + event + handler + emitter)
+├── on_{event}_{action}/       ← PM directory at src/ level — SCREAMS integration points
+└── {app}_sup.erl
 ```
 
 ## Completion

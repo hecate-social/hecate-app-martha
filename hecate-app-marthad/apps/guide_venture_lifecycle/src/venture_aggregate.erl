@@ -7,8 +7,9 @@
 %%% Lifecycle:
 %%%   1. initiate_venture (birth event)
 %%%   2. refine_vision / submit_vision (inception phase)
-%%%   3. start_discovery / identify_division / pause/resume/complete_discovery
-%%%   4. archive_venture (walking skeleton)
+%%%   3. prepare_venture_knowledge / contribute_research_brief / complete_venture_preparation
+%%%   4. start_discovery / identify_division / pause/resume/complete_discovery
+%%%   5. archive_venture (walking skeleton)
 %%% @end
 -module(venture_aggregate).
 
@@ -58,6 +59,9 @@ execute(#venture_state{status = S} = State, Payload) when S band ?VL_INITIATED =
     case get_command_type(Payload) of
         <<"refine_vision">>      -> execute_refine_vision(Payload, State);
         <<"submit_vision">>      -> execute_submit_vision(Payload, State);
+        <<"prepare_venture_knowledge">>    -> execute_prepare_knowledge(Payload, State);
+        <<"contribute_research_brief">>    -> execute_contribute_brief(Payload, State);
+        <<"complete_venture_preparation">> -> execute_complete_preparation(Payload, State);
         <<"start_discovery">>    -> execute_start_discovery(Payload, State);
         <<"identify_division">>  -> execute_identify_division(Payload, State);
         <<"pause_discovery">>    -> execute_pause_discovery(Payload, State);
@@ -107,6 +111,35 @@ execute_submit_vision(Payload, #venture_state{status = S}) ->
             convert_events(maybe_submit_vision:handle(Cmd), fun vision_submitted_v1:to_map/1);
         _ ->
             {error, vision_already_submitted}
+    end.
+
+execute_prepare_knowledge(Payload, #venture_state{status = S}) ->
+    case {S band ?VL_SUBMITTED, S band ?VL_PREPARING, S band ?VL_PREPARATION_DONE} of
+        {0, _, _} -> {error, vision_not_submitted};
+        {_, V, _} when V =/= 0 -> {error, preparation_already_started};
+        {_, _, V} when V =/= 0 -> {error, preparation_already_completed};
+        _ ->
+            {ok, Cmd} = prepare_venture_knowledge_v1:from_map(Payload),
+            convert_events(maybe_prepare_venture_knowledge:handle(Cmd),
+                fun venture_knowledge_preparation_started_v1:to_map/1)
+    end.
+
+execute_contribute_brief(Payload, #venture_state{status = S}) ->
+    case S band ?VL_PREPARING of
+        0 -> {error, preparation_not_active};
+        _ ->
+            {ok, Cmd} = contribute_research_brief_v1:from_map(Payload),
+            convert_events(maybe_contribute_research_brief:handle(Cmd),
+                fun research_brief_contributed_v1:to_map/1)
+    end.
+
+execute_complete_preparation(Payload, #venture_state{status = S}) ->
+    case S band ?VL_PREPARING of
+        0 -> {error, preparation_not_active};
+        _ ->
+            {ok, Cmd} = complete_venture_preparation_v1:from_map(Payload),
+            convert_events(maybe_complete_venture_preparation:handle(Cmd),
+                fun venture_preparation_completed_v1:to_map/1)
     end.
 
 execute_start_discovery(Payload, #venture_state{status = S}) ->
@@ -312,6 +345,15 @@ apply_event(#{<<"event_type">> := <<"vision_refined_v1">>} = E, S)   -> apply_vi
 apply_event(#{event_type := <<"vision_refined_v1">>} = E, S)         -> apply_vision_refined(E, S);
 apply_event(#{<<"event_type">> := <<"vision_submitted_v1">>} = E, S) -> apply_vision_submitted(E, S);
 apply_event(#{event_type := <<"vision_submitted_v1">>} = E, S)       -> apply_vision_submitted(E, S);
+
+%% Knowledge preparation events
+apply_event(#{<<"event_type">> := <<"venture_knowledge_preparation_started_v1">>} = E, S) -> apply_preparation_started(E, S);
+apply_event(#{event_type := <<"venture_knowledge_preparation_started_v1">>} = E, S)       -> apply_preparation_started(E, S);
+apply_event(#{<<"event_type">> := <<"research_brief_contributed_v1">>} = E, S)             -> apply_brief_contributed(E, S);
+apply_event(#{event_type := <<"research_brief_contributed_v1">>} = E, S)                   -> apply_brief_contributed(E, S);
+apply_event(#{<<"event_type">> := <<"venture_preparation_completed_v1">>} = E, S)          -> apply_preparation_completed(E, S);
+apply_event(#{event_type := <<"venture_preparation_completed_v1">>} = E, S)                -> apply_preparation_completed(E, S);
+
 apply_event(#{<<"event_type">> := <<"venture_repo_scaffolded_v1">>} = E, S) -> apply_repo_scaffolded(E, S);
 apply_event(#{event_type := <<"venture_repo_scaffolded_v1">>} = E, S)       -> apply_repo_scaffolded(E, S);
 
@@ -402,6 +444,32 @@ apply_vision_refined(E, #venture_state{status = Status} = State) ->
 
 apply_vision_submitted(_E, #venture_state{status = Status} = State) ->
     State#venture_state{status = evoq_bit_flags:set(Status, ?VL_SUBMITTED)}.
+
+apply_preparation_started(E, #venture_state{status = Status} = State) ->
+    Topics = get_value(research_topics, E, []),
+    State#venture_state{
+        status = evoq_bit_flags:set(Status, ?VL_PREPARING),
+        research_topics = Topics,
+        research_briefs = #{},
+        preparation_started_at = get_value(started_at, E)
+    }.
+
+apply_brief_contributed(E, #venture_state{research_briefs = Briefs} = State) ->
+    Topic = get_value(topic, E),
+    Brief = #{
+        brief => get_value(brief, E),
+        agent_role => get_value(agent_role, E),
+        contributed_at => get_value(contributed_at, E)
+    },
+    State#venture_state{research_briefs = Briefs#{Topic => Brief}}.
+
+apply_preparation_completed(E, #venture_state{status = Status} = State) ->
+    S0 = evoq_bit_flags:unset(Status, ?VL_PREPARING),
+    S1 = evoq_bit_flags:set(S0, ?VL_PREPARATION_DONE),
+    State#venture_state{
+        status = S1,
+        preparation_completed_at = get_value(completed_at, E)
+    }.
 
 apply_repo_scaffolded(E, #venture_state{status = Status} = State) ->
     S0 = evoq_bit_flags:set(Status, ?VL_VISION_REFINED),

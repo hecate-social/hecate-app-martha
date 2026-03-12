@@ -28,11 +28,15 @@
 		showEventStream,
 		bigPicturePhase
 	} from './storm_venture_big_picture/storm_venture_big_picture.js';
+	import { pendingGates, hasPendingGates } from './agent_orchestration/agent_orchestration.js';
+
+	// --- SSE + Activity ---
+	import { connectSSE, disconnectSSE, sseStatus } from './shared/sseStore.js';
+	import { initActivityListener, unreadCount } from './shared/activityStore.js';
 
 	// --- Vertical slice components ---
 	import VentureHeader from './guide_venture/VentureHeader.svelte';
 	import VentureSummary from './guide_venture/VentureSummary.svelte';
-	import DivisionNav from './guide_venture/DivisionNav.svelte';
 	import VisionOracle from './compose_vision/VisionOracle.svelte';
 	import StormVentureBigPicture from './storm_venture_big_picture/StormVentureBigPicture.svelte';
 	import StormDivision from './storm_division/StormDivision.svelte';
@@ -45,7 +49,13 @@
 	import AIAssistPanel from './shared/AIAssistPanel.svelte';
 	import ModelSelector from './shared/ModelSelector.svelte';
 
-	// --- Plugin infrastructure (preserved) ---
+	// --- Three-zone layout components ---
+	import NerveCenter from './nerve_center/NerveCenter.svelte';
+	import ActivityRail from './activity_rail/ActivityRail.svelte';
+	import GateInbox from './gate_inbox/GateInbox.svelte';
+	import VentureOverview from './venture_overview/VentureOverview.svelte';
+
+	// --- Plugin infrastructure ---
 	let { api }: { api: PluginApi } = $props();
 
 	let health: HealthData | null = $state(null);
@@ -59,6 +69,10 @@
 	let showNewVentureForm = $state(false);
 	let showArchived = $state(false);
 	let showAgentPipeline = $state(false);
+	let showGateInbox = $state(false);
+
+	// --- SSE cleanup ---
+	let cleanupActivity: (() => void) | undefined;
 
 	// --- Phase grouping for Venture Browser ---
 	type PhaseGroup = { label: string; ventures: Venture[] };
@@ -93,7 +107,6 @@
 			} else if (v.phase === 'discovery_completed' || v.phase === 'designing' || v.phase === 'planning' || v.phase === 'crafting' || v.phase === 'deploying') {
 				building.push(v);
 			} else {
-				// Default: setup
 				setup.push(v);
 			}
 		}
@@ -102,12 +115,10 @@
 		if (setup.length > 0) groups.push({ label: 'Setup', ventures: setup });
 		if (discovery.length > 0) groups.push({ label: 'Discovery', ventures: discovery });
 		if (building.length > 0) groups.push({ label: 'Building', ventures: building });
-		// Archived always last, collapsed by default
 		if (archived.length > 0) groups.push({ label: 'Archived', ventures: archived });
 		return groups;
 	}
 
-	// --- Recently updated (top 5) ---
 	function recentVentures(allVentures: Venture[]): Venture[] {
 		return allVentures
 			.filter((v) => !hasFlag(v.status, VL_ARCHIVED))
@@ -131,13 +142,18 @@
 		pollTimer = setInterval(fetchHealth, 5000);
 		fetchActiveVenture();
 		fetchVentures();
-		// Load LLM models from hecate-daemon
 		const models = await fetchModels();
 		availableModels.set(models);
+
+		// Start SSE connection + activity listener
+		connectSSE();
+		cleanupActivity = initActivityListener();
 	});
 
 	onDestroy(() => {
 		if (pollTimer) clearInterval(pollTimer);
+		disconnectSSE();
+		if (cleanupActivity) cleanupActivity();
 	});
 
 	async function handleInitiate() {
@@ -164,7 +180,7 @@
 			</div>
 		</div>
 	{:else if !$activeVenture}
-		<!-- State 2: Venture Browser -->
+		<!-- State 2: Venture Browser (no three-zone layout here) -->
 		<div class="flex flex-col h-full overflow-hidden">
 			<!-- Browser header -->
 			<div class="border-b border-surface-600 bg-surface-800/50 px-4 py-3 shrink-0">
@@ -343,7 +359,6 @@
 					{@const groups = groupVenturesByPhase($ventures, browserSearch)}
 					{#each groups as group}
 						{#if group.label === 'Archived'}
-							<!-- Archived: collapsed by default -->
 							<div>
 								<button
 									onclick={() => (showArchived = !showArchived)}
@@ -410,7 +425,6 @@
 						{/if}
 					{/each}
 
-					<!-- No results for search -->
 					{#if groups.length === 0 && browserSearch.trim()}
 						<div class="text-center py-12 text-surface-400 text-sm">
 							No ventures matching "{browserSearch}"
@@ -427,13 +441,39 @@
 			</div>
 		{/if}
 	{:else}
-		<!-- State 3: Active venture -->
+		<!-- State 3: Active venture — THREE-ZONE LAYOUT -->
+
+		<!-- ZONE 1: Venture Bar (top) -->
 		<VentureHeader />
 
-		<!-- Connection status + agents toggle -->
+		<!-- Gate badge + agents toggle + connection in the venture bar area -->
 		<div class="absolute top-2 right-2 flex items-center gap-2 text-[10px] z-10">
+			<!-- Gate badge (opens Gate Inbox) -->
+			{#if $hasPendingGates}
+				<button
+					onclick={() => { showGateInbox = true; showAgentPipeline = false; }}
+					class="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300
+						border border-amber-500/30 animate-pulse hover:bg-amber-500/30 transition-colors"
+				>
+					{$pendingGates.length} gate{$pendingGates.length !== 1 ? 's' : ''}
+				</button>
+			{/if}
+
+			<!-- Gates toggle -->
 			<button
-				onclick={() => (showAgentPipeline = !showAgentPipeline)}
+				onclick={() => { showGateInbox = !showGateInbox; if (showGateInbox) showAgentPipeline = false; }}
+				class="px-2 py-0.5 rounded transition-colors
+					{showGateInbox
+					? 'bg-amber-500/20 text-amber-300'
+					: 'text-surface-400 hover:text-surface-200 hover:bg-surface-700'}"
+				title="Gate Inbox"
+			>
+				Gates
+			</button>
+
+			<!-- Agents toggle -->
+			<button
+				onclick={() => { showAgentPipeline = !showAgentPipeline; if (showAgentPipeline) showGateInbox = false; }}
 				class="px-2 py-0.5 rounded transition-colors
 					{showAgentPipeline
 					? 'bg-hecate-600/20 text-hecate-300'
@@ -442,6 +482,8 @@
 			>
 				Agents
 			</button>
+
+			<!-- Connection status -->
 			<span class="flex items-center gap-1.5">
 				<span
 					class="inline-block w-1.5 h-1.5 rounded-full {connectionStatus === 'connected'
@@ -458,68 +500,80 @@
 			</span>
 		</div>
 
+		<!-- ZONES 2+3: Nerve Center + Workspace + Activity Rail -->
 		<div class="flex flex-1 overflow-hidden relative">
-			<!-- Left: Division nav -->
-			{#if $divisions.length > 0}
-				<DivisionNav />
+			<!-- ZONE 2: Nerve Center (left panel) -->
+			{#if $divisions.length > 0 || $pendingGates.length > 0}
+				<NerveCenter
+					onSelectAgent={(role) => { showAgentPipeline = true; showGateInbox = false; }}
+					onSelectGate={(sessionId) => { showGateInbox = true; showAgentPipeline = false; }}
+				/>
 			{/if}
 
-			<!-- Main: Phase content or Agent Pipeline -->
+			<!-- WORKSPACE (main area) + ACTIVITY RAIL (bottom) -->
 			<div class="flex-1 flex flex-col overflow-hidden">
-				{#if showAgentPipeline}
-					<AgentPipeline />
-				{:else if $selectedDivision}
-					<PhaseProgress />
+				<!-- Workspace -->
+				<div class="flex-1 flex flex-col overflow-hidden">
+					{#if showGateInbox}
+						<GateInbox />
+					{:else if showAgentPipeline}
+						<AgentPipeline />
+					{:else if $selectedDivision}
+						<PhaseProgress />
 
-					<div class="flex-1 overflow-y-auto">
-						{#if $selectedPhase === 'storming'}
-							<StormDivision />
-						{:else if $selectedPhase === 'planning'}
-							<PlanDivision />
-						{:else if $selectedPhase === 'kanban'}
-							<KanbanDivision />
-						{:else if $selectedPhase === 'crafting'}
-							<CraftDivision />
+						<div class="flex-1 overflow-y-auto">
+							{#if $selectedPhase === 'storming'}
+								<StormDivision />
+							{:else if $selectedPhase === 'planning'}
+								<PlanDivision />
+							{:else if $selectedPhase === 'kanban'}
+								<KanbanDivision />
+							{:else if $selectedPhase === 'crafting'}
+								<CraftDivision />
+							{/if}
+						</div>
+					{:else if $divisions.length === 0}
+						<!-- No divisions: venture step navigation -->
+						{#if $ventureStep === 'discovering' || $bigPicturePhase !== 'ready'}
+							<div class="flex h-full">
+								<div class="flex-1 overflow-hidden">
+									<StormVentureBigPicture />
+								</div>
+								{#if $showEventStream}
+									<div class="w-80 border-l border-surface-600 overflow-hidden shrink-0">
+										<EventStreamViewer />
+									</div>
+								{/if}
+							</div>
+						{:else if $ventureStep === 'initiated' || $ventureStep === 'vision_refined'}
+							<VisionOracle />
+						{:else if $ventureStep === 'vision_submitted'}
+							<VentureSummary nextAction="discovery" />
+						{:else if $ventureStep === 'discovery_paused'}
+							<div class="flex h-full">
+								<div class="flex-1 overflow-hidden">
+									<StormVentureBigPicture />
+								</div>
+								{#if $showEventStream}
+									<div class="w-80 border-l border-surface-600 overflow-hidden shrink-0">
+										<EventStreamViewer />
+									</div>
+								{/if}
+							</div>
+						{:else if $ventureStep === 'discovery_completed'}
+							<VentureSummary nextAction="identify" />
+						{:else}
+							<VentureSummary nextAction="discovery" />
 						{/if}
-					</div>
-				{:else if $divisions.length === 0}
-					<!-- No divisions: venture step navigation -->
-					{#if $ventureStep === 'discovering' || $bigPicturePhase !== 'ready'}
-						<div class="flex h-full">
-							<div class="flex-1 overflow-hidden">
-								<StormVentureBigPicture />
-							</div>
-							{#if $showEventStream}
-								<div class="w-80 border-l border-surface-600 overflow-hidden shrink-0">
-									<EventStreamViewer />
-								</div>
-							{/if}
-						</div>
-					{:else if $ventureStep === 'initiated' || $ventureStep === 'vision_refined'}
-						<VisionOracle />
-					{:else if $ventureStep === 'vision_submitted'}
-						<VentureSummary nextAction="discovery" />
-					{:else if $ventureStep === 'discovery_paused'}
-						<div class="flex h-full">
-							<div class="flex-1 overflow-hidden">
-								<StormVentureBigPicture />
-							</div>
-							{#if $showEventStream}
-								<div class="w-80 border-l border-surface-600 overflow-hidden shrink-0">
-									<EventStreamViewer />
-								</div>
-							{/if}
-						</div>
-					{:else if $ventureStep === 'discovery_completed'}
-						<VentureSummary nextAction="identify" />
 					{:else}
-						<VentureSummary nextAction="discovery" />
+						<VentureOverview
+							onSelectDivision={(divId) => { showGateInbox = false; showAgentPipeline = false; }}
+						/>
 					{/if}
-				{:else}
-					<div class="flex items-center justify-center h-full text-surface-400 text-sm">
-						Select a division from the sidebar
-					</div>
-				{/if}
+				</div>
+
+				<!-- ZONE 3: Activity Rail (bottom) -->
+				<ActivityRail />
 			</div>
 
 			<!-- Right: AI Assist panel -->

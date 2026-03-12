@@ -8,6 +8,8 @@ context:
   - philosophy/DDD.md
   - philosophy/CARTWHEEL.md
   - philosophy/VERTICAL_SLICING.md
+  - philosophy/SCREAMING_ARCHITECTURE.md
+  - philosophy/PROCESS_MANAGERS.md
   - skills/NAMING_CONVENTIONS.md
   - roles/NOTATION.md
 ---
@@ -61,6 +63,8 @@ For a given division (bounded context), produce:
 
 ## Process Managers
 - `on_{event}_{verb}_{subject}` — reacts to {event}, dispatches {command}
+- Each PM gets its own `on_*` directory at `src/` level — they SCREAM integration points when browsing the filesystem
+- Even simple 1:1 relays use this pattern for discoverability
 ```
 
 ## Completion

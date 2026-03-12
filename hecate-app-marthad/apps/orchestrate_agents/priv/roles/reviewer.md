@@ -43,6 +43,7 @@ Review the complete output of a division's crafting phase:
 - Bit flags must be powers of 2. Flag any non-power-of-2 status values.
 - Walking skeleton: every aggregate must have `initiate` + `archive` desks.
 - Process managers must not read from read models. Flag any PM that does.
+- Process manager `on_*` directories must be at `src/` level — not buried inside desk directories. Flag any PM nested inside a desk. The `on_*` prefix screams integration points at the filesystem level.
 
 ## Output Format
 

@@ -17,6 +17,8 @@
 -define(VL_ARCHIVED,           64).   %% 2^6
 -define(VL_STORMING,          128).   %% 2^7
 -define(VL_STORM_SHELVED,     256).   %% 2^8
+-define(VL_PREPARING,         512).   %% 2^9
+-define(VL_PREPARATION_DONE, 1024).   %% 2^10
 
 -define(VL_FLAG_MAP, #{
     ?VL_INITIATED           => <<"Initiated">>,
@@ -27,7 +29,9 @@
     ?VL_DISCOVERY_COMPLETED => <<"Discovery Completed">>,
     ?VL_ARCHIVED            => <<"Archived">>,
     ?VL_STORMING            => <<"Storming">>,
-    ?VL_STORM_SHELVED       => <<"Storm Shelved">>
+    ?VL_STORM_SHELVED       => <<"Storm Shelved">>,
+    ?VL_PREPARING           => <<"Preparing Knowledge">>,
+    ?VL_PREPARATION_DONE    => <<"Preparation Done">>
 }).
 
 -endif.

@@ -39,6 +39,11 @@ init([]) ->
           start => {venture_archived_v1_to_pg, start_link, []},
           restart => permanent, type => worker},
 
+        %% Knowledge preparation
+        #{id => venture_knowledge_preparation_started_v1_to_pg,
+          start => {venture_knowledge_preparation_started_v1_to_pg, start_link, []},
+          restart => permanent, type => worker},
+
         %% Scaffold
         #{id => venture_repo_scaffolded_v1_to_pg,
           start => {venture_repo_scaffolded_v1_to_pg, start_link, []},

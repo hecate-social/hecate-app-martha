@@ -4,6 +4,7 @@ name: Erlang Coder
 tier: T2
 phase: crafting
 context:
+  - philosophy/PROCESS_MANAGERS.md
   - skills/codegen/erlang/CODEGEN_ERLANG_TEMPLATES.md
   - skills/codegen/erlang/CODEGEN_ERLANG_NAMING.md
   - skills/codegen/erlang/CODEGEN_ERLANG_CHECKLISTS.md
@@ -32,6 +33,7 @@ Generate complete, compilable Erlang files for:
 - Handler naming: `maybe_{verb}_{subject}`.
 - Event naming: `{subject}_{verb_past}_v1`.
 - No horizontal layers. Each desk gets its own directory.
+- Process manager modules go in their own `on_*` directory at `src/` level — never nested inside a desk directory. This makes integration points scream when browsing the filesystem.
 - `-include_lib` for cross-app headers, `-include` for same-app headers.
 
 ## Output Format
