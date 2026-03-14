@@ -1,0 +1,18 @@
+{application, guide_retry_strategy, [
+    {description, "Adaptive retry strategy for agent sessions"},
+    {vsn, "0.1.0"},
+    {registered, [guide_retry_strategy_sup]},
+    {mod, {guide_retry_strategy_app, []}},
+    {applications, [
+        kernel,
+        stdlib,
+        crypto,
+        reckon_db,
+        evoq,
+        reckon_evoq
+    ]},
+    {env, []},
+    {modules, []},
+    {licenses, ["Apache-2.0"]},
+    {links, [{"GitHub", "https://github.com/hecate-social/hecate-daemon"}]}
+]}.

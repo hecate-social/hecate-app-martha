@@ -9,14 +9,12 @@ start_link() ->
 
 init([]) ->
     Children = [
-        #{id => reviewer_initiated_v1_to_pg,
-          start => {reviewer_initiated_v1_to_pg, start_link, []},
-          restart => permanent, type => worker},
-        #{id => on_team_formed_initiate_reviewer,
-          start => {on_team_formed_initiate_reviewer, start_link, []},
-          restart => permanent, type => worker},
-        #{id => on_reviewer_initiated_run_reviewer_llm,
-          start => {on_reviewer_initiated_run_reviewer_llm, start_link, []},
-          restart => permanent, type => worker}
+        emitter(reviewer_initiated_v1_to_pg),
+        emitter(on_team_formed_initiate_reviewer),
+        emitter(on_reviewer_initiated_run_reviewer_llm)
     ],
     {ok, {#{strategy => one_for_one, intensity => 5, period => 10}, Children}}.
+
+emitter(Mod) ->
+    #{id => Mod, start => {evoq_event_handler, start_link, [Mod, #{}]},
+      restart => permanent, type => worker}.

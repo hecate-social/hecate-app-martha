@@ -34,13 +34,13 @@ new(#{venture_id := VentureId} = Params) ->
 -spec to_map(vision_refined_v1()) -> map().
 to_map(#vision_refined_v1{} = E) ->
     #{
-        <<"event_type">> => <<"vision_refined_v1">>,
-        <<"venture_id">> => E#vision_refined_v1.venture_id,
-        <<"brief">> => E#vision_refined_v1.brief,
-        <<"repos">> => E#vision_refined_v1.repos,
-        <<"skills">> => E#vision_refined_v1.skills,
-        <<"context_map">> => E#vision_refined_v1.context_map,
-        <<"refined_at">> => E#vision_refined_v1.refined_at
+        event_type => <<"vision_refined_v1">>,
+        venture_id => E#vision_refined_v1.venture_id,
+        brief => E#vision_refined_v1.brief,
+        repos => E#vision_refined_v1.repos,
+        skills => E#vision_refined_v1.skills,
+        context_map => E#vision_refined_v1.context_map,
+        refined_at => E#vision_refined_v1.refined_at
     }.
 
 -spec from_map(map()) -> {ok, vision_refined_v1()} | {error, term()}.

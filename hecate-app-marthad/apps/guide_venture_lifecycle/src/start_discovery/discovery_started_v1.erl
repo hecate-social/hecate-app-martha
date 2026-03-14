@@ -24,9 +24,9 @@ new(#{venture_id := VentureId} = Params) ->
 -spec to_map(discovery_started_v1()) -> map().
 to_map(#discovery_started_v1{venture_id = V, started_at = SA}) ->
     #{
-        <<"event_type">> => <<"discovery_started_v1">>,
-        <<"venture_id">> => V,
-        <<"started_at">> => SA
+        event_type => <<"discovery_started_v1">>,
+        venture_id => V,
+        started_at => SA
     }.
 
 -spec from_map(map()) -> {ok, discovery_started_v1()} | {error, term()}.

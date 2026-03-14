@@ -35,12 +35,12 @@ validate(#reject_review_gate_v1{}) ->
 -spec to_map(reject_review_gate_v1()) -> map().
 to_map(#reject_review_gate_v1{} = Cmd) ->
     #{
-        <<"command_type">> => <<"reject_gate">>,
-        <<"agent_role">> => <<"reviewer">>,
-        <<"gate_name">> => <<"review_gate">>,
-        <<"session_id">> => Cmd#reject_review_gate_v1.session_id,
-        <<"rejected_by">> => Cmd#reject_review_gate_v1.rejected_by,
-        <<"rejection_reason">> => Cmd#reject_review_gate_v1.rejection_reason
+        command_type => <<"reject_gate">>,
+        agent_role => <<"reviewer">>,
+        gate_name => <<"review_gate">>,
+        session_id => Cmd#reject_review_gate_v1.session_id,
+        rejected_by => Cmd#reject_review_gate_v1.rejected_by,
+        rejection_reason => Cmd#reject_review_gate_v1.rejection_reason
     }.
 
 -spec from_map(map()) -> {ok, reject_review_gate_v1()} | {error, term()}.

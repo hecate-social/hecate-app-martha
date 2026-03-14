@@ -33,13 +33,13 @@ new(#{division_id := DivisionId, result_id := ResultId, suite_id := SuiteId, pas
 -spec to_map(test_result_recorded_v1()) -> map().
 to_map(#test_result_recorded_v1{} = E) ->
     #{
-        <<"event_type">> => <<"test_result_recorded_v1">>,
-        <<"division_id">> => E#test_result_recorded_v1.division_id,
-        <<"result_id">> => E#test_result_recorded_v1.result_id,
-        <<"suite_id">> => E#test_result_recorded_v1.suite_id,
-        <<"passed">> => E#test_result_recorded_v1.passed,
-        <<"failed">> => E#test_result_recorded_v1.failed,
-        <<"recorded_at">> => E#test_result_recorded_v1.recorded_at
+        event_type => <<"test_result_recorded_v1">>,
+        division_id => E#test_result_recorded_v1.division_id,
+        result_id => E#test_result_recorded_v1.result_id,
+        suite_id => E#test_result_recorded_v1.suite_id,
+        passed => E#test_result_recorded_v1.passed,
+        failed => E#test_result_recorded_v1.failed,
+        recorded_at => E#test_result_recorded_v1.recorded_at
     }.
 
 -spec from_map(map()) -> {ok, test_result_recorded_v1()} | {error, term()}.

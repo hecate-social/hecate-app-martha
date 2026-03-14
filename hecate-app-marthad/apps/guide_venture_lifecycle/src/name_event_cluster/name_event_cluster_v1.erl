@@ -42,10 +42,10 @@ validate(_) -> ok.
 -spec to_map(name_event_cluster_v1()) -> map().
 to_map(#name_event_cluster_v1{venture_id = V, cluster_id = C, name = N}) ->
     #{
-        <<"command_type">> => <<"name_event_cluster">>,
-        <<"venture_id">> => V,
-        <<"cluster_id">> => C,
-        <<"name">> => N
+        command_type => <<"name_event_cluster">>,
+        venture_id => V,
+        cluster_id => C,
+        name => N
     }.
 
 -spec from_map(map()) -> {ok, name_event_cluster_v1()} | {error, term()}.

@@ -45,18 +45,18 @@ new(#{session_id := SessionId} = Params) ->
 -spec to_map(reviewer_completed_v1()) -> map().
 to_map(#reviewer_completed_v1{} = E) ->
     #{
-        <<"event_type">> => <<"reviewer_completed_v1">>,
-        <<"session_id">> => E#reviewer_completed_v1.session_id,
-        <<"agent_role">> => E#reviewer_completed_v1.agent_role,
-        <<"venture_id">> => E#reviewer_completed_v1.venture_id,
-        <<"division_id">> => E#reviewer_completed_v1.division_id,
-        <<"tier">> => E#reviewer_completed_v1.tier,
-        <<"model">> => E#reviewer_completed_v1.model,
-        <<"notation_output">> => E#reviewer_completed_v1.notation_output,
-        <<"parsed_terms">> => E#reviewer_completed_v1.parsed_terms,
-        <<"tokens_in">> => E#reviewer_completed_v1.tokens_in,
-        <<"tokens_out">> => E#reviewer_completed_v1.tokens_out,
-        <<"completed_at">> => E#reviewer_completed_v1.completed_at
+        event_type => <<"reviewer_completed_v1">>,
+        session_id => E#reviewer_completed_v1.session_id,
+        agent_role => E#reviewer_completed_v1.agent_role,
+        venture_id => E#reviewer_completed_v1.venture_id,
+        division_id => E#reviewer_completed_v1.division_id,
+        tier => E#reviewer_completed_v1.tier,
+        model => E#reviewer_completed_v1.model,
+        notation_output => E#reviewer_completed_v1.notation_output,
+        parsed_terms => E#reviewer_completed_v1.parsed_terms,
+        tokens_in => E#reviewer_completed_v1.tokens_in,
+        tokens_out => E#reviewer_completed_v1.tokens_out,
+        completed_at => E#reviewer_completed_v1.completed_at
     }.
 
 -spec from_map(map()) -> {ok, reviewer_completed_v1()} | {error, term()}.

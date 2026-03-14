@@ -11,15 +11,30 @@
 -behaviour(hecate_plugin).
 
 -include_lib("hecate_sdk/include/hecate_plugin.hrl").
+-include_lib("reckon_db/include/reckon_db.hrl").
 -include_lib("guide_division_lifecycle/include/division_lifecycle_status.hrl").
 -include_lib("guide_division_lifecycle/include/kanban_card_status.hrl").
 
 -export([init/1, routes/0, store_config/0, static_dir/0, manifest/0, flag_maps/0]).
 
+%% Additional Martha stores beyond the primary martha_store.
+%% The primary store is created by the plugin loader via store_config/0.
+%% These are created in init/1 after the primary store is ready.
+-define(EXTRA_STORES, [
+    {orchestration_store,       "orchestration",       "Agent Orchestration (sessions)"},
+    {knowledge_graph_store,     "knowledge_graph",     "Knowledge Graph (long-term memory)"},
+    {retry_strategy_store,      "retry_strategy",      "Retry Strategy (adaptive retries)"},
+    {cost_budget_store,         "cost_budget",         "Cost Budget (token spending limits)"}
+]).
+
 -define(DOMAIN_APPS, [
+    martha,
     guide_venture_lifecycle, project_ventures, query_ventures,
     guide_division_lifecycle, project_divisions, query_divisions,
-    orchestrate_agents, project_agent_sessions, query_agent_sessions
+    orchestrate_agents, project_agent_sessions, query_agent_sessions,
+    guide_knowledge_graph, project_knowledge_graph, query_knowledge_graph,
+    guide_retry_strategy, project_retry_strategy, query_retry_strategy,
+    guard_cost_budget, project_cost_budgets, query_cost_budgets
 ]).
 
 -spec init(map()) -> {ok, map()} | {error, term()}.
@@ -31,6 +46,11 @@ init(#{plugin_name := PluginName, store_id := StoreId, data_dir := DataDir}) ->
         store_id => StoreId,
         data_dir => DataDir
     }),
+    %% Create additional Martha stores (primary martha_store already created by loader)
+    start_extra_stores(DataDir),
+    %% Start store subscriptions for all Martha stores
+    AllStoreIds = [StoreId | [Id || {Id, _, _} <- ?EXTRA_STORES]],
+    start_store_subscriptions(AllStoreIds),
     %% Load OTP application metadata so application:get_key/2 works
     %% for route discovery (app_marthad_api_routes:discover_routes/0).
     lists:foreach(fun(App) -> application:load(App) end, ?DOMAIN_APPS),
@@ -94,3 +114,37 @@ strip_api_prefix({"/api" ++ Rest, Handler, Opts}) ->
     {Rest, Handler, Opts};
 strip_api_prefix(Route) ->
     Route.
+
+start_extra_stores(BaseDataDir) ->
+    lists:foreach(fun({StoreId, SubDir, Label}) ->
+        DataDir = filename:join(BaseDataDir, SubDir),
+        ok = filelib:ensure_path(DataDir),
+        Config = #store_config{
+            store_id = StoreId,
+            data_dir = DataDir,
+            mode = single,
+            writer_pool_size = 5,
+            reader_pool_size = 5,
+            gateway_pool_size = 2,
+            options = #{}
+        },
+        case reckon_db_sup:start_store(Config) of
+            {ok, _Pid} ->
+                logger:info("[app-martha] Store ~p ready (~s)", [StoreId, Label]);
+            {error, {already_started, _Pid}} ->
+                logger:info("[app-martha] Store ~p already running", [StoreId]);
+            {error, Reason} ->
+                logger:error("[app-martha] Failed to start store ~p: ~p", [StoreId, Reason])
+        end
+    end, ?EXTRA_STORES).
+
+start_store_subscriptions(StoreIds) ->
+    lists:foreach(fun(StoreId) ->
+        case evoq_store_subscription:start_link(StoreId) of
+            {ok, _Pid} ->
+                logger:info("[app-martha] Store subscription ready for ~p", [StoreId]);
+            {error, Reason} ->
+                logger:warning("[app-martha] Store subscription failed for ~p: ~p",
+                               [StoreId, Reason])
+        end
+    end, StoreIds).

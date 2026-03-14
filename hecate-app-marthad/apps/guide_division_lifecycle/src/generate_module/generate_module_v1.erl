@@ -39,11 +39,11 @@ validate(#generate_module_v1{} = Cmd) ->
 -spec to_map(generate_module_v1()) -> map().
 to_map(#generate_module_v1{} = Cmd) ->
     #{
-        <<"command_type">> => <<"generate_module">>,
-        <<"division_id">> => Cmd#generate_module_v1.division_id,
-        <<"module_name">> => Cmd#generate_module_v1.module_name,
-        <<"module_type">> => Cmd#generate_module_v1.module_type,
-        <<"path">> => Cmd#generate_module_v1.path
+        command_type => <<"generate_module">>,
+        division_id => Cmd#generate_module_v1.division_id,
+        module_name => Cmd#generate_module_v1.module_name,
+        module_type => Cmd#generate_module_v1.module_type,
+        path => Cmd#generate_module_v1.path
     }.
 
 -spec from_map(map()) -> {ok, generate_module_v1()} | {error, term()}.

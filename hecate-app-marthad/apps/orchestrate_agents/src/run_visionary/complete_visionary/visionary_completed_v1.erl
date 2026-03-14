@@ -46,18 +46,18 @@ new(#{session_id := SessionId} = Params) ->
 -spec to_map(visionary_completed_v1()) -> map().
 to_map(#visionary_completed_v1{} = E) ->
     #{
-        <<"event_type">> => <<"visionary_completed_v1">>,
-        <<"session_id">> => E#visionary_completed_v1.session_id,
-        <<"agent_role">> => E#visionary_completed_v1.agent_role,
-        <<"venture_id">> => E#visionary_completed_v1.venture_id,
-        <<"division_id">> => E#visionary_completed_v1.division_id,
-        <<"tier">> => E#visionary_completed_v1.tier,
-        <<"model">> => E#visionary_completed_v1.model,
-        <<"notation_output">> => E#visionary_completed_v1.notation_output,
-        <<"parsed_terms">> => E#visionary_completed_v1.parsed_terms,
-        <<"tokens_in">> => E#visionary_completed_v1.tokens_in,
-        <<"tokens_out">> => E#visionary_completed_v1.tokens_out,
-        <<"completed_at">> => E#visionary_completed_v1.completed_at
+        event_type => <<"visionary_completed_v1">>,
+        session_id => E#visionary_completed_v1.session_id,
+        agent_role => E#visionary_completed_v1.agent_role,
+        venture_id => E#visionary_completed_v1.venture_id,
+        division_id => E#visionary_completed_v1.division_id,
+        tier => E#visionary_completed_v1.tier,
+        model => E#visionary_completed_v1.model,
+        notation_output => E#visionary_completed_v1.notation_output,
+        parsed_terms => E#visionary_completed_v1.parsed_terms,
+        tokens_in => E#visionary_completed_v1.tokens_in,
+        tokens_out => E#visionary_completed_v1.tokens_out,
+        completed_at => E#visionary_completed_v1.completed_at
     }.
 
 -spec from_map(map()) -> {ok, visionary_completed_v1()} | {error, term()}.

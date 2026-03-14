@@ -9,14 +9,12 @@ start_link() ->
 
 init([]) ->
     Children = [
-        #{id => architect_initiated_v1_to_pg,
-          start => {architect_initiated_v1_to_pg, start_link, []},
-          restart => permanent, type => worker},
-        #{id => on_team_formed_initiate_architect,
-          start => {on_team_formed_initiate_architect, start_link, []},
-          restart => permanent, type => worker},
-        #{id => on_architect_initiated_run_architect_llm,
-          start => {on_architect_initiated_run_architect_llm, start_link, []},
-          restart => permanent, type => worker}
+        emitter(architect_initiated_v1_to_pg),
+        emitter(on_team_formed_initiate_architect),
+        emitter(on_architect_initiated_run_architect_llm)
     ],
     {ok, {#{strategy => one_for_one, intensity => 5, period => 10}, Children}}.
+
+emitter(Mod) ->
+    #{id => Mod, start => {evoq_event_handler, start_link, [Mod, #{}]},
+      restart => permanent, type => worker}.

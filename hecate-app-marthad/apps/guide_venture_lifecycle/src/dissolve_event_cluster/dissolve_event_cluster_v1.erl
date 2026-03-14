@@ -39,9 +39,9 @@ validate(_) -> ok.
 -spec to_map(dissolve_event_cluster_v1()) -> map().
 to_map(#dissolve_event_cluster_v1{venture_id = V, cluster_id = C}) ->
     #{
-        <<"command_type">> => <<"dissolve_event_cluster">>,
-        <<"venture_id">> => V,
-        <<"cluster_id">> => C
+        command_type => <<"dissolve_event_cluster">>,
+        venture_id => V,
+        cluster_id => C
     }.
 
 -spec from_map(map()) -> {ok, dissolve_event_cluster_v1()} | {error, term()}.

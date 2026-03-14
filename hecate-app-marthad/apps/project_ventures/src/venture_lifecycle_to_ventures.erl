@@ -10,6 +10,7 @@
 -include_lib("guide_venture_lifecycle/include/venture_lifecycle_status.hrl").
 
 -export([interested_in/0, init/1, project/4]).
+-export([available_actions/1, phase/1]).
 
 -define(TABLE, project_ventures_ventures).
 
@@ -43,6 +44,8 @@ do_project(<<"venture_initiated_v1">>, Data, State, RM) ->
         brief       => gf(brief, Data),
         status      => Status,
         status_label => evoq_bit_flags:to_string(Status, ?VL_FLAG_MAP),
+        phase       => phase(Status),
+        available_actions => available_actions(Status),
         repos       => gf(repos, Data, []),
         skills      => gf(skills, Data, []),
         context_map => gf(context_map, Data, #{}),
@@ -66,7 +69,9 @@ do_project(<<"vision_refined_v1">>, Data, State, RM) ->
                 skills      => coalesce(gf(skills, Data), maps:get(skills, V)),
                 context_map => coalesce(gf(context_map, Data), maps:get(context_map, V)),
                 status      => NewStatus,
-                status_label => evoq_bit_flags:to_string(NewStatus, ?VL_FLAG_MAP)
+                status_label => evoq_bit_flags:to_string(NewStatus, ?VL_FLAG_MAP),
+                phase       => phase(NewStatus),
+                available_actions => available_actions(NewStatus)
             },
             {ok, RM2} = evoq_read_model:put(VentureId, Updated, RM),
             {ok, State, RM2};
@@ -130,7 +135,9 @@ do_project(<<"venture_repo_scaffolded_v1">>, Data, State, RM) ->
                 brief       => coalesce(gf(brief, Data), maps:get(brief, V)),
                 repo_path   => gf(repo_path, Data),
                 status      => NewStatus,
-                status_label => evoq_bit_flags:to_string(NewStatus, ?VL_FLAG_MAP)
+                status_label => evoq_bit_flags:to_string(NewStatus, ?VL_FLAG_MAP),
+                phase       => phase(NewStatus),
+                available_actions => available_actions(NewStatus)
             },
             {ok, RM2} = evoq_read_model:put(VentureId, Updated, RM),
             {ok, State, RM2};
@@ -154,7 +161,9 @@ update_status(VentureId, StatusFun, State, RM) ->
             NewStatus = StatusFun(OldStatus),
             Updated = V#{
                 status => NewStatus,
-                status_label => evoq_bit_flags:to_string(NewStatus, ?VL_FLAG_MAP)
+                status_label => evoq_bit_flags:to_string(NewStatus, ?VL_FLAG_MAP),
+                phase => phase(NewStatus),
+                available_actions => available_actions(NewStatus)
             },
             {ok, RM2} = evoq_read_model:put(VentureId, Updated, RM),
             {ok, State, RM2};
@@ -163,8 +172,40 @@ update_status(VentureId, StatusFun, State, RM) ->
     end.
 
 get_event_type(#{event_type := T}) when is_binary(T) -> T;
-get_event_type(#{<<"event_type">> := T}) when is_binary(T) -> T;
 get_event_type(_) -> undefined.
+
+%% --- Phase: highest-priority status flag as a human-readable phase string ---
+
+phase(S) when is_integer(S) ->
+    first_match(S, [
+        {?VL_ARCHIVED,            <<"archived">>},
+        {?VL_DISCOVERY_COMPLETED, <<"discovery_completed">>},
+        {?VL_DISCOVERY_PAUSED,    <<"discovery_paused">>},
+        {?VL_DISCOVERING,         <<"discovering">>},
+        {?VL_SUBMITTED,           <<"vision_submitted">>},
+        {?VL_VISION_REFINED,      <<"vision_refined">>},
+        {?VL_INITIATED,           <<"initiated">>}
+    ], <<"initiated">>).
+
+%% --- Available Actions: what the user can do from the current state ---
+
+available_actions(S) when is_integer(S) ->
+    first_match(S, [
+        {?VL_ARCHIVED,            []},
+        {?VL_DISCOVERY_COMPLETED, [<<"archive">>]},
+        {?VL_DISCOVERY_PAUSED,    [<<"resume_discovery">>, <<"archive">>]},
+        {?VL_DISCOVERING,         [<<"pause_discovery">>, <<"complete_discovery">>, <<"identify_division">>, <<"archive">>]},
+        {?VL_SUBMITTED,           [<<"start_discovery">>, <<"archive">>]},
+        {?VL_VISION_REFINED,      [<<"scaffold">>, <<"archive">>]},
+        {?VL_INITIATED,           [<<"scaffold">>, <<"archive">>]}
+    ], [<<"archive">>]).
+
+first_match(_S, [], Default) -> Default;
+first_match(S, [{Flag, Result} | Rest], Default) ->
+    case evoq_bit_flags:has(S, Flag) of
+        true  -> Result;
+        false -> first_match(S, Rest, Default)
+    end.
 
 gf(Key, Data) when is_atom(Key) ->
     case maps:find(Key, Data) of

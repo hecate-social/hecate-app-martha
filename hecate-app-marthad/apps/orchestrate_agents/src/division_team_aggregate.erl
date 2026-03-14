@@ -105,13 +105,9 @@ apply(State, Event) ->
 
 -spec apply_event(map(), state()) -> state().
 
-apply_event(#{<<"event_type">> := <<"team_formed_v1">>} = E, S)              -> apply_formed(E, S);
 apply_event(#{event_type := <<"team_formed_v1">>} = E, S)                    -> apply_formed(E, S);
-apply_event(#{<<"event_type">> := <<"agent_assigned_to_team_v1">>} = E, S)   -> apply_assigned(E, S);
 apply_event(#{event_type := <<"agent_assigned_to_team_v1">>} = E, S)         -> apply_assigned(E, S);
-apply_event(#{<<"event_type">> := <<"team_activated_v1">>} = E, S)           -> apply_activated(E, S);
 apply_event(#{event_type := <<"team_activated_v1">>} = E, S)                 -> apply_activated(E, S);
-apply_event(#{<<"event_type">> := <<"team_disbanded_v1">>} = E, S)           -> apply_disbanded(E, S);
 apply_event(#{event_type := <<"team_disbanded_v1">>} = E, S)                 -> apply_disbanded(E, S);
 apply_event(_E, S) -> S.
 
@@ -150,7 +146,6 @@ apply_disbanded(E, #division_team_state{status = Status} = State) ->
 
 %% --- Internal ---
 
-get_command_type(#{<<"command_type">> := T}) -> T;
 get_command_type(#{command_type := T}) when is_binary(T) -> T;
 get_command_type(#{command_type := T}) when is_atom(T) -> atom_to_binary(T);
 get_command_type(_) -> undefined.

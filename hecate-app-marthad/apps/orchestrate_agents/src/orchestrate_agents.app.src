@@ -7,8 +7,9 @@
         kernel,
         stdlib,
         crypto,
+        reckon_db,
         evoq,
-        hecate_app_marthad
+        reckon_evoq
     ]},
     {env, [
         {tier_mapping, #{
@@ -19,5 +20,5 @@
     ]},
     {modules, []},
     {licenses, ["Apache-2.0"]},
-    {links, [{"GitHub", "https://github.com/hecate-social/hecate-app-martha"}]}
+    {links, [{"GitHub", "https://github.com/hecate-social/hecate-daemon"}]}
 ]}.

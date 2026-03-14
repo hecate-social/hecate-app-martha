@@ -31,12 +31,12 @@ new(#{division_id := DivisionId, test_name := TestName, module_name := ModuleNam
 -spec to_map(test_generated_v1()) -> map().
 to_map(#test_generated_v1{} = E) ->
     #{
-        <<"event_type">> => <<"test_generated_v1">>,
-        <<"division_id">> => E#test_generated_v1.division_id,
-        <<"test_name">> => E#test_generated_v1.test_name,
-        <<"module_name">> => E#test_generated_v1.module_name,
-        <<"path">> => E#test_generated_v1.path,
-        <<"generated_at">> => E#test_generated_v1.generated_at
+        event_type => <<"test_generated_v1">>,
+        division_id => E#test_generated_v1.division_id,
+        test_name => E#test_generated_v1.test_name,
+        module_name => E#test_generated_v1.module_name,
+        path => E#test_generated_v1.path,
+        generated_at => E#test_generated_v1.generated_at
     }.
 
 -spec from_map(map()) -> {ok, test_generated_v1()} | {error, term()}.

@@ -42,12 +42,12 @@ validate(#plan_desk_v1{} = Cmd) ->
 -spec to_map(plan_desk_v1()) -> map().
 to_map(#plan_desk_v1{} = Cmd) ->
     #{
-        <<"command_type">> => <<"plan_desk">>,
-        <<"division_id">> => Cmd#plan_desk_v1.division_id,
-        <<"desk_name">> => Cmd#plan_desk_v1.desk_name,
-        <<"department">> => Cmd#plan_desk_v1.department,
-        <<"description">> => Cmd#plan_desk_v1.description,
-        <<"commands">> => Cmd#plan_desk_v1.commands
+        command_type => <<"plan_desk">>,
+        division_id => Cmd#plan_desk_v1.division_id,
+        desk_name => Cmd#plan_desk_v1.desk_name,
+        department => Cmd#plan_desk_v1.department,
+        description => Cmd#plan_desk_v1.description,
+        commands => Cmd#plan_desk_v1.commands
     }.
 
 -spec from_map(map()) -> {ok, plan_desk_v1()} | {error, term()}.

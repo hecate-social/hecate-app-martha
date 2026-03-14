@@ -33,13 +33,13 @@ new(#{session_id := SessionId} = Params) ->
 -spec to_map(mentor_input_received_v1()) -> map().
 to_map(#mentor_input_received_v1{} = E) ->
     #{
-        <<"event_type">> => <<"mentor_input_received_v1">>,
-        <<"session_id">> => E#mentor_input_received_v1.session_id,
-        <<"agent_role">> => E#mentor_input_received_v1.agent_role,
-        <<"venture_id">> => E#mentor_input_received_v1.venture_id,
-        <<"input_content">> => E#mentor_input_received_v1.input_content,
-        <<"input_by">> => E#mentor_input_received_v1.input_by,
-        <<"received_at">> => E#mentor_input_received_v1.received_at
+        event_type => <<"mentor_input_received_v1">>,
+        session_id => E#mentor_input_received_v1.session_id,
+        agent_role => E#mentor_input_received_v1.agent_role,
+        venture_id => E#mentor_input_received_v1.venture_id,
+        input_content => E#mentor_input_received_v1.input_content,
+        input_by => E#mentor_input_received_v1.input_by,
+        received_at => E#mentor_input_received_v1.received_at
     }.
 
 -spec from_map(map()) -> {ok, mentor_input_received_v1()} | {error, term()}.

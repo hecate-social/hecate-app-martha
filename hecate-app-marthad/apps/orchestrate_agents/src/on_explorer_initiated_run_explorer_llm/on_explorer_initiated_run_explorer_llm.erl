@@ -1,53 +1,39 @@
-%%% @doc LLM runner PM: on explorer initiated, run LLM and complete/fail.
-%%% Subscribes to explorer_initiated_v1 from orchestration_store.
+%%% @doc LLM runner event handler: on explorer initiated, run LLM and complete/fail.
+%%% Reacts to explorer_initiated_v1 events.
 %%% Loads role spec, builds prompt, calls chat_to_llm, parses notation,
 %%% then dispatches complete or fail command.
 -module(on_explorer_initiated_run_explorer_llm).
--behaviour(gen_server).
--export([start_link/0]).
--export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2]).
+-behaviour(evoq_event_handler).
+-export([interested_in/0, init/1, handle_event/4]).
 
--define(EVENT_TYPE, <<"explorer_initiated_v1">>).
--define(SUB_NAME, <<"on_explorer_initiated_run_explorer_llm">>).
--define(STORE_ID, orchestration_store).
 -define(ROLE, <<"explorer">>).
 
-start_link() ->
-    gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
+interested_in() -> [<<"explorer_initiated_v1">>].
 
-init([]) ->
-    {ok, _} = reckon_evoq_adapter:subscribe(
-        ?STORE_ID, event_type, ?EVENT_TYPE, ?SUB_NAME,
-        #{subscriber_pid => self()}),
-    {ok, #{}}.
+init(_Config) -> {ok, #{}}.
 
-handle_info({events, Events}, State) ->
-    lists:foreach(fun process_event/1, Events),
-    {noreply, State};
-handle_info(_Info, State) -> {noreply, State}.
-
-handle_call(_Req, _From, State) -> {reply, ok, State}.
-handle_cast(_Msg, State) -> {noreply, State}.
-terminate(_Reason, _State) -> ok.
+handle_event(_EventType, Event, _Metadata, State) ->
+    Data = maps:get(data, Event),
+    SessionId = gv(session_id, Data),
+    VentureId = gv(venture_id, Data),
+    Model = gv(model, Data),
+    InputContext = gv(input_context, Data),
+    spawn_link(fun() -> run_llm(SessionId, VentureId, Model, InputContext) end),
+    {ok, State}.
 
 %% Internal
 
-process_event(RawEvent) ->
-    Event = app_marthad_projection_event:to_map(RawEvent),
-    SessionId = get_value(session_id, Event),
-    Model = get_value(model, Event),
-    InputContext = get_value(input_context, Event),
-    spawn_link(fun() -> run_llm(SessionId, Model, InputContext) end).
-
-run_llm(SessionId, Model, InputContext) ->
+run_llm(SessionId, VentureId, Model, InputContext) ->
     case load_agent_role:load(?ROLE) of
         {ok, RoleContent} ->
+            {ok, KnowledgeCtx} = curate_context:curate(VentureId, ?ROLE, #{}),
+            SystemPrompt = <<RoleContent/binary, KnowledgeCtx/binary>>,
             Messages = [
-                #{role => <<"system">>, content => RoleContent},
+                #{role => <<"system">>, content => SystemPrompt},
                 #{role => <<"user">>, content => ensure_binary(InputContext)}
             ],
             Opts = #{
-                venture_id => <<"default">>,
+                venture_id => VentureId,
                 agent_id => SessionId
             },
             case chat_to_llm:chat(Model, Messages, Opts) of
@@ -109,17 +95,17 @@ handle_llm_failure(SessionId, Reason) ->
                         [?MODULE, SessionId, CmdErr])
     end.
 
-extract_content(#{<<"message">> := #{<<"content">> := C}}) -> C;
-extract_content(#{<<"content">> := [#{<<"text">> := T} | _]}) -> T;
-extract_content(#{<<"content">> := C}) when is_binary(C) -> C;
+extract_content(#{message := #{content := C}}) -> C;
+extract_content(#{content := [#{text := T} | _]}) -> T;
+extract_content(#{content := C}) when is_binary(C) -> C;
 extract_content(_) -> <<>>.
 
-extract_tokens_in(#{<<"usage">> := #{<<"input_tokens">> := N}}) -> N;
-extract_tokens_in(#{<<"prompt_eval_count">> := N}) -> N;
+extract_tokens_in(#{usage := #{input_tokens := N}}) -> N;
+extract_tokens_in(#{prompt_eval_count := N}) -> N;
 extract_tokens_in(_) -> 0.
 
-extract_tokens_out(#{<<"usage">> := #{<<"output_tokens">> := N}}) -> N;
-extract_tokens_out(#{<<"eval_count">> := N}) -> N;
+extract_tokens_out(#{usage := #{output_tokens := N}}) -> N;
+extract_tokens_out(#{eval_count := N}) -> N;
 extract_tokens_out(_) -> 0.
 
 parse_notation(Content) when is_binary(Content), byte_size(Content) > 0 ->
@@ -134,7 +120,7 @@ ensure_binary(V) when is_binary(V) -> V;
 ensure_binary(undefined) -> <<>>;
 ensure_binary(V) -> iolist_to_binary(io_lib:format("~p", [V])).
 
-get_value(Key, Map) when is_atom(Key) ->
+gv(Key, Map) when is_atom(Key) ->
     case maps:find(Key, Map) of
         {ok, V} -> V;
         error -> maps:get(atom_to_binary(Key), Map, undefined)

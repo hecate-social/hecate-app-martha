@@ -38,12 +38,12 @@ validate(#fail_svelte_coder_v1{}) ->
 -spec to_map(fail_svelte_coder_v1()) -> map().
 to_map(#fail_svelte_coder_v1{} = Cmd) ->
     #{
-        <<"command_type">> => <<"fail_agent">>,
-        <<"agent_role">> => <<"svelte_coder">>,
-        <<"session_id">> => Cmd#fail_svelte_coder_v1.session_id,
-        <<"error_reason">> => Cmd#fail_svelte_coder_v1.error_reason,
-        <<"tokens_in">> => Cmd#fail_svelte_coder_v1.tokens_in,
-        <<"tokens_out">> => Cmd#fail_svelte_coder_v1.tokens_out
+        command_type => <<"fail_agent">>,
+        agent_role => <<"svelte_coder">>,
+        session_id => Cmd#fail_svelte_coder_v1.session_id,
+        error_reason => Cmd#fail_svelte_coder_v1.error_reason,
+        tokens_in => Cmd#fail_svelte_coder_v1.tokens_in,
+        tokens_out => Cmd#fail_svelte_coder_v1.tokens_out
     }.
 
 -spec from_map(map()) -> {ok, fail_svelte_coder_v1()} | {error, term()}.

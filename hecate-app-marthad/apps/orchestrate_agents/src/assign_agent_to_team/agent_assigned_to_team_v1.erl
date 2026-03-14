@@ -29,11 +29,11 @@ new(#{division_id := DivId, agent_role := Role, session_id := SessId}) ->
 -spec to_map(agent_assigned_to_team_v1()) -> map().
 to_map(#agent_assigned_to_team_v1{} = E) ->
     #{
-        <<"event_type">> => <<"agent_assigned_to_team_v1">>,
-        <<"division_id">> => E#agent_assigned_to_team_v1.division_id,
-        <<"agent_role">> => E#agent_assigned_to_team_v1.agent_role,
-        <<"session_id">> => E#agent_assigned_to_team_v1.session_id,
-        <<"assigned_at">> => E#agent_assigned_to_team_v1.assigned_at
+        event_type => <<"agent_assigned_to_team_v1">>,
+        division_id => E#agent_assigned_to_team_v1.division_id,
+        agent_role => E#agent_assigned_to_team_v1.agent_role,
+        session_id => E#agent_assigned_to_team_v1.session_id,
+        assigned_at => E#agent_assigned_to_team_v1.assigned_at
     }.
 
 -spec from_map(map()) -> {ok, agent_assigned_to_team_v1()} | {error, term()}.

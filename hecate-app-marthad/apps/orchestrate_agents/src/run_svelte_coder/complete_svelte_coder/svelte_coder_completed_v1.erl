@@ -45,18 +45,18 @@ new(#{session_id := SessionId} = Params) ->
 -spec to_map(svelte_coder_completed_v1()) -> map().
 to_map(#svelte_coder_completed_v1{} = E) ->
     #{
-        <<"event_type">> => <<"svelte_coder_completed_v1">>,
-        <<"session_id">> => E#svelte_coder_completed_v1.session_id,
-        <<"agent_role">> => E#svelte_coder_completed_v1.agent_role,
-        <<"venture_id">> => E#svelte_coder_completed_v1.venture_id,
-        <<"division_id">> => E#svelte_coder_completed_v1.division_id,
-        <<"tier">> => E#svelte_coder_completed_v1.tier,
-        <<"model">> => E#svelte_coder_completed_v1.model,
-        <<"notation_output">> => E#svelte_coder_completed_v1.notation_output,
-        <<"parsed_terms">> => E#svelte_coder_completed_v1.parsed_terms,
-        <<"tokens_in">> => E#svelte_coder_completed_v1.tokens_in,
-        <<"tokens_out">> => E#svelte_coder_completed_v1.tokens_out,
-        <<"completed_at">> => E#svelte_coder_completed_v1.completed_at
+        event_type => <<"svelte_coder_completed_v1">>,
+        session_id => E#svelte_coder_completed_v1.session_id,
+        agent_role => E#svelte_coder_completed_v1.agent_role,
+        venture_id => E#svelte_coder_completed_v1.venture_id,
+        division_id => E#svelte_coder_completed_v1.division_id,
+        tier => E#svelte_coder_completed_v1.tier,
+        model => E#svelte_coder_completed_v1.model,
+        notation_output => E#svelte_coder_completed_v1.notation_output,
+        parsed_terms => E#svelte_coder_completed_v1.parsed_terms,
+        tokens_in => E#svelte_coder_completed_v1.tokens_in,
+        tokens_out => E#svelte_coder_completed_v1.tokens_out,
+        completed_at => E#svelte_coder_completed_v1.completed_at
     }.
 
 -spec from_map(map()) -> {ok, svelte_coder_completed_v1()} | {error, term()}.

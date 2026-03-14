@@ -16,9 +16,9 @@ new(Params) ->
     }.
 
 to_map(#division_archived_v1{} = E) ->
-    #{<<"event_type">> => <<"division_archived_v1">>,
-      <<"division_id">> => E#division_archived_v1.division_id,
-      <<"archived_at">> => E#division_archived_v1.archived_at}.
+    #{event_type => <<"division_archived_v1">>,
+      division_id => E#division_archived_v1.division_id,
+      archived_at => E#division_archived_v1.archived_at}.
 
 from_map(Map) ->
     {ok, #division_archived_v1{

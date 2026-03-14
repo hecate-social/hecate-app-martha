@@ -40,13 +40,13 @@ validate(#complete_coordinator_turn_v1{}) ->
 -spec to_map(complete_coordinator_turn_v1()) -> map().
 to_map(#complete_coordinator_turn_v1{} = Cmd) ->
     #{
-        <<"command_type">> => <<"complete_agent_turn">>,
-        <<"agent_role">> => <<"coordinator">>,
-        <<"session_id">> => Cmd#complete_coordinator_turn_v1.session_id,
-        <<"agent_output">> => Cmd#complete_coordinator_turn_v1.agent_output,
-        <<"turn_number">> => Cmd#complete_coordinator_turn_v1.turn_number,
-        <<"tokens_in">> => Cmd#complete_coordinator_turn_v1.tokens_in,
-        <<"tokens_out">> => Cmd#complete_coordinator_turn_v1.tokens_out
+        command_type => <<"complete_agent_turn">>,
+        agent_role => <<"coordinator">>,
+        session_id => Cmd#complete_coordinator_turn_v1.session_id,
+        agent_output => Cmd#complete_coordinator_turn_v1.agent_output,
+        turn_number => Cmd#complete_coordinator_turn_v1.turn_number,
+        tokens_in => Cmd#complete_coordinator_turn_v1.tokens_in,
+        tokens_out => Cmd#complete_coordinator_turn_v1.tokens_out
     }.
 
 -spec from_map(map()) -> {ok, complete_coordinator_turn_v1()} | {error, term()}.

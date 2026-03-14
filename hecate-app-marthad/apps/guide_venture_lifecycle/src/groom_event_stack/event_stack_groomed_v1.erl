@@ -37,13 +37,13 @@ to_map(#event_stack_groomed_v1{venture_id = V, stack_id = SI,
                                 canonical_sticky_id = C, weight = W,
                                 absorbed_sticky_ids = A, groomed_at = GA}) ->
     #{
-        <<"event_type">> => <<"event_stack_groomed_v1">>,
-        <<"venture_id">> => V,
-        <<"stack_id">> => SI,
-        <<"canonical_sticky_id">> => C,
-        <<"weight">> => W,
-        <<"absorbed_sticky_ids">> => A,
-        <<"groomed_at">> => GA
+        event_type => <<"event_stack_groomed_v1">>,
+        venture_id => V,
+        stack_id => SI,
+        canonical_sticky_id => C,
+        weight => W,
+        absorbed_sticky_ids => A,
+        groomed_at => GA
     }.
 
 -spec from_map(map()) -> {ok, event_stack_groomed_v1()} | {error, term()}.

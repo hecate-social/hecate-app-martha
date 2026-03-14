@@ -46,11 +46,11 @@ validate(#contribute_research_brief_v1{} = Cmd) ->
 -spec to_map(contribute_research_brief_v1()) -> map().
 to_map(#contribute_research_brief_v1{} = Cmd) ->
     #{
-        <<"command_type">> => <<"contribute_research_brief">>,
-        <<"venture_id">> => Cmd#contribute_research_brief_v1.venture_id,
-        <<"topic">> => Cmd#contribute_research_brief_v1.topic,
-        <<"brief">> => Cmd#contribute_research_brief_v1.brief,
-        <<"agent_role">> => Cmd#contribute_research_brief_v1.agent_role
+        command_type => <<"contribute_research_brief">>,
+        venture_id => Cmd#contribute_research_brief_v1.venture_id,
+        topic => Cmd#contribute_research_brief_v1.topic,
+        brief => Cmd#contribute_research_brief_v1.brief,
+        agent_role => Cmd#contribute_research_brief_v1.agent_role
     }.
 
 -spec from_map(map()) -> {ok, contribute_research_brief_v1()} | {error, term()}.

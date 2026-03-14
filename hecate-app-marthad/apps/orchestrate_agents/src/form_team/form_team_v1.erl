@@ -39,11 +39,11 @@ validate(#form_team_v1{} = Cmd) ->
 -spec to_map(form_team_v1()) -> map().
 to_map(#form_team_v1{} = Cmd) ->
     #{
-        <<"command_type">> => <<"form_team">>,
-        <<"division_id">> => Cmd#form_team_v1.division_id,
-        <<"venture_id">> => Cmd#form_team_v1.venture_id,
-        <<"planned_roles">> => Cmd#form_team_v1.planned_roles,
-        <<"formed_by">> => Cmd#form_team_v1.formed_by
+        command_type => <<"form_team">>,
+        division_id => Cmd#form_team_v1.division_id,
+        venture_id => Cmd#form_team_v1.venture_id,
+        planned_roles => Cmd#form_team_v1.planned_roles,
+        formed_by => Cmd#form_team_v1.formed_by
     }.
 
 -spec from_map(map()) -> {ok, form_team_v1()} | {error, term()}.

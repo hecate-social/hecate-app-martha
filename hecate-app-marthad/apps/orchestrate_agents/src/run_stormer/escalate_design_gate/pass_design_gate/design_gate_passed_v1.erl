@@ -40,16 +40,16 @@ new(#{session_id := SessionId} = Params) ->
 -spec to_map(design_gate_passed_v1()) -> map().
 to_map(#design_gate_passed_v1{} = E) ->
     #{
-        <<"event_type">> => <<"design_gate_passed_v1">>,
-        <<"session_id">> => E#design_gate_passed_v1.session_id,
-        <<"agent_role">> => E#design_gate_passed_v1.agent_role,
-        <<"venture_id">> => E#design_gate_passed_v1.venture_id,
-        <<"division_id">> => E#design_gate_passed_v1.division_id,
-        <<"gate_name">> => E#design_gate_passed_v1.gate_name,
-        <<"notation_output">> => E#design_gate_passed_v1.notation_output,
-        <<"parsed_terms">> => E#design_gate_passed_v1.parsed_terms,
-        <<"passed_by">> => E#design_gate_passed_v1.passed_by,
-        <<"passed_at">> => E#design_gate_passed_v1.passed_at
+        event_type => <<"design_gate_passed_v1">>,
+        session_id => E#design_gate_passed_v1.session_id,
+        agent_role => E#design_gate_passed_v1.agent_role,
+        venture_id => E#design_gate_passed_v1.venture_id,
+        division_id => E#design_gate_passed_v1.division_id,
+        gate_name => E#design_gate_passed_v1.gate_name,
+        notation_output => E#design_gate_passed_v1.notation_output,
+        parsed_terms => E#design_gate_passed_v1.parsed_terms,
+        passed_by => E#design_gate_passed_v1.passed_by,
+        passed_at => E#design_gate_passed_v1.passed_at
     }.
 
 -spec from_map(map()) -> {ok, design_gate_passed_v1()} | {error, term()}.

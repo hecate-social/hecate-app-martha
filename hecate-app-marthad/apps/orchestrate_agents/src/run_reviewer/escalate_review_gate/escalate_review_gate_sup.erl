@@ -9,17 +9,17 @@ start_link() ->
 
 init([]) ->
     Children = [
-        #{id => review_gate_escalated_v1_to_pg,
-          start => {review_gate_escalated_v1_to_pg, start_link, []},
-          restart => permanent, type => worker},
+        emitter(review_gate_escalated_v1_to_pg),
         #{id => pass_review_gate_sup,
           start => {pass_review_gate_sup, start_link, []},
           restart => permanent, type => supervisor},
         #{id => reject_review_gate_sup,
           start => {reject_review_gate_sup, start_link, []},
           restart => permanent, type => supervisor},
-        #{id => on_reviewer_completed_escalate_review_gate,
-          start => {on_reviewer_completed_escalate_review_gate, start_link, []},
-          restart => permanent, type => worker}
+        emitter(on_reviewer_completed_escalate_review_gate)
     ],
     {ok, {#{strategy => one_for_one, intensity => 5, period => 10}, Children}}.
+
+emitter(Mod) ->
+    #{id => Mod, start => {evoq_event_handler, start_link, [Mod, #{}]},
+      restart => permanent, type => worker}.

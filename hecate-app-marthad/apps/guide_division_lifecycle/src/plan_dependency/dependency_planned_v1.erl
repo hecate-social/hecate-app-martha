@@ -35,13 +35,13 @@ new(#{division_id := DivisionId, dependency_id := DepId,
 -spec to_map(dependency_planned_v1()) -> map().
 to_map(#dependency_planned_v1{} = E) ->
     #{
-        <<"event_type">> => <<"dependency_planned_v1">>,
-        <<"division_id">> => E#dependency_planned_v1.division_id,
-        <<"dependency_id">> => E#dependency_planned_v1.dependency_id,
-        <<"from_desk">> => E#dependency_planned_v1.from_desk,
-        <<"to_desk">> => E#dependency_planned_v1.to_desk,
-        <<"dep_type">> => E#dependency_planned_v1.dep_type,
-        <<"planned_at">> => E#dependency_planned_v1.planned_at
+        event_type => <<"dependency_planned_v1">>,
+        division_id => E#dependency_planned_v1.division_id,
+        dependency_id => E#dependency_planned_v1.dependency_id,
+        from_desk => E#dependency_planned_v1.from_desk,
+        to_desk => E#dependency_planned_v1.to_desk,
+        dep_type => E#dependency_planned_v1.dep_type,
+        planned_at => E#dependency_planned_v1.planned_at
     }.
 
 -spec from_map(map()) -> {ok, dependency_planned_v1()} | {error, term()}.

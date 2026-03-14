@@ -191,7 +191,6 @@ update_session(SessionId, UpdateFn, State, RM) ->
     end.
 
 get_event_type(#{event_type := T}) when is_binary(T) -> T;
-get_event_type(#{<<"event_type">> := T}) when is_binary(T) -> T;
 get_event_type(_) -> undefined.
 
 gf(Key, Data) when is_atom(Key) ->

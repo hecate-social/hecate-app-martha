@@ -346,143 +346,90 @@ apply(State, Event) ->
 -spec apply_event(map(), state()) -> state().
 
 %% ── Visionary ──
-apply_event(#{<<"event_type">> := <<"visionary_initiated_v1">>} = E, S)  -> apply_initiated(E, S);
 apply_event(#{event_type := <<"visionary_initiated_v1">>} = E, S)       -> apply_initiated(E, S);
-apply_event(#{<<"event_type">> := <<"visionary_completed_v1">>} = E, S) -> apply_completed(E, S);
 apply_event(#{event_type := <<"visionary_completed_v1">>} = E, S)       -> apply_completed(E, S);
-apply_event(#{<<"event_type">> := <<"visionary_failed_v1">>} = E, S)    -> apply_failed(E, S);
 apply_event(#{event_type := <<"visionary_failed_v1">>} = E, S)         -> apply_failed(E, S);
 
 %% ── Vision gate ──
-apply_event(#{<<"event_type">> := <<"vision_gate_escalated_v1">>} = E, S)  -> apply_gate_escalated(E, S);
 apply_event(#{event_type := <<"vision_gate_escalated_v1">>} = E, S)       -> apply_gate_escalated(E, S);
-apply_event(#{<<"event_type">> := <<"vision_gate_passed_v1">>} = E, S)    -> apply_gate_passed(E, S);
 apply_event(#{event_type := <<"vision_gate_passed_v1">>} = E, S)         -> apply_gate_passed(E, S);
-apply_event(#{<<"event_type">> := <<"vision_gate_rejected_v1">>} = E, S)  -> apply_gate_rejected(E, S);
 apply_event(#{event_type := <<"vision_gate_rejected_v1">>} = E, S)       -> apply_gate_rejected(E, S);
 
 %% ── Explorer ──
-apply_event(#{<<"event_type">> := <<"explorer_initiated_v1">>} = E, S)  -> apply_initiated(E, S);
 apply_event(#{event_type := <<"explorer_initiated_v1">>} = E, S)       -> apply_initiated(E, S);
-apply_event(#{<<"event_type">> := <<"explorer_completed_v1">>} = E, S) -> apply_completed(E, S);
 apply_event(#{event_type := <<"explorer_completed_v1">>} = E, S)      -> apply_completed(E, S);
-apply_event(#{<<"event_type">> := <<"explorer_failed_v1">>} = E, S)    -> apply_failed(E, S);
 apply_event(#{event_type := <<"explorer_failed_v1">>} = E, S)         -> apply_failed(E, S);
 
 %% ── Boundary gate ──
-apply_event(#{<<"event_type">> := <<"boundary_gate_escalated_v1">>} = E, S) -> apply_gate_escalated(E, S);
 apply_event(#{event_type := <<"boundary_gate_escalated_v1">>} = E, S)      -> apply_gate_escalated(E, S);
-apply_event(#{<<"event_type">> := <<"boundary_gate_passed_v1">>} = E, S)   -> apply_gate_passed(E, S);
 apply_event(#{event_type := <<"boundary_gate_passed_v1">>} = E, S)        -> apply_gate_passed(E, S);
-apply_event(#{<<"event_type">> := <<"boundary_gate_rejected_v1">>} = E, S) -> apply_gate_rejected(E, S);
 apply_event(#{event_type := <<"boundary_gate_rejected_v1">>} = E, S)      -> apply_gate_rejected(E, S);
 
 %% ── Stormer ──
-apply_event(#{<<"event_type">> := <<"stormer_initiated_v1">>} = E, S)  -> apply_initiated(E, S);
 apply_event(#{event_type := <<"stormer_initiated_v1">>} = E, S)       -> apply_initiated(E, S);
-apply_event(#{<<"event_type">> := <<"stormer_completed_v1">>} = E, S) -> apply_completed(E, S);
 apply_event(#{event_type := <<"stormer_completed_v1">>} = E, S)      -> apply_completed(E, S);
-apply_event(#{<<"event_type">> := <<"stormer_failed_v1">>} = E, S)    -> apply_failed(E, S);
 apply_event(#{event_type := <<"stormer_failed_v1">>} = E, S)         -> apply_failed(E, S);
 
 %% ── Design gate ──
-apply_event(#{<<"event_type">> := <<"design_gate_escalated_v1">>} = E, S) -> apply_gate_escalated(E, S);
 apply_event(#{event_type := <<"design_gate_escalated_v1">>} = E, S)      -> apply_gate_escalated(E, S);
-apply_event(#{<<"event_type">> := <<"design_gate_passed_v1">>} = E, S)   -> apply_gate_passed(E, S);
 apply_event(#{event_type := <<"design_gate_passed_v1">>} = E, S)        -> apply_gate_passed(E, S);
-apply_event(#{<<"event_type">> := <<"design_gate_rejected_v1">>} = E, S) -> apply_gate_rejected(E, S);
 apply_event(#{event_type := <<"design_gate_rejected_v1">>} = E, S)      -> apply_gate_rejected(E, S);
 
 %% ── Reviewer ──
-apply_event(#{<<"event_type">> := <<"reviewer_initiated_v1">>} = E, S)  -> apply_initiated(E, S);
 apply_event(#{event_type := <<"reviewer_initiated_v1">>} = E, S)       -> apply_initiated(E, S);
-apply_event(#{<<"event_type">> := <<"reviewer_completed_v1">>} = E, S) -> apply_completed(E, S);
 apply_event(#{event_type := <<"reviewer_completed_v1">>} = E, S)      -> apply_completed(E, S);
-apply_event(#{<<"event_type">> := <<"reviewer_failed_v1">>} = E, S)    -> apply_failed(E, S);
 apply_event(#{event_type := <<"reviewer_failed_v1">>} = E, S)         -> apply_failed(E, S);
 
 %% ── Review gate ──
-apply_event(#{<<"event_type">> := <<"review_gate_escalated_v1">>} = E, S) -> apply_gate_escalated(E, S);
 apply_event(#{event_type := <<"review_gate_escalated_v1">>} = E, S)      -> apply_gate_escalated(E, S);
-apply_event(#{<<"event_type">> := <<"review_gate_passed_v1">>} = E, S)   -> apply_gate_passed(E, S);
 apply_event(#{event_type := <<"review_gate_passed_v1">>} = E, S)        -> apply_gate_passed(E, S);
-apply_event(#{<<"event_type">> := <<"review_gate_rejected_v1">>} = E, S) -> apply_gate_rejected(E, S);
 apply_event(#{event_type := <<"review_gate_rejected_v1">>} = E, S)      -> apply_gate_rejected(E, S);
 
 %% ── Architect ──
-apply_event(#{<<"event_type">> := <<"architect_initiated_v1">>} = E, S)  -> apply_initiated(E, S);
 apply_event(#{event_type := <<"architect_initiated_v1">>} = E, S)       -> apply_initiated(E, S);
-apply_event(#{<<"event_type">> := <<"architect_completed_v1">>} = E, S) -> apply_completed(E, S);
 apply_event(#{event_type := <<"architect_completed_v1">>} = E, S)      -> apply_completed(E, S);
-apply_event(#{<<"event_type">> := <<"architect_failed_v1">>} = E, S)    -> apply_failed(E, S);
 apply_event(#{event_type := <<"architect_failed_v1">>} = E, S)         -> apply_failed(E, S);
 
 %% ── Erlang Coder ──
-apply_event(#{<<"event_type">> := <<"erlang_coder_initiated_v1">>} = E, S)  -> apply_initiated(E, S);
 apply_event(#{event_type := <<"erlang_coder_initiated_v1">>} = E, S)       -> apply_initiated(E, S);
-apply_event(#{<<"event_type">> := <<"erlang_coder_completed_v1">>} = E, S) -> apply_completed(E, S);
 apply_event(#{event_type := <<"erlang_coder_completed_v1">>} = E, S)      -> apply_completed(E, S);
-apply_event(#{<<"event_type">> := <<"erlang_coder_failed_v1">>} = E, S)    -> apply_failed(E, S);
 apply_event(#{event_type := <<"erlang_coder_failed_v1">>} = E, S)         -> apply_failed(E, S);
 
 %% ── Svelte Coder ──
-apply_event(#{<<"event_type">> := <<"svelte_coder_initiated_v1">>} = E, S)  -> apply_initiated(E, S);
 apply_event(#{event_type := <<"svelte_coder_initiated_v1">>} = E, S)       -> apply_initiated(E, S);
-apply_event(#{<<"event_type">> := <<"svelte_coder_completed_v1">>} = E, S) -> apply_completed(E, S);
 apply_event(#{event_type := <<"svelte_coder_completed_v1">>} = E, S)      -> apply_completed(E, S);
-apply_event(#{<<"event_type">> := <<"svelte_coder_failed_v1">>} = E, S)    -> apply_failed(E, S);
 apply_event(#{event_type := <<"svelte_coder_failed_v1">>} = E, S)         -> apply_failed(E, S);
 
 %% ── SQL Coder ──
-apply_event(#{<<"event_type">> := <<"sql_coder_initiated_v1">>} = E, S)  -> apply_initiated(E, S);
 apply_event(#{event_type := <<"sql_coder_initiated_v1">>} = E, S)       -> apply_initiated(E, S);
-apply_event(#{<<"event_type">> := <<"sql_coder_completed_v1">>} = E, S) -> apply_completed(E, S);
 apply_event(#{event_type := <<"sql_coder_completed_v1">>} = E, S)      -> apply_completed(E, S);
-apply_event(#{<<"event_type">> := <<"sql_coder_failed_v1">>} = E, S)    -> apply_failed(E, S);
 apply_event(#{event_type := <<"sql_coder_failed_v1">>} = E, S)         -> apply_failed(E, S);
 
 %% ── Tester ──
-apply_event(#{<<"event_type">> := <<"tester_initiated_v1">>} = E, S)  -> apply_initiated(E, S);
 apply_event(#{event_type := <<"tester_initiated_v1">>} = E, S)       -> apply_initiated(E, S);
-apply_event(#{<<"event_type">> := <<"tester_completed_v1">>} = E, S) -> apply_completed(E, S);
 apply_event(#{event_type := <<"tester_completed_v1">>} = E, S)      -> apply_completed(E, S);
-apply_event(#{<<"event_type">> := <<"tester_failed_v1">>} = E, S)    -> apply_failed(E, S);
 apply_event(#{event_type := <<"tester_failed_v1">>} = E, S)         -> apply_failed(E, S);
 
 %% ── Delivery Manager ──
-apply_event(#{<<"event_type">> := <<"delivery_manager_initiated_v1">>} = E, S)  -> apply_initiated(E, S);
 apply_event(#{event_type := <<"delivery_manager_initiated_v1">>} = E, S)       -> apply_initiated(E, S);
-apply_event(#{<<"event_type">> := <<"delivery_manager_completed_v1">>} = E, S) -> apply_completed(E, S);
 apply_event(#{event_type := <<"delivery_manager_completed_v1">>} = E, S)      -> apply_completed(E, S);
-apply_event(#{<<"event_type">> := <<"delivery_manager_failed_v1">>} = E, S)    -> apply_failed(E, S);
 apply_event(#{event_type := <<"delivery_manager_failed_v1">>} = E, S)         -> apply_failed(E, S);
 
 %% ── Coordinator (conversational) ──
-apply_event(#{<<"event_type">> := <<"coordinator_initiated_v1">>} = E, S)         -> apply_initiated(E, S);
 apply_event(#{event_type := <<"coordinator_initiated_v1">>} = E, S)              -> apply_initiated(E, S);
-apply_event(#{<<"event_type">> := <<"coordinator_turn_completed_v1">>} = E, S)    -> apply_turn_completed(E, S);
 apply_event(#{event_type := <<"coordinator_turn_completed_v1">>} = E, S)         -> apply_turn_completed(E, S);
-apply_event(#{<<"event_type">> := <<"coordinator_input_received_v1">>} = E, S)    -> apply_input_received(E, S);
 apply_event(#{event_type := <<"coordinator_input_received_v1">>} = E, S)         -> apply_input_received(E, S);
-apply_event(#{<<"event_type">> := <<"coordinator_completed_v1">>} = E, S)         -> apply_completed(E, S);
 apply_event(#{event_type := <<"coordinator_completed_v1">>} = E, S)              -> apply_completed(E, S);
-apply_event(#{<<"event_type">> := <<"coordinator_failed_v1">>} = E, S)            -> apply_failed(E, S);
 apply_event(#{event_type := <<"coordinator_failed_v1">>} = E, S)                 -> apply_failed(E, S);
 
 %% ── Mentor (conversational) ──
-apply_event(#{<<"event_type">> := <<"mentor_initiated_v1">>} = E, S)         -> apply_initiated(E, S);
 apply_event(#{event_type := <<"mentor_initiated_v1">>} = E, S)              -> apply_initiated(E, S);
-apply_event(#{<<"event_type">> := <<"mentor_turn_completed_v1">>} = E, S)    -> apply_turn_completed(E, S);
 apply_event(#{event_type := <<"mentor_turn_completed_v1">>} = E, S)         -> apply_turn_completed(E, S);
-apply_event(#{<<"event_type">> := <<"mentor_input_received_v1">>} = E, S)    -> apply_input_received(E, S);
 apply_event(#{event_type := <<"mentor_input_received_v1">>} = E, S)         -> apply_input_received(E, S);
-apply_event(#{<<"event_type">> := <<"mentor_completed_v1">>} = E, S)         -> apply_completed(E, S);
 apply_event(#{event_type := <<"mentor_completed_v1">>} = E, S)              -> apply_completed(E, S);
-apply_event(#{<<"event_type">> := <<"mentor_failed_v1">>} = E, S)            -> apply_failed(E, S);
 apply_event(#{event_type := <<"mentor_failed_v1">>} = E, S)                 -> apply_failed(E, S);
 
 %% ── Archive (role-agnostic) ──
-apply_event(#{<<"event_type">> := <<"agent_session_archived_v1">>} = E, S) -> apply_archived(E, S);
 apply_event(#{event_type := <<"agent_session_archived_v1">>} = E, S)      -> apply_archived(E, S);
 
 %% Unknown — ignore
@@ -568,7 +515,6 @@ apply_archived(E, #agent_session_state{status = Status} = State) ->
 
 %% --- Internal ---
 
-get_command_type(#{<<"command_type">> := T}) -> T;
 get_command_type(#{command_type := T}) when is_binary(T) -> T;
 get_command_type(#{command_type := T}) when is_atom(T) -> atom_to_binary(T);
 get_command_type(_) -> undefined.

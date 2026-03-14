@@ -26,7 +26,7 @@ handle_post(Req0, _State) ->
         {ok, Cmd} ->
             case maybe_initiate_division:dispatch(Cmd) of
                 {ok, Version, Events} ->
-                    app_marthad_api_utils:json_created(#{
+                    app_marthad_api_utils:json_ok(201, #{
                         division_id => DivisionId,
                         venture_id => VentureId,
                         context_name => ContextName,

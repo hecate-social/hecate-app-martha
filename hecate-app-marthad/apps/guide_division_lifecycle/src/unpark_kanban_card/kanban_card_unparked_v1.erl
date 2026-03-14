@@ -27,10 +27,10 @@ new(Params) ->
 
 -spec to_map(kanban_card_unparked_v1()) -> map().
 to_map(#kanban_card_unparked_v1{} = E) ->
-    #{      <<"event_type">>   => <<"kanban_card_unparked_v1">>,
-      <<"division_id">>  => E#kanban_card_unparked_v1.division_id,
-      <<"card_id">>      => E#kanban_card_unparked_v1.card_id,
-      <<"unparked_at">> => E#kanban_card_unparked_v1.unparked_at}.
+    #{      event_type   => <<"kanban_card_unparked_v1">>,
+      division_id => E#kanban_card_unparked_v1.division_id,
+      card_id => E#kanban_card_unparked_v1.card_id,
+      unparked_at => E#kanban_card_unparked_v1.unparked_at}.
 
 -spec from_map(map()) -> {ok, kanban_card_unparked_v1()} | {error, term()}.
 from_map(Map) ->

@@ -45,18 +45,18 @@ new(#{session_id := SessionId} = Params) ->
 -spec to_map(explorer_completed_v1()) -> map().
 to_map(#explorer_completed_v1{} = E) ->
     #{
-        <<"event_type">> => <<"explorer_completed_v1">>,
-        <<"session_id">> => E#explorer_completed_v1.session_id,
-        <<"agent_role">> => E#explorer_completed_v1.agent_role,
-        <<"venture_id">> => E#explorer_completed_v1.venture_id,
-        <<"division_id">> => E#explorer_completed_v1.division_id,
-        <<"tier">> => E#explorer_completed_v1.tier,
-        <<"model">> => E#explorer_completed_v1.model,
-        <<"notation_output">> => E#explorer_completed_v1.notation_output,
-        <<"parsed_terms">> => E#explorer_completed_v1.parsed_terms,
-        <<"tokens_in">> => E#explorer_completed_v1.tokens_in,
-        <<"tokens_out">> => E#explorer_completed_v1.tokens_out,
-        <<"completed_at">> => E#explorer_completed_v1.completed_at
+        event_type => <<"explorer_completed_v1">>,
+        session_id => E#explorer_completed_v1.session_id,
+        agent_role => E#explorer_completed_v1.agent_role,
+        venture_id => E#explorer_completed_v1.venture_id,
+        division_id => E#explorer_completed_v1.division_id,
+        tier => E#explorer_completed_v1.tier,
+        model => E#explorer_completed_v1.model,
+        notation_output => E#explorer_completed_v1.notation_output,
+        parsed_terms => E#explorer_completed_v1.parsed_terms,
+        tokens_in => E#explorer_completed_v1.tokens_in,
+        tokens_out => E#explorer_completed_v1.tokens_out,
+        completed_at => E#explorer_completed_v1.completed_at
     }.
 
 -spec from_map(map()) -> {ok, explorer_completed_v1()} | {error, term()}.

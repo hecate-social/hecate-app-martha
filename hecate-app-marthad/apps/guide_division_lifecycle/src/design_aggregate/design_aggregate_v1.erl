@@ -42,12 +42,12 @@ validate(#design_aggregate_v1{} = Cmd) ->
 -spec to_map(design_aggregate_v1()) -> map().
 to_map(#design_aggregate_v1{} = Cmd) ->
     #{
-        <<"command_type">> => <<"design_aggregate">>,
-        <<"division_id">> => Cmd#design_aggregate_v1.division_id,
-        <<"aggregate_name">> => Cmd#design_aggregate_v1.aggregate_name,
-        <<"description">> => Cmd#design_aggregate_v1.description,
-        <<"stream_prefix">> => Cmd#design_aggregate_v1.stream_prefix,
-        <<"fields">> => Cmd#design_aggregate_v1.fields
+        command_type => <<"design_aggregate">>,
+        division_id => Cmd#design_aggregate_v1.division_id,
+        aggregate_name => Cmd#design_aggregate_v1.aggregate_name,
+        description => Cmd#design_aggregate_v1.description,
+        stream_prefix => Cmd#design_aggregate_v1.stream_prefix,
+        fields => Cmd#design_aggregate_v1.fields
     }.
 
 -spec from_map(map()) -> {ok, design_aggregate_v1()} | {error, term()}.

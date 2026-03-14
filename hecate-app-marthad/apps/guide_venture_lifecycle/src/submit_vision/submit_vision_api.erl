@@ -1,4 +1,4 @@
-%%% @doc API handler: POST /api/ventures/:venture_id/vision/submit
+%%% @doc API handler: POST /api/ventures/:venture_id/vision
 %%%
 %%% Finalizes a venture's vision.
 %%% @end
@@ -6,7 +6,7 @@
 
 -export([init/2, routes/0]).
 
-routes() -> [{"/api/ventures/:venture_id/vision/submit", ?MODULE, []}].
+routes() -> [{"/api/ventures/:venture_id/vision", ?MODULE, []}].
 
 init(Req0, State) ->
     case cowboy_req:method(Req0) of

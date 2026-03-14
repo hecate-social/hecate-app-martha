@@ -71,7 +71,6 @@ do_project(_Unknown, _Data, State, RM) ->
     {skip, State, RM}.
 
 get_event_type(#{event_type := T}) when is_binary(T) -> T;
-get_event_type(#{<<"event_type">> := T}) when is_binary(T) -> T;
 get_event_type(_) -> undefined.
 
 gf(Key, Data) when is_atom(Key) ->

@@ -9,14 +9,12 @@ start_link() ->
 
 init([]) ->
     Children = [
-        #{id => visionary_initiated_v1_to_pg,
-          start => {visionary_initiated_v1_to_pg, start_link, []},
-          restart => permanent, type => worker},
-        #{id => on_venture_initiated_initiate_visionary,
-          start => {on_venture_initiated_initiate_visionary, start_link, []},
-          restart => permanent, type => worker},
-        #{id => on_visionary_initiated_run_visionary_llm,
-          start => {on_visionary_initiated_run_visionary_llm, start_link, []},
-          restart => permanent, type => worker}
+        emitter(visionary_initiated_v1_to_pg),
+        emitter(on_venture_initiated_initiate_visionary),
+        emitter(on_visionary_initiated_run_visionary_llm)
     ],
     {ok, {#{strategy => one_for_one, intensity => 5, period => 10}, Children}}.
+
+emitter(Mod) ->
+    #{id => Mod, start => {evoq_event_handler, start_link, [Mod, #{}]},
+      restart => permanent, type => worker}.

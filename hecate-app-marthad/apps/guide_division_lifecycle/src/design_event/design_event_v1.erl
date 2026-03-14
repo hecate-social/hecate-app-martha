@@ -42,12 +42,12 @@ validate(#design_event_v1{} = Cmd) ->
 -spec to_map(design_event_v1()) -> map().
 to_map(#design_event_v1{} = Cmd) ->
     #{
-        <<"command_type">> => <<"design_event">>,
-        <<"division_id">> => Cmd#design_event_v1.division_id,
-        <<"event_name">> => Cmd#design_event_v1.event_name,
-        <<"description">> => Cmd#design_event_v1.description,
-        <<"aggregate_name">> => Cmd#design_event_v1.aggregate_name,
-        <<"fields">> => Cmd#design_event_v1.fields
+        command_type => <<"design_event">>,
+        division_id => Cmd#design_event_v1.division_id,
+        event_name => Cmd#design_event_v1.event_name,
+        description => Cmd#design_event_v1.description,
+        aggregate_name => Cmd#design_event_v1.aggregate_name,
+        fields => Cmd#design_event_v1.fields
     }.
 
 -spec from_map(map()) -> {ok, design_event_v1()} | {error, term()}.

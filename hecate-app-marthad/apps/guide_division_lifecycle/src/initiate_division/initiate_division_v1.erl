@@ -39,11 +39,11 @@ validate(#initiate_division_v1{} = Cmd) ->
 -spec to_map(initiate_division_v1()) -> map().
 to_map(#initiate_division_v1{} = Cmd) ->
     #{
-        <<"command_type">> => <<"initiate_division">>,
-        <<"division_id">> => Cmd#initiate_division_v1.division_id,
-        <<"venture_id">> => Cmd#initiate_division_v1.venture_id,
-        <<"context_name">> => Cmd#initiate_division_v1.context_name,
-        <<"initiated_by">> => Cmd#initiate_division_v1.initiated_by
+        command_type => <<"initiate_division">>,
+        division_id => Cmd#initiate_division_v1.division_id,
+        venture_id => Cmd#initiate_division_v1.venture_id,
+        context_name => Cmd#initiate_division_v1.context_name,
+        initiated_by => Cmd#initiate_division_v1.initiated_by
     }.
 
 -spec from_map(map()) -> {ok, initiate_division_v1()} | {error, term()}.

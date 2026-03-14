@@ -9,14 +9,12 @@ start_link() ->
 
 init([]) ->
     Children = [
-        #{id => coordinator_initiated_v1_to_pg,
-          start => {coordinator_initiated_v1_to_pg, start_link, []},
-          restart => permanent, type => worker},
-        #{id => on_venture_initiated_initiate_coordinator,
-          start => {on_venture_initiated_initiate_coordinator, start_link, []},
-          restart => permanent, type => worker},
-        #{id => on_coordinator_initiated_run_coordinator_llm,
-          start => {on_coordinator_initiated_run_coordinator_llm, start_link, []},
-          restart => permanent, type => worker}
+        emitter(coordinator_initiated_v1_to_pg),
+        emitter(on_venture_initiated_initiate_coordinator),
+        emitter(on_coordinator_initiated_run_coordinator_llm)
     ],
     {ok, {#{strategy => one_for_one, intensity => 5, period => 10}, Children}}.
+
+emitter(Mod) ->
+    #{id => Mod, start => {evoq_event_handler, start_link, [Mod, #{}]},
+      restart => permanent, type => worker}.

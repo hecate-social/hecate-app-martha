@@ -30,11 +30,11 @@ new(#{venture_id := VentureId, repo_path := RepoPath} = Params) ->
 -spec to_map(venture_repo_scaffolded_v1()) -> map().
 to_map(#venture_repo_scaffolded_v1{} = E) ->
     #{
-        <<"event_type">> => <<"venture_repo_scaffolded_v1">>,
-        <<"venture_id">> => E#venture_repo_scaffolded_v1.venture_id,
-        <<"repo_path">> => E#venture_repo_scaffolded_v1.repo_path,
-        <<"brief">> => E#venture_repo_scaffolded_v1.brief,
-        <<"scaffolded_at">> => E#venture_repo_scaffolded_v1.scaffolded_at
+        event_type => <<"venture_repo_scaffolded_v1">>,
+        venture_id => E#venture_repo_scaffolded_v1.venture_id,
+        repo_path => E#venture_repo_scaffolded_v1.repo_path,
+        brief => E#venture_repo_scaffolded_v1.brief,
+        scaffolded_at => E#venture_repo_scaffolded_v1.scaffolded_at
     }.
 
 -spec from_map(map()) -> {ok, venture_repo_scaffolded_v1()} | {error, term()}.

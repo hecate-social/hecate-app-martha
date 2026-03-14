@@ -40,16 +40,16 @@ new(#{session_id := SessionId} = Params) ->
 -spec to_map(coordinator_initiated_v1()) -> map().
 to_map(#coordinator_initiated_v1{} = E) ->
     #{
-        <<"event_type">> => <<"coordinator_initiated_v1">>,
-        <<"session_id">> => E#coordinator_initiated_v1.session_id,
-        <<"agent_role">> => E#coordinator_initiated_v1.agent_role,
-        <<"venture_id">> => E#coordinator_initiated_v1.venture_id,
-        <<"division_id">> => E#coordinator_initiated_v1.division_id,
-        <<"tier">> => E#coordinator_initiated_v1.tier,
-        <<"model">> => E#coordinator_initiated_v1.model,
-        <<"input_context">> => E#coordinator_initiated_v1.input_context,
-        <<"initiated_at">> => E#coordinator_initiated_v1.initiated_at,
-        <<"initiated_by">> => E#coordinator_initiated_v1.initiated_by
+        event_type => <<"coordinator_initiated_v1">>,
+        session_id => E#coordinator_initiated_v1.session_id,
+        agent_role => E#coordinator_initiated_v1.agent_role,
+        venture_id => E#coordinator_initiated_v1.venture_id,
+        division_id => E#coordinator_initiated_v1.division_id,
+        tier => E#coordinator_initiated_v1.tier,
+        model => E#coordinator_initiated_v1.model,
+        input_context => E#coordinator_initiated_v1.input_context,
+        initiated_at => E#coordinator_initiated_v1.initiated_at,
+        initiated_by => E#coordinator_initiated_v1.initiated_by
     }.
 
 -spec from_map(map()) -> {ok, coordinator_initiated_v1()} | {error, term()}.

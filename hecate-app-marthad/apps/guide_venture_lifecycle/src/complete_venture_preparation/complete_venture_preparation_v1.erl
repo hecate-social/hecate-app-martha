@@ -32,8 +32,8 @@ validate(#complete_venture_preparation_v1{} = Cmd) ->
 -spec to_map(complete_venture_preparation_v1()) -> map().
 to_map(#complete_venture_preparation_v1{} = Cmd) ->
     #{
-        <<"command_type">> => <<"complete_venture_preparation">>,
-        <<"venture_id">> => Cmd#complete_venture_preparation_v1.venture_id
+        command_type => <<"complete_venture_preparation">>,
+        venture_id => Cmd#complete_venture_preparation_v1.venture_id
     }.
 
 -spec from_map(map()) -> {ok, complete_venture_preparation_v1()} | {error, term()}.

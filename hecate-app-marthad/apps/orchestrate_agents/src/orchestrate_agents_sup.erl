@@ -23,33 +23,19 @@ init([]) ->
     Children = [
         %% ── Archive desk (role-agnostic) ──
 
-        #{id => agent_session_archived_v1_to_pg,
-          start => {agent_session_archived_v1_to_pg, start_link, []},
-          restart => permanent, type => worker},
+        emitter(agent_session_archived_v1_to_pg),
 
         %% ── Division team emitters ──
 
-        #{id => team_formed_v1_to_pg,
-          start => {team_formed_v1_to_pg, start_link, []},
-          restart => permanent, type => worker},
-        #{id => agent_assigned_to_team_v1_to_pg,
-          start => {agent_assigned_to_team_v1_to_pg, start_link, []},
-          restart => permanent, type => worker},
-        #{id => team_activated_v1_to_pg,
-          start => {team_activated_v1_to_pg, start_link, []},
-          restart => permanent, type => worker},
-        #{id => team_disbanded_v1_to_pg,
-          start => {team_disbanded_v1_to_pg, start_link, []},
-          restart => permanent, type => worker},
+        emitter(team_formed_v1_to_pg),
+        emitter(agent_assigned_to_team_v1_to_pg),
+        emitter(team_activated_v1_to_pg),
+        emitter(team_disbanded_v1_to_pg),
 
         %% ── Team lifecycle PMs ──
 
-        #{id => on_division_identified_form_team,
-          start => {on_division_identified_form_team, start_link, []},
-          restart => permanent, type => worker},
-        #{id => on_agent_initiated_assign_agent_to_team,
-          start => {on_agent_initiated_assign_agent_to_team, start_link, []},
-          restart => permanent, type => worker},
+        emitter(on_division_identified_form_team),
+        emitter(on_agent_initiated_assign_agent_to_team),
 
         %% ── Per-role desk supervisors ──
 
@@ -92,3 +78,7 @@ init([]) ->
     ],
 
     {ok, {SupFlags, Children}}.
+
+emitter(Mod) ->
+    #{id => Mod, start => {evoq_event_handler, start_link, [Mod, #{}]},
+      restart => permanent, type => worker}.

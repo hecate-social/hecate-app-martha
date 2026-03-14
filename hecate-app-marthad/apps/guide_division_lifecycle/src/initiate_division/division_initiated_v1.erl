@@ -28,12 +28,12 @@ new(Params) ->
 -spec to_map(division_initiated_v1()) -> map().
 to_map(#division_initiated_v1{} = E) ->
     #{
-        <<"event_type">> => <<"division_initiated_v1">>,
-        <<"division_id">> => E#division_initiated_v1.division_id,
-        <<"venture_id">> => E#division_initiated_v1.venture_id,
-        <<"context_name">> => E#division_initiated_v1.context_name,
-        <<"initiated_by">> => E#division_initiated_v1.initiated_by,
-        <<"initiated_at">> => E#division_initiated_v1.initiated_at
+        event_type => <<"division_initiated_v1">>,
+        division_id => E#division_initiated_v1.division_id,
+        venture_id => E#division_initiated_v1.venture_id,
+        context_name => E#division_initiated_v1.context_name,
+        initiated_by => E#division_initiated_v1.initiated_by,
+        initiated_at => E#division_initiated_v1.initiated_at
     }.
 
 -spec from_map(map()) -> {ok, division_initiated_v1()} | {error, term()}.

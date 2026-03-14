@@ -38,9 +38,9 @@ validate(_) -> ok.
 -spec to_map(erase_fact_arrow_v1()) -> map().
 to_map(#erase_fact_arrow_v1{venture_id = V, arrow_id = A}) ->
     #{
-        <<"command_type">> => <<"erase_fact_arrow">>,
-        <<"venture_id">> => V,
-        <<"arrow_id">> => A
+        command_type => <<"erase_fact_arrow">>,
+        venture_id => V,
+        arrow_id => A
     }.
 
 -spec from_map(map()) -> {ok, erase_fact_arrow_v1()} | {error, term()}.

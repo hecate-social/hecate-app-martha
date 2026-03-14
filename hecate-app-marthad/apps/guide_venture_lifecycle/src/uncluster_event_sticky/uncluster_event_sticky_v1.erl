@@ -38,9 +38,9 @@ validate(_) -> ok.
 -spec to_map(uncluster_event_sticky_v1()) -> map().
 to_map(#uncluster_event_sticky_v1{venture_id = V, sticky_id = S}) ->
     #{
-        <<"command_type">> => <<"uncluster_event_sticky">>,
-        <<"venture_id">> => V,
-        <<"sticky_id">> => S
+        command_type => <<"uncluster_event_sticky">>,
+        venture_id => V,
+        sticky_id => S
     }.
 
 -spec from_map(map()) -> {ok, uncluster_event_sticky_v1()} | {error, term()}.

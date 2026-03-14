@@ -40,13 +40,13 @@ validate(#complete_delivery_manager_v1{}) ->
 -spec to_map(complete_delivery_manager_v1()) -> map().
 to_map(#complete_delivery_manager_v1{} = Cmd) ->
     #{
-        <<"command_type">> => <<"complete_agent">>,
-        <<"agent_role">> => <<"delivery_manager">>,
-        <<"session_id">> => Cmd#complete_delivery_manager_v1.session_id,
-        <<"notation_output">> => Cmd#complete_delivery_manager_v1.notation_output,
-        <<"parsed_terms">> => Cmd#complete_delivery_manager_v1.parsed_terms,
-        <<"tokens_in">> => Cmd#complete_delivery_manager_v1.tokens_in,
-        <<"tokens_out">> => Cmd#complete_delivery_manager_v1.tokens_out
+        command_type => <<"complete_agent">>,
+        agent_role => <<"delivery_manager">>,
+        session_id => Cmd#complete_delivery_manager_v1.session_id,
+        notation_output => Cmd#complete_delivery_manager_v1.notation_output,
+        parsed_terms => Cmd#complete_delivery_manager_v1.parsed_terms,
+        tokens_in => Cmd#complete_delivery_manager_v1.tokens_in,
+        tokens_out => Cmd#complete_delivery_manager_v1.tokens_out
     }.
 
 -spec from_map(map()) -> {ok, complete_delivery_manager_v1()} | {error, term()}.

@@ -34,13 +34,13 @@ new(#{division_id := DivisionId, aggregate_name := AggName} = Params) ->
 -spec to_map(aggregate_designed_v1()) -> map().
 to_map(#aggregate_designed_v1{} = E) ->
     #{
-        <<"event_type">> => <<"aggregate_designed_v1">>,
-        <<"division_id">> => E#aggregate_designed_v1.division_id,
-        <<"aggregate_name">> => E#aggregate_designed_v1.aggregate_name,
-        <<"description">> => E#aggregate_designed_v1.description,
-        <<"stream_prefix">> => E#aggregate_designed_v1.stream_prefix,
-        <<"fields">> => E#aggregate_designed_v1.fields,
-        <<"designed_at">> => E#aggregate_designed_v1.designed_at
+        event_type => <<"aggregate_designed_v1">>,
+        division_id => E#aggregate_designed_v1.division_id,
+        aggregate_name => E#aggregate_designed_v1.aggregate_name,
+        description => E#aggregate_designed_v1.description,
+        stream_prefix => E#aggregate_designed_v1.stream_prefix,
+        fields => E#aggregate_designed_v1.fields,
+        designed_at => E#aggregate_designed_v1.designed_at
     }.
 
 -spec from_map(map()) -> {ok, aggregate_designed_v1()} | {error, term()}.

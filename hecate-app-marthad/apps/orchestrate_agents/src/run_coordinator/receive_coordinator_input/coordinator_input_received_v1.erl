@@ -33,13 +33,13 @@ new(#{session_id := SessionId} = Params) ->
 -spec to_map(coordinator_input_received_v1()) -> map().
 to_map(#coordinator_input_received_v1{} = E) ->
     #{
-        <<"event_type">> => <<"coordinator_input_received_v1">>,
-        <<"session_id">> => E#coordinator_input_received_v1.session_id,
-        <<"agent_role">> => E#coordinator_input_received_v1.agent_role,
-        <<"venture_id">> => E#coordinator_input_received_v1.venture_id,
-        <<"input_content">> => E#coordinator_input_received_v1.input_content,
-        <<"input_by">> => E#coordinator_input_received_v1.input_by,
-        <<"received_at">> => E#coordinator_input_received_v1.received_at
+        event_type => <<"coordinator_input_received_v1">>,
+        session_id => E#coordinator_input_received_v1.session_id,
+        agent_role => E#coordinator_input_received_v1.agent_role,
+        venture_id => E#coordinator_input_received_v1.venture_id,
+        input_content => E#coordinator_input_received_v1.input_content,
+        input_by => E#coordinator_input_received_v1.input_by,
+        received_at => E#coordinator_input_received_v1.received_at
     }.
 
 -spec from_map(map()) -> {ok, coordinator_input_received_v1()} | {error, term()}.

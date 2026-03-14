@@ -63,13 +63,13 @@ validate(_) -> {error, invalid_post_kanban_card}.
 
 -spec to_map(post_kanban_card_v1()) -> map().
 to_map(#post_kanban_card_v1{} = C) ->
-    #{<<"command_type">> => <<"post_kanban_card">>,
-      <<"division_id">>  => C#post_kanban_card_v1.division_id,
-      <<"card_id">>      => C#post_kanban_card_v1.card_id,
-      <<"title">>        => C#post_kanban_card_v1.title,
-      <<"description">>  => C#post_kanban_card_v1.description,
-      <<"card_type">>    => C#post_kanban_card_v1.card_type,
-      <<"posted_by">>    => C#post_kanban_card_v1.posted_by}.
+    #{command_type => <<"post_kanban_card">>,
+      division_id => C#post_kanban_card_v1.division_id,
+      card_id => C#post_kanban_card_v1.card_id,
+      title => C#post_kanban_card_v1.title,
+      description => C#post_kanban_card_v1.description,
+      card_type => C#post_kanban_card_v1.card_type,
+      posted_by => C#post_kanban_card_v1.posted_by}.
 
 get_value(Key, Map) when is_atom(Key) ->
     case maps:find(Key, Map) of

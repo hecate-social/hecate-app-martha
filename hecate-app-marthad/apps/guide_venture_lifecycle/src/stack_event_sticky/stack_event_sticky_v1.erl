@@ -44,10 +44,10 @@ validate(_) -> ok.
 -spec to_map(stack_event_sticky_v1()) -> map().
 to_map(#stack_event_sticky_v1{venture_id = V, sticky_id = S, target_sticky_id = T}) ->
     #{
-        <<"command_type">> => <<"stack_event_sticky">>,
-        <<"venture_id">> => V,
-        <<"sticky_id">> => S,
-        <<"target_sticky_id">> => T
+        command_type => <<"stack_event_sticky">>,
+        venture_id => V,
+        sticky_id => S,
+        target_sticky_id => T
     }.
 
 -spec from_map(map()) -> {ok, stack_event_sticky_v1()} | {error, term()}.

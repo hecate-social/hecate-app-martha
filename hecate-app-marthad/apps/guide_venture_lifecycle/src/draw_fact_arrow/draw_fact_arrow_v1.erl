@@ -48,11 +48,11 @@ validate(_) -> ok.
 to_map(#draw_fact_arrow_v1{venture_id = V, from_cluster = FC,
                             to_cluster = TC, fact_name = FN}) ->
     #{
-        <<"command_type">> => <<"draw_fact_arrow">>,
-        <<"venture_id">> => V,
-        <<"from_cluster">> => FC,
-        <<"to_cluster">> => TC,
-        <<"fact_name">> => FN
+        command_type => <<"draw_fact_arrow">>,
+        venture_id => V,
+        from_cluster => FC,
+        to_cluster => TC,
+        fact_name => FN
     }.
 
 -spec from_map(map()) -> {ok, draw_fact_arrow_v1()} | {error, term()}.

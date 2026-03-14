@@ -40,16 +40,16 @@ new(#{session_id := SessionId} = Params) ->
 -spec to_map(erlang_coder_initiated_v1()) -> map().
 to_map(#erlang_coder_initiated_v1{} = E) ->
     #{
-        <<"event_type">> => <<"erlang_coder_initiated_v1">>,
-        <<"session_id">> => E#erlang_coder_initiated_v1.session_id,
-        <<"agent_role">> => E#erlang_coder_initiated_v1.agent_role,
-        <<"venture_id">> => E#erlang_coder_initiated_v1.venture_id,
-        <<"division_id">> => E#erlang_coder_initiated_v1.division_id,
-        <<"tier">> => E#erlang_coder_initiated_v1.tier,
-        <<"model">> => E#erlang_coder_initiated_v1.model,
-        <<"input_context">> => E#erlang_coder_initiated_v1.input_context,
-        <<"initiated_at">> => E#erlang_coder_initiated_v1.initiated_at,
-        <<"initiated_by">> => E#erlang_coder_initiated_v1.initiated_by
+        event_type => <<"erlang_coder_initiated_v1">>,
+        session_id => E#erlang_coder_initiated_v1.session_id,
+        agent_role => E#erlang_coder_initiated_v1.agent_role,
+        venture_id => E#erlang_coder_initiated_v1.venture_id,
+        division_id => E#erlang_coder_initiated_v1.division_id,
+        tier => E#erlang_coder_initiated_v1.tier,
+        model => E#erlang_coder_initiated_v1.model,
+        input_context => E#erlang_coder_initiated_v1.input_context,
+        initiated_at => E#erlang_coder_initiated_v1.initiated_at,
+        initiated_by => E#erlang_coder_initiated_v1.initiated_by
     }.
 
 -spec from_map(map()) -> {ok, erlang_coder_initiated_v1()} | {error, term()}.

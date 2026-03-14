@@ -26,10 +26,10 @@ new(#{venture_id := VentureId} = Params) ->
 -spec to_map(discovery_paused_v1()) -> map().
 to_map(#discovery_paused_v1{venture_id = V, reason = R, paused_at = PA}) ->
     #{
-        <<"event_type">> => <<"discovery_paused_v1">>,
-        <<"venture_id">> => V,
-        <<"reason">> => R,
-        <<"paused_at">> => PA
+        event_type => <<"discovery_paused_v1">>,
+        venture_id => V,
+        reason => R,
+        paused_at => PA
     }.
 
 -spec from_map(map()) -> {ok, discovery_paused_v1()} | {error, term()}.

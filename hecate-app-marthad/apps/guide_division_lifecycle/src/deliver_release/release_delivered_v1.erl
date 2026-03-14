@@ -29,11 +29,11 @@ new(#{division_id := DivisionId, release_id := ReleaseId, version := Version}) -
 -spec to_map(release_delivered_v1()) -> map().
 to_map(#release_delivered_v1{} = E) ->
     #{
-        <<"event_type">> => <<"release_delivered_v1">>,
-        <<"division_id">> => E#release_delivered_v1.division_id,
-        <<"release_id">> => E#release_delivered_v1.release_id,
-        <<"version">> => E#release_delivered_v1.version,
-        <<"delivered_at">> => E#release_delivered_v1.delivered_at
+        event_type => <<"release_delivered_v1">>,
+        division_id => E#release_delivered_v1.division_id,
+        release_id => E#release_delivered_v1.release_id,
+        version => E#release_delivered_v1.version,
+        delivered_at => E#release_delivered_v1.delivered_at
     }.
 
 -spec from_map(map()) -> {ok, release_delivered_v1()} | {error, term()}.

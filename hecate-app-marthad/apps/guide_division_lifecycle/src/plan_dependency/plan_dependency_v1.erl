@@ -46,12 +46,12 @@ validate(#plan_dependency_v1{} = Cmd) ->
 -spec to_map(plan_dependency_v1()) -> map().
 to_map(#plan_dependency_v1{} = Cmd) ->
     #{
-        <<"command_type">> => <<"plan_dependency">>,
-        <<"division_id">> => Cmd#plan_dependency_v1.division_id,
-        <<"dependency_id">> => Cmd#plan_dependency_v1.dependency_id,
-        <<"from_desk">> => Cmd#plan_dependency_v1.from_desk,
-        <<"to_desk">> => Cmd#plan_dependency_v1.to_desk,
-        <<"dep_type">> => Cmd#plan_dependency_v1.dep_type
+        command_type => <<"plan_dependency">>,
+        division_id => Cmd#plan_dependency_v1.division_id,
+        dependency_id => Cmd#plan_dependency_v1.dependency_id,
+        from_desk => Cmd#plan_dependency_v1.from_desk,
+        to_desk => Cmd#plan_dependency_v1.to_desk,
+        dep_type => Cmd#plan_dependency_v1.dep_type
     }.
 
 -spec from_map(map()) -> {ok, plan_dependency_v1()} | {error, term()}.

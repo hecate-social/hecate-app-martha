@@ -38,15 +38,15 @@ new(#{session_id := SessionId} = Params) ->
 -spec to_map(design_gate_rejected_v1()) -> map().
 to_map(#design_gate_rejected_v1{} = E) ->
     #{
-        <<"event_type">> => <<"design_gate_rejected_v1">>,
-        <<"session_id">> => E#design_gate_rejected_v1.session_id,
-        <<"agent_role">> => E#design_gate_rejected_v1.agent_role,
-        <<"venture_id">> => E#design_gate_rejected_v1.venture_id,
-        <<"division_id">> => E#design_gate_rejected_v1.division_id,
-        <<"gate_name">> => E#design_gate_rejected_v1.gate_name,
-        <<"rejected_by">> => E#design_gate_rejected_v1.rejected_by,
-        <<"rejection_reason">> => E#design_gate_rejected_v1.rejection_reason,
-        <<"rejected_at">> => E#design_gate_rejected_v1.rejected_at
+        event_type => <<"design_gate_rejected_v1">>,
+        session_id => E#design_gate_rejected_v1.session_id,
+        agent_role => E#design_gate_rejected_v1.agent_role,
+        venture_id => E#design_gate_rejected_v1.venture_id,
+        division_id => E#design_gate_rejected_v1.division_id,
+        gate_name => E#design_gate_rejected_v1.gate_name,
+        rejected_by => E#design_gate_rejected_v1.rejected_by,
+        rejection_reason => E#design_gate_rejected_v1.rejection_reason,
+        rejected_at => E#design_gate_rejected_v1.rejected_at
     }.
 
 -spec from_map(map()) -> {ok, design_gate_rejected_v1()} | {error, term()}.

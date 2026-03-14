@@ -27,10 +27,10 @@ new(#{division_id := DivisionId} = Params) ->
 -spec to_map(planning_shelved_v1()) -> map().
 to_map(#planning_shelved_v1{} = E) ->
     #{
-        <<"event_type">> => <<"planning_shelved_v1">>,
-        <<"division_id">> => E#planning_shelved_v1.division_id,
-        <<"reason">> => E#planning_shelved_v1.reason,
-        <<"shelved_at">> => E#planning_shelved_v1.shelved_at
+        event_type => <<"planning_shelved_v1">>,
+        division_id => E#planning_shelved_v1.division_id,
+        reason => E#planning_shelved_v1.reason,
+        shelved_at => E#planning_shelved_v1.shelved_at
     }.
 
 -spec from_map(map()) -> {ok, planning_shelved_v1()} | {error, term()}.

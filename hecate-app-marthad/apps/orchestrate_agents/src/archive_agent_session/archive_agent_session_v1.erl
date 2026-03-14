@@ -33,9 +33,9 @@ validate(#archive_agent_session_v1{} = Cmd) ->
 -spec to_map(archive_agent_session_v1()) -> map().
 to_map(#archive_agent_session_v1{} = Cmd) ->
     #{
-        <<"command_type">> => <<"archive_agent_session">>,
-        <<"session_id">> => Cmd#archive_agent_session_v1.session_id,
-        <<"archived_by">> => Cmd#archive_agent_session_v1.archived_by
+        command_type => <<"archive_agent_session">>,
+        session_id => Cmd#archive_agent_session_v1.session_id,
+        archived_by => Cmd#archive_agent_session_v1.archived_by
     }.
 
 -spec from_map(map()) -> {ok, archive_agent_session_v1()} | {error, term()}.

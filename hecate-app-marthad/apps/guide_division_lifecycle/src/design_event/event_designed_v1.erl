@@ -34,13 +34,13 @@ new(#{division_id := DivisionId, event_name := EvtName} = Params) ->
 -spec to_map(event_designed_v1()) -> map().
 to_map(#event_designed_v1{} = E) ->
     #{
-        <<"event_type">> => <<"event_designed_v1">>,
-        <<"division_id">> => E#event_designed_v1.division_id,
-        <<"event_name">> => E#event_designed_v1.event_name,
-        <<"description">> => E#event_designed_v1.description,
-        <<"aggregate_name">> => E#event_designed_v1.aggregate_name,
-        <<"fields">> => E#event_designed_v1.fields,
-        <<"designed_at">> => E#event_designed_v1.designed_at
+        event_type => <<"event_designed_v1">>,
+        division_id => E#event_designed_v1.division_id,
+        event_name => E#event_designed_v1.event_name,
+        description => E#event_designed_v1.description,
+        aggregate_name => E#event_designed_v1.aggregate_name,
+        fields => E#event_designed_v1.fields,
+        designed_at => E#event_designed_v1.designed_at
     }.
 
 -spec from_map(map()) -> {ok, event_designed_v1()} | {error, term()}.

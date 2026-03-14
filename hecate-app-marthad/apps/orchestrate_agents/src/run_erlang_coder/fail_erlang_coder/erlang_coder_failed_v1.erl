@@ -43,17 +43,17 @@ new(#{session_id := SessionId} = Params) ->
 -spec to_map(erlang_coder_failed_v1()) -> map().
 to_map(#erlang_coder_failed_v1{} = E) ->
     #{
-        <<"event_type">> => <<"erlang_coder_failed_v1">>,
-        <<"session_id">> => E#erlang_coder_failed_v1.session_id,
-        <<"agent_role">> => E#erlang_coder_failed_v1.agent_role,
-        <<"venture_id">> => E#erlang_coder_failed_v1.venture_id,
-        <<"division_id">> => E#erlang_coder_failed_v1.division_id,
-        <<"tier">> => E#erlang_coder_failed_v1.tier,
-        <<"model">> => E#erlang_coder_failed_v1.model,
-        <<"error_reason">> => E#erlang_coder_failed_v1.error_reason,
-        <<"tokens_in">> => E#erlang_coder_failed_v1.tokens_in,
-        <<"tokens_out">> => E#erlang_coder_failed_v1.tokens_out,
-        <<"failed_at">> => E#erlang_coder_failed_v1.failed_at
+        event_type => <<"erlang_coder_failed_v1">>,
+        session_id => E#erlang_coder_failed_v1.session_id,
+        agent_role => E#erlang_coder_failed_v1.agent_role,
+        venture_id => E#erlang_coder_failed_v1.venture_id,
+        division_id => E#erlang_coder_failed_v1.division_id,
+        tier => E#erlang_coder_failed_v1.tier,
+        model => E#erlang_coder_failed_v1.model,
+        error_reason => E#erlang_coder_failed_v1.error_reason,
+        tokens_in => E#erlang_coder_failed_v1.tokens_in,
+        tokens_out => E#erlang_coder_failed_v1.tokens_out,
+        failed_at => E#erlang_coder_failed_v1.failed_at
     }.
 
 -spec from_map(map()) -> {ok, erlang_coder_failed_v1()} | {error, term()}.

@@ -39,10 +39,10 @@ validate(#run_test_suite_v1{} = Cmd) ->
 -spec to_map(run_test_suite_v1()) -> map().
 to_map(#run_test_suite_v1{} = Cmd) ->
     #{
-        <<"command_type">> => <<"run_test_suite">>,
-        <<"division_id">> => Cmd#run_test_suite_v1.division_id,
-        <<"suite_id">> => Cmd#run_test_suite_v1.suite_id,
-        <<"suite_name">> => Cmd#run_test_suite_v1.suite_name
+        command_type => <<"run_test_suite">>,
+        division_id => Cmd#run_test_suite_v1.division_id,
+        suite_id => Cmd#run_test_suite_v1.suite_id,
+        suite_name => Cmd#run_test_suite_v1.suite_name
     }.
 
 -spec from_map(map()) -> {ok, run_test_suite_v1()} | {error, term()}.

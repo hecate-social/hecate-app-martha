@@ -33,12 +33,12 @@ new(Params) ->
 
 -spec to_map(kanban_card_blocked_v1()) -> map().
 to_map(#kanban_card_blocked_v1{} = E) ->
-    #{      <<"event_type">>   => <<"kanban_card_blocked_v1">>,
-      <<"division_id">>  => E#kanban_card_blocked_v1.division_id,
-      <<"card_id">>      => E#kanban_card_blocked_v1.card_id,
-      <<"block_reason">> => E#kanban_card_blocked_v1.block_reason,
-      <<"blocked_by">>   => E#kanban_card_blocked_v1.blocked_by,
-      <<"blocked_at">>   => E#kanban_card_blocked_v1.blocked_at}.
+    #{      event_type   => <<"kanban_card_blocked_v1">>,
+      division_id => E#kanban_card_blocked_v1.division_id,
+      card_id => E#kanban_card_blocked_v1.card_id,
+      block_reason => E#kanban_card_blocked_v1.block_reason,
+      blocked_by => E#kanban_card_blocked_v1.blocked_by,
+      blocked_at => E#kanban_card_blocked_v1.blocked_at}.
 
 -spec from_map(map()) -> {ok, kanban_card_blocked_v1()} | {error, term()}.
 from_map(Map) ->

@@ -39,10 +39,10 @@ validate(#assign_agent_to_team_v1{} = Cmd) ->
 -spec to_map(assign_agent_to_team_v1()) -> map().
 to_map(#assign_agent_to_team_v1{} = Cmd) ->
     #{
-        <<"command_type">> => <<"assign_agent_to_team">>,
-        <<"division_id">> => Cmd#assign_agent_to_team_v1.division_id,
-        <<"agent_role">> => Cmd#assign_agent_to_team_v1.agent_role,
-        <<"session_id">> => Cmd#assign_agent_to_team_v1.session_id
+        command_type => <<"assign_agent_to_team">>,
+        division_id => Cmd#assign_agent_to_team_v1.division_id,
+        agent_role => Cmd#assign_agent_to_team_v1.agent_role,
+        session_id => Cmd#assign_agent_to_team_v1.session_id
     }.
 
 -spec from_map(map()) -> {ok, assign_agent_to_team_v1()} | {error, term()}.

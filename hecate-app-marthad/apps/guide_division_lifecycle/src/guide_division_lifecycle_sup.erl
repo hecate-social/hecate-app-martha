@@ -47,12 +47,10 @@ init([]) ->
         emitter(delivery_staged_v1_to_pg),
 
         %% === Process Manager ===
-        #{id => on_division_identified_initiate_division,
-          start => {on_division_identified_initiate_division, start_link, []},
-          restart => permanent, type => worker}
+        emitter(on_division_identified_initiate_division)
     ],
     {ok, {SupFlags, Children}}.
 
 emitter(Mod) ->
-    #{id => Mod, start => {Mod, start_link, []},
+    #{id => Mod, start => {evoq_event_handler, start_link, [Mod, #{}]},
       restart => permanent, type => worker}.

@@ -31,8 +31,8 @@ validate(_) -> ok.
 -spec to_map(complete_discovery_v1()) -> map().
 to_map(#complete_discovery_v1{venture_id = V}) ->
     #{
-        <<"command_type">> => <<"complete_discovery">>,
-        <<"venture_id">> => V
+        command_type => <<"complete_discovery">>,
+        venture_id => V
     }.
 
 -spec from_map(map()) -> {ok, complete_discovery_v1()} | {error, term()}.

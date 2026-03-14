@@ -9,11 +9,13 @@ start_link() ->
 
 init([]) ->
     Children = [
-        #{id => coordinator_input_received_v1_to_pg,
-          start => {coordinator_input_received_v1_to_pg, start_link, []},
-          restart => permanent, type => worker}
+        emitter(coordinator_input_received_v1_to_pg)
 
         %% PM added here:
         %% on_coordinator_input_received_run_coordinator_llm (resume LLM PM)
     ],
     {ok, {#{strategy => one_for_one, intensity => 5, period => 10}, Children}}.
+
+emitter(Mod) ->
+    #{id => Mod, start => {evoq_event_handler, start_link, [Mod, #{}]},
+      restart => permanent, type => worker}.

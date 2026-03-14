@@ -1,34 +1,18 @@
+%%% @doc Process manager: on division_identified, initiate division.
+%%% Reacts to division_identified_v1 events.
 -module(on_division_identified_initiate_division).
--behaviour(gen_server).
--export([start_link/0]).
--export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2]).
+-behaviour(evoq_event_handler).
+-export([interested_in/0, init/1, handle_event/4]).
 
--define(EVENT_TYPE, <<"division_identified_v1">>).
--define(SUB_NAME, <<"on_division_identified_initiate_division">>).
--define(STORE_ID, martha_store).
+interested_in() -> [<<"division_identified_v1">>].
 
-start_link() -> gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
+init(_Config) -> {ok, #{}}.
 
-init([]) ->
-    {ok, _} = reckon_evoq_adapter:subscribe(
-        ?STORE_ID, event_type, ?EVENT_TYPE, ?SUB_NAME,
-        #{subscriber_pid => self()}),
-    {ok, #{}}.
-
-handle_info({events, Events}, State) ->
-    lists:foreach(fun process_event/1, Events),
-    {noreply, State};
-handle_info(_Info, State) -> {noreply, State}.
-
-handle_call(_Req, _From, State) -> {reply, ok, State}.
-handle_cast(_Msg, State) -> {noreply, State}.
-terminate(_Reason, _State) -> ok.
-
-process_event(RawEvent) ->
-    Event = app_marthad_projection_event:to_map(RawEvent),
-    DivisionId = gv(division_id, Event),
-    VentureId = gv(venture_id, Event),
-    ContextName = gv(context_name, Event),
+handle_event(_EventType, Event, _Metadata, State) ->
+    Data = maps:get(data, Event),
+    DivisionId = gv(division_id, Data),
+    VentureId = gv(venture_id, Data),
+    ContextName = gv(context_name, Data),
     case {DivisionId, VentureId, ContextName} of
         {undefined, _, _} ->
             logger:warning("[~s] missing division_id in event", [?MODULE]);
@@ -55,7 +39,8 @@ process_event(RawEvent) ->
                 {error, Reason} ->
                     logger:warning("[~s] failed to create command: ~p", [?MODULE, Reason])
             end
-    end.
+    end,
+    {ok, State}.
 
 gv(Key, Map) when is_atom(Key) ->
     case maps:find(Key, Map) of

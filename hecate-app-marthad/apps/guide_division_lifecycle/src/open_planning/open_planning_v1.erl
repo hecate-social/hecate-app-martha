@@ -29,8 +29,8 @@ validate(#open_planning_v1{} = Cmd) ->
 -spec to_map(open_planning_v1()) -> map().
 to_map(#open_planning_v1{} = Cmd) ->
     #{
-        <<"command_type">> => <<"open_planning">>,
-        <<"division_id">> => Cmd#open_planning_v1.division_id
+        command_type => <<"open_planning">>,
+        division_id => Cmd#open_planning_v1.division_id
     }.
 
 -spec from_map(map()) -> {ok, open_planning_v1()} | {error, term()}.

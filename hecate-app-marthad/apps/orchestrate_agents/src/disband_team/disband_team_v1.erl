@@ -35,10 +35,10 @@ validate(#disband_team_v1{} = Cmd) ->
 -spec to_map(disband_team_v1()) -> map().
 to_map(#disband_team_v1{} = Cmd) ->
     #{
-        <<"command_type">> => <<"disband_team">>,
-        <<"division_id">> => Cmd#disband_team_v1.division_id,
-        <<"reason">> => Cmd#disband_team_v1.reason,
-        <<"disbanded_by">> => Cmd#disband_team_v1.disbanded_by
+        command_type => <<"disband_team">>,
+        division_id => Cmd#disband_team_v1.division_id,
+        reason => Cmd#disband_team_v1.reason,
+        disbanded_by => Cmd#disband_team_v1.disbanded_by
     }.
 
 -spec from_map(map()) -> {ok, disband_team_v1()} | {error, term()}.

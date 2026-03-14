@@ -43,12 +43,12 @@ validate(#record_test_result_v1{} = Cmd) ->
 -spec to_map(record_test_result_v1()) -> map().
 to_map(#record_test_result_v1{} = Cmd) ->
     #{
-        <<"command_type">> => <<"record_test_result">>,
-        <<"division_id">> => Cmd#record_test_result_v1.division_id,
-        <<"result_id">> => Cmd#record_test_result_v1.result_id,
-        <<"suite_id">> => Cmd#record_test_result_v1.suite_id,
-        <<"passed">> => Cmd#record_test_result_v1.passed,
-        <<"failed">> => Cmd#record_test_result_v1.failed
+        command_type => <<"record_test_result">>,
+        division_id => Cmd#record_test_result_v1.division_id,
+        result_id => Cmd#record_test_result_v1.result_id,
+        suite_id => Cmd#record_test_result_v1.suite_id,
+        passed => Cmd#record_test_result_v1.passed,
+        failed => Cmd#record_test_result_v1.failed
     }.
 
 -spec from_map(map()) -> {ok, record_test_result_v1()} | {error, term()}.

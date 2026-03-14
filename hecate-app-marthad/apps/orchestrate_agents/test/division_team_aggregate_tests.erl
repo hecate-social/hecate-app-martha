@@ -92,7 +92,7 @@ exec_form_ok() ->
     {ok, Events} = division_team_aggregate:execute(State, Cmd),
     ?assertEqual(1, length(Events)),
     [E] = Events,
-    ?assertEqual(<<"team_formed_v1">>, maps:get(<<"event_type">>, E)).
+    ?assertEqual(<<"team_formed_v1">>, maps:get(event_type, E)).
 
 exec_non_form_on_fresh() ->
     State = division_team_aggregate:initial_state(),
@@ -105,11 +105,11 @@ exec_assign_on_formed() ->
     {ok, Events} = division_team_aggregate:execute(State, Cmd),
     ?assertEqual(1, length(Events)),
     [E] = Events,
-    ?assertEqual(<<"agent_assigned_to_team_v1">>, maps:get(<<"event_type">>, E)).
+    ?assertEqual(<<"agent_assigned_to_team_v1">>, maps:get(event_type, E)).
 
 exec_assign_on_active() ->
     State = active_state(),
-    Cmd = #{<<"command_type">> => <<"assign_agent_to_team">>,
+    Cmd = #{command_type => <<"assign_agent_to_team">>,
             <<"division_id">> => <<"div-001">>,
             <<"agent_role">> => <<"explorer">>,
             <<"session_id">> => <<"sess-exp">>},
@@ -127,7 +127,7 @@ exec_activate_on_formed() ->
     {ok, Events} = division_team_aggregate:execute(State, Cmd),
     ?assertEqual(1, length(Events)),
     [E] = Events,
-    ?assertEqual(<<"team_activated_v1">>, maps:get(<<"event_type">>, E)).
+    ?assertEqual(<<"team_activated_v1">>, maps:get(event_type, E)).
 
 exec_activate_on_active() ->
     State = active_state(),
@@ -140,7 +140,7 @@ exec_disband_on_formed() ->
     {ok, Events} = division_team_aggregate:execute(State, Cmd),
     ?assertEqual(1, length(Events)),
     [E] = Events,
-    ?assertEqual(<<"team_disbanded_v1">>, maps:get(<<"event_type">>, E)).
+    ?assertEqual(<<"team_disbanded_v1">>, maps:get(event_type, E)).
 
 exec_disband_on_active() ->
     State = active_state(),
@@ -188,7 +188,7 @@ apply_assigned() ->
 
 apply_activated() ->
     S0 = formed_with_members_state(),
-    E = #{<<"event_type">> => <<"team_activated_v1">>,
+    E = #{event_type => <<"team_activated_v1">>,
           <<"activated_at">> => 1234567890},
     S1 = division_team_aggregate:apply(S0, E),
     ?assertNotEqual(0, S1#division_team_state.status band ?DT_ACTIVE),
@@ -196,7 +196,7 @@ apply_activated() ->
 
 apply_disbanded() ->
     S0 = active_state(),
-    E = #{<<"event_type">> => <<"team_disbanded_v1">>,
+    E = #{event_type => <<"team_disbanded_v1">>,
           <<"disbanded_at">> => 9999999999},
     S1 = division_team_aggregate:apply(S0, E),
     ?assertNotEqual(0, S1#division_team_state.status band ?DT_DISBANDED),
@@ -220,7 +220,7 @@ full_lifecycle() ->
     ?assertEqual(1, length(S2#division_team_state.members)),
 
     %% 3. Assign explorer
-    AssignExp = #{<<"command_type">> => <<"assign_agent_to_team">>,
+    AssignExp = #{command_type => <<"assign_agent_to_team">>,
                   <<"division_id">> => <<"div-001">>,
                   <<"agent_role">> => <<"explorer">>,
                   <<"session_id">> => <<"sess-exp">>},
@@ -302,51 +302,51 @@ cmd_disband_new() ->
 event_formed_type() ->
     E = team_formed_v1:new(#{division_id => <<"d">>, venture_id => <<"v">>}),
     M = team_formed_v1:to_map(E),
-    ?assertEqual(<<"team_formed_v1">>, maps:get(<<"event_type">>, M)).
+    ?assertEqual(<<"team_formed_v1">>, maps:get(event_type, M)).
 
 event_assigned_type() ->
     E = agent_assigned_to_team_v1:new(#{division_id => <<"d">>, agent_role => <<"r">>, session_id => <<"s">>}),
     M = agent_assigned_to_team_v1:to_map(E),
-    ?assertEqual(<<"agent_assigned_to_team_v1">>, maps:get(<<"event_type">>, M)).
+    ?assertEqual(<<"agent_assigned_to_team_v1">>, maps:get(event_type, M)).
 
 event_activated_type() ->
     E = team_activated_v1:new(#{division_id => <<"d">>}),
     M = team_activated_v1:to_map(E),
-    ?assertEqual(<<"team_activated_v1">>, maps:get(<<"event_type">>, M)).
+    ?assertEqual(<<"team_activated_v1">>, maps:get(event_type, M)).
 
 event_disbanded_type() ->
     E = team_disbanded_v1:new(#{division_id => <<"d">>}),
     M = team_disbanded_v1:to_map(E),
-    ?assertEqual(<<"team_disbanded_v1">>, maps:get(<<"event_type">>, M)).
+    ?assertEqual(<<"team_disbanded_v1">>, maps:get(event_type, M)).
 
 %% ===================================================================
 %% Helpers
 %% ===================================================================
 
 form_team_cmd() ->
-    #{<<"command_type">> => <<"form_team">>,
+    #{command_type => <<"form_team">>,
       <<"division_id">> => <<"div-001">>,
       <<"venture_id">> => <<"ven-001">>,
       <<"planned_roles">> => [<<"visionary">>, <<"explorer">>],
       <<"formed_by">> => <<"system">>}.
 
 assign_cmd() ->
-    #{<<"command_type">> => <<"assign_agent_to_team">>,
+    #{command_type => <<"assign_agent_to_team">>,
       <<"division_id">> => <<"div-001">>,
       <<"agent_role">> => <<"visionary">>,
       <<"session_id">> => <<"sess-vis">>}.
 
 activate_cmd() ->
-    #{<<"command_type">> => <<"activate_team">>,
+    #{command_type => <<"activate_team">>,
       <<"division_id">> => <<"div-001">>}.
 
 disband_cmd() ->
-    #{<<"command_type">> => <<"disband_team">>,
+    #{command_type => <<"disband_team">>,
       <<"division_id">> => <<"div-001">>,
       <<"reason">> => <<"completed">>}.
 
 formed_event() ->
-    #{<<"event_type">> => <<"team_formed_v1">>,
+    #{event_type => <<"team_formed_v1">>,
       <<"division_id">> => <<"div-001">>,
       <<"venture_id">> => <<"ven-001">>,
       <<"planned_roles">> => [<<"visionary">>, <<"explorer">>],
@@ -354,7 +354,7 @@ formed_event() ->
       <<"formed_at">> => 1000000000}.
 
 assigned_event(Role, SessId) ->
-    #{<<"event_type">> => <<"agent_assigned_to_team_v1">>,
+    #{event_type => <<"agent_assigned_to_team_v1">>,
       <<"agent_role">> => Role,
       <<"session_id">> => SessId,
       <<"assigned_at">> => 1000000001}.

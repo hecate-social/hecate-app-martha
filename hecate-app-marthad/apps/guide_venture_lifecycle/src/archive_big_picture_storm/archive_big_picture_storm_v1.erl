@@ -31,8 +31,8 @@ validate(_) -> ok.
 -spec to_map(archive_big_picture_storm_v1()) -> map().
 to_map(#archive_big_picture_storm_v1{venture_id = V}) ->
     #{
-        <<"command_type">> => <<"archive_big_picture_storm">>,
-        <<"venture_id">> => V
+        command_type => <<"archive_big_picture_storm">>,
+        venture_id => V
     }.
 
 -spec from_map(map()) -> {ok, archive_big_picture_storm_v1()} | {error, term()}.

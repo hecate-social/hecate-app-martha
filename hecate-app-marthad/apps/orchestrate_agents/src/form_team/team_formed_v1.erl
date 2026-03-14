@@ -32,12 +32,12 @@ new(#{division_id := DivId, venture_id := VentureId} = Params) ->
 -spec to_map(team_formed_v1()) -> map().
 to_map(#team_formed_v1{} = E) ->
     #{
-        <<"event_type">> => <<"team_formed_v1">>,
-        <<"division_id">> => E#team_formed_v1.division_id,
-        <<"venture_id">> => E#team_formed_v1.venture_id,
-        <<"planned_roles">> => E#team_formed_v1.planned_roles,
-        <<"formed_by">> => E#team_formed_v1.formed_by,
-        <<"formed_at">> => E#team_formed_v1.formed_at
+        event_type => <<"team_formed_v1">>,
+        division_id => E#team_formed_v1.division_id,
+        venture_id => E#team_formed_v1.venture_id,
+        planned_roles => E#team_formed_v1.planned_roles,
+        formed_by => E#team_formed_v1.formed_by,
+        formed_at => E#team_formed_v1.formed_at
     }.
 
 -spec from_map(map()) -> {ok, team_formed_v1()} | {error, term()}.

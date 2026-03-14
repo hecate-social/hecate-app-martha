@@ -42,9 +42,9 @@ validate(_) -> {error, invalid_finish_kanban_card}.
 
 -spec to_map(finish_kanban_card_v1()) -> map().
 to_map(#finish_kanban_card_v1{} = C) ->
-    #{      <<"command_type">> => <<"finish_kanban_card">>,
-      <<"division_id">>  => C#finish_kanban_card_v1.division_id,
-      <<"card_id">>      => C#finish_kanban_card_v1.card_id}.
+    #{      command_type => <<"finish_kanban_card">>,
+      division_id => C#finish_kanban_card_v1.division_id,
+      card_id => C#finish_kanban_card_v1.card_id}.
 
 get_value(Key, Map) when is_atom(Key) ->
     case maps:find(Key, Map) of

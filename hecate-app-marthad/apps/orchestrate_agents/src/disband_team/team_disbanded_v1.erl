@@ -27,10 +27,10 @@ new(#{division_id := DivId} = Params) ->
 -spec to_map(team_disbanded_v1()) -> map().
 to_map(#team_disbanded_v1{} = E) ->
     #{
-        <<"event_type">> => <<"team_disbanded_v1">>,
-        <<"division_id">> => E#team_disbanded_v1.division_id,
-        <<"reason">> => E#team_disbanded_v1.reason,
-        <<"disbanded_at">> => E#team_disbanded_v1.disbanded_at
+        event_type => <<"team_disbanded_v1">>,
+        division_id => E#team_disbanded_v1.division_id,
+        reason => E#team_disbanded_v1.reason,
+        disbanded_at => E#team_disbanded_v1.disbanded_at
     }.
 
 -spec from_map(map()) -> {ok, team_disbanded_v1()} | {error, term()}.

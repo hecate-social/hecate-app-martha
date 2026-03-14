@@ -40,14 +40,14 @@ new(Params) ->
 
 -spec to_map(kanban_card_posted_v1()) -> map().
 to_map(#kanban_card_posted_v1{} = E) ->
-    #{<<"event_type">>   => <<"kanban_card_posted_v1">>,
-      <<"division_id">>  => E#kanban_card_posted_v1.division_id,
-      <<"card_id">>      => E#kanban_card_posted_v1.card_id,
-      <<"title">>        => E#kanban_card_posted_v1.title,
-      <<"description">>  => E#kanban_card_posted_v1.description,
-      <<"card_type">>    => E#kanban_card_posted_v1.card_type,
-      <<"posted_by">>    => E#kanban_card_posted_v1.posted_by,
-      <<"posted_at">>    => E#kanban_card_posted_v1.posted_at}.
+    #{event_type   => <<"kanban_card_posted_v1">>,
+      division_id => E#kanban_card_posted_v1.division_id,
+      card_id => E#kanban_card_posted_v1.card_id,
+      title => E#kanban_card_posted_v1.title,
+      description => E#kanban_card_posted_v1.description,
+      card_type => E#kanban_card_posted_v1.card_type,
+      posted_by => E#kanban_card_posted_v1.posted_by,
+      posted_at => E#kanban_card_posted_v1.posted_at}.
 
 -spec from_map(map()) -> {ok, kanban_card_posted_v1()} | {error, term()}.
 from_map(Map) ->

@@ -29,10 +29,10 @@ validate(#escalate_review_gate_v1{}) ->
 -spec to_map(escalate_review_gate_v1()) -> map().
 to_map(#escalate_review_gate_v1{} = Cmd) ->
     #{
-        <<"command_type">> => <<"escalate_to_gate">>,
-        <<"agent_role">> => <<"reviewer">>,
-        <<"gate_name">> => <<"review_gate">>,
-        <<"session_id">> => Cmd#escalate_review_gate_v1.session_id
+        command_type => <<"escalate_to_gate">>,
+        agent_role => <<"reviewer">>,
+        gate_name => <<"review_gate">>,
+        session_id => Cmd#escalate_review_gate_v1.session_id
     }.
 
 -spec from_map(map()) -> {ok, escalate_review_gate_v1()} | {error, term()}.

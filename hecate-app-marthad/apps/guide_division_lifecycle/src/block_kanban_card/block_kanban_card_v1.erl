@@ -49,11 +49,11 @@ validate(_) -> {error, invalid_block_kanban_card}.
 
 -spec to_map(block_kanban_card_v1()) -> map().
 to_map(#block_kanban_card_v1{} = C) ->
-    #{      <<"command_type">> => <<"block_kanban_card">>,
-      <<"division_id">>  => C#block_kanban_card_v1.division_id,
-      <<"card_id">>      => C#block_kanban_card_v1.card_id,
-      <<"block_reason">> => C#block_kanban_card_v1.block_reason,
-      <<"blocked_by">>   => C#block_kanban_card_v1.blocked_by}.
+    #{      command_type => <<"block_kanban_card">>,
+      division_id => C#block_kanban_card_v1.division_id,
+      card_id => C#block_kanban_card_v1.card_id,
+      block_reason => C#block_kanban_card_v1.block_reason,
+      blocked_by => C#block_kanban_card_v1.blocked_by}.
 
 get_value(Key, Map) when is_atom(Key) ->
     case maps:find(Key, Map) of

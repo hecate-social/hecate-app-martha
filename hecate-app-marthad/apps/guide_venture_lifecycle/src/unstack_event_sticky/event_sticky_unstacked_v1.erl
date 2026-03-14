@@ -30,11 +30,11 @@ new(#{venture_id := VentureId, sticky_id := StickyId, stack_id := StackId} = Par
 to_map(#event_sticky_unstacked_v1{venture_id = V, sticky_id = SI,
                                    stack_id = StI, unstacked_at = UA}) ->
     #{
-        <<"event_type">> => <<"event_sticky_unstacked_v1">>,
-        <<"venture_id">> => V,
-        <<"sticky_id">> => SI,
-        <<"stack_id">> => StI,
-        <<"unstacked_at">> => UA
+        event_type => <<"event_sticky_unstacked_v1">>,
+        venture_id => V,
+        sticky_id => SI,
+        stack_id => StI,
+        unstacked_at => UA
     }.
 
 -spec from_map(map()) -> {ok, event_sticky_unstacked_v1()} | {error, term()}.

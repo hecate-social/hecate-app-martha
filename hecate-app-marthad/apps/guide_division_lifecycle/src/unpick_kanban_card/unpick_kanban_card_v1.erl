@@ -45,10 +45,10 @@ validate(_) -> {error, invalid_unpick_kanban_card}.
 
 -spec to_map(unpick_kanban_card_v1()) -> map().
 to_map(#unpick_kanban_card_v1{} = C) ->
-    #{      <<"command_type">> => <<"unpick_kanban_card">>,
-      <<"division_id">>  => C#unpick_kanban_card_v1.division_id,
-      <<"card_id">>      => C#unpick_kanban_card_v1.card_id,
-      <<"reason">>       => C#unpick_kanban_card_v1.reason}.
+    #{      command_type => <<"unpick_kanban_card">>,
+      division_id => C#unpick_kanban_card_v1.division_id,
+      card_id => C#unpick_kanban_card_v1.card_id,
+      reason => C#unpick_kanban_card_v1.reason}.
 
 get_value(Key, Map) when is_atom(Key) ->
     case maps:find(Key, Map) of

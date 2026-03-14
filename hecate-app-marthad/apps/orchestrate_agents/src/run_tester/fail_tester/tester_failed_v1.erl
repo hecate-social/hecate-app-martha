@@ -43,17 +43,17 @@ new(#{session_id := SessionId} = Params) ->
 -spec to_map(tester_failed_v1()) -> map().
 to_map(#tester_failed_v1{} = E) ->
     #{
-        <<"event_type">> => <<"tester_failed_v1">>,
-        <<"session_id">> => E#tester_failed_v1.session_id,
-        <<"agent_role">> => E#tester_failed_v1.agent_role,
-        <<"venture_id">> => E#tester_failed_v1.venture_id,
-        <<"division_id">> => E#tester_failed_v1.division_id,
-        <<"tier">> => E#tester_failed_v1.tier,
-        <<"model">> => E#tester_failed_v1.model,
-        <<"error_reason">> => E#tester_failed_v1.error_reason,
-        <<"tokens_in">> => E#tester_failed_v1.tokens_in,
-        <<"tokens_out">> => E#tester_failed_v1.tokens_out,
-        <<"failed_at">> => E#tester_failed_v1.failed_at
+        event_type => <<"tester_failed_v1">>,
+        session_id => E#tester_failed_v1.session_id,
+        agent_role => E#tester_failed_v1.agent_role,
+        venture_id => E#tester_failed_v1.venture_id,
+        division_id => E#tester_failed_v1.division_id,
+        tier => E#tester_failed_v1.tier,
+        model => E#tester_failed_v1.model,
+        error_reason => E#tester_failed_v1.error_reason,
+        tokens_in => E#tester_failed_v1.tokens_in,
+        tokens_out => E#tester_failed_v1.tokens_out,
+        failed_at => E#tester_failed_v1.failed_at
     }.
 
 -spec from_map(map()) -> {ok, tester_failed_v1()} | {error, term()}.

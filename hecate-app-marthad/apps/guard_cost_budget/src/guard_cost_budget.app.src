@@ -1,0 +1,19 @@
+{application, guard_cost_budget, [
+    {description, "Cost budget guardrail (CMD) - set, track spending, breach, adjust"},
+    {vsn, "0.1.0"},
+    {registered, []},
+    {mod, {guard_cost_budget_app, []}},
+    {applications, [
+        kernel,
+        stdlib,
+        crypto,
+        evoq,
+        reckon_evoq,
+        reckon_db,
+        serve_llm
+    ]},
+    {env, []},
+    {modules, []},
+    {licenses, ["Apache-2.0"]},
+    {links, [{"GitHub", "https://github.com/hecate-social/hecate-daemon"}]}
+]}.

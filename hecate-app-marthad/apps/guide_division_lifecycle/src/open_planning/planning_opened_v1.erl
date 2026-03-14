@@ -25,9 +25,9 @@ new(#{division_id := DivisionId}) ->
 -spec to_map(planning_opened_v1()) -> map().
 to_map(#planning_opened_v1{} = E) ->
     #{
-        <<"event_type">> => <<"planning_opened_v1">>,
-        <<"division_id">> => E#planning_opened_v1.division_id,
-        <<"opened_at">> => E#planning_opened_v1.opened_at
+        event_type => <<"planning_opened_v1">>,
+        division_id => E#planning_opened_v1.division_id,
+        opened_at => E#planning_opened_v1.opened_at
     }.
 
 -spec from_map(map()) -> {ok, planning_opened_v1()} | {error, term()}.

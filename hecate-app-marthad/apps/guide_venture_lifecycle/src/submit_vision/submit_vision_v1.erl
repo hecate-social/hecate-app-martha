@@ -32,8 +32,8 @@ validate(#submit_vision_v1{} = Cmd) ->
 -spec to_map(submit_vision_v1()) -> map().
 to_map(#submit_vision_v1{} = Cmd) ->
     #{
-        <<"command_type">> => <<"submit_vision">>,
-        <<"venture_id">> => Cmd#submit_vision_v1.venture_id
+        command_type => <<"submit_vision">>,
+        venture_id => Cmd#submit_vision_v1.venture_id
     }.
 
 -spec from_map(map()) -> {ok, submit_vision_v1()} | {error, term()}.

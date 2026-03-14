@@ -26,10 +26,10 @@ new(#{venture_id := VentureId} = Params) ->
 -spec to_map(big_picture_storm_shelved_v1()) -> map().
 to_map(#big_picture_storm_shelved_v1{venture_id = V, reason = R, shelved_at = SA}) ->
     #{
-        <<"event_type">> => <<"big_picture_storm_shelved_v1">>,
-        <<"venture_id">> => V,
-        <<"reason">> => R,
-        <<"shelved_at">> => SA
+        event_type => <<"big_picture_storm_shelved_v1">>,
+        venture_id => V,
+        reason => R,
+        shelved_at => SA
     }.
 
 -spec from_map(map()) -> {ok, big_picture_storm_shelved_v1()} | {error, term()}.

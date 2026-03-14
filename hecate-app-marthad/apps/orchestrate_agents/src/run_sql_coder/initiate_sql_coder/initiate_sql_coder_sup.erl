@@ -9,11 +9,11 @@ start_link() ->
 
 init([]) ->
     Children = [
-        #{id => sql_coder_initiated_v1_to_pg,
-          start => {sql_coder_initiated_v1_to_pg, start_link, []},
-          restart => permanent, type => worker},
-        #{id => on_sql_coder_initiated_run_sql_coder_llm,
-          start => {on_sql_coder_initiated_run_sql_coder_llm, start_link, []},
-          restart => permanent, type => worker}
+        emitter(sql_coder_initiated_v1_to_pg),
+        emitter(on_sql_coder_initiated_run_sql_coder_llm)
     ],
     {ok, {#{strategy => one_for_one, intensity => 5, period => 10}, Children}}.
+
+emitter(Mod) ->
+    #{id => Mod, start => {evoq_event_handler, start_link, [Mod, #{}]},
+      restart => permanent, type => worker}.

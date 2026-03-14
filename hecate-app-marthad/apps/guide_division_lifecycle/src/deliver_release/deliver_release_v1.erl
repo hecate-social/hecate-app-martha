@@ -39,10 +39,10 @@ validate(#deliver_release_v1{} = Cmd) ->
 -spec to_map(deliver_release_v1()) -> map().
 to_map(#deliver_release_v1{} = Cmd) ->
     #{
-        <<"command_type">> => <<"deliver_release">>,
-        <<"division_id">> => Cmd#deliver_release_v1.division_id,
-        <<"release_id">> => Cmd#deliver_release_v1.release_id,
-        <<"version">> => Cmd#deliver_release_v1.version
+        command_type => <<"deliver_release">>,
+        division_id => Cmd#deliver_release_v1.division_id,
+        release_id => Cmd#deliver_release_v1.release_id,
+        version => Cmd#deliver_release_v1.version
     }.
 
 -spec from_map(map()) -> {ok, deliver_release_v1()} | {error, term()}.

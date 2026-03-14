@@ -39,11 +39,11 @@ validate(#generate_test_v1{} = Cmd) ->
 -spec to_map(generate_test_v1()) -> map().
 to_map(#generate_test_v1{} = Cmd) ->
     #{
-        <<"command_type">> => <<"generate_test">>,
-        <<"division_id">> => Cmd#generate_test_v1.division_id,
-        <<"test_name">> => Cmd#generate_test_v1.test_name,
-        <<"module_name">> => Cmd#generate_test_v1.module_name,
-        <<"path">> => Cmd#generate_test_v1.path
+        command_type => <<"generate_test">>,
+        division_id => Cmd#generate_test_v1.division_id,
+        test_name => Cmd#generate_test_v1.test_name,
+        module_name => Cmd#generate_test_v1.module_name,
+        path => Cmd#generate_test_v1.path
     }.
 
 -spec from_map(map()) -> {ok, generate_test_v1()} | {error, term()}.

@@ -31,11 +31,11 @@ new(#{venture_id := VentureId, cluster_id := ClusterId} = Params) ->
 to_map(#event_cluster_promoted_v1{venture_id = V, cluster_id = CI,
                                    division_id = DI, promoted_at = PA}) ->
     #{
-        <<"event_type">> => <<"event_cluster_promoted_v1">>,
-        <<"venture_id">> => V,
-        <<"cluster_id">> => CI,
-        <<"division_id">> => DI,
-        <<"promoted_at">> => PA
+        event_type => <<"event_cluster_promoted_v1">>,
+        venture_id => V,
+        cluster_id => CI,
+        division_id => DI,
+        promoted_at => PA
     }.
 
 -spec from_map(map()) -> {ok, event_cluster_promoted_v1()} | {error, term()}.

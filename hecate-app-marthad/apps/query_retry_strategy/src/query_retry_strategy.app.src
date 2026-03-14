@@ -1,0 +1,15 @@
+{application, query_retry_strategy, [
+    {description, "Query service for retry strategy read models"},
+    {vsn, "0.1.0"},
+    {registered, [query_retry_strategy_sup]},
+    {mod, {query_retry_strategy_app, []}},
+    {applications, [
+        kernel,
+        stdlib,
+        project_retry_strategy
+    ]},
+    {env, []},
+    {modules, []},
+    {licenses, ["Apache-2.0"]},
+    {links, [{"GitHub", "https://github.com/hecate-social/hecate-daemon"}]}
+]}.

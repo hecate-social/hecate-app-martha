@@ -33,12 +33,12 @@ new(#{venture_id := VentureId, topic := Topic, brief := Brief,
 -spec to_map(research_brief_contributed_v1()) -> map().
 to_map(#research_brief_contributed_v1{} = E) ->
     #{
-        <<"event_type">> => <<"research_brief_contributed_v1">>,
-        <<"venture_id">> => E#research_brief_contributed_v1.venture_id,
-        <<"topic">> => E#research_brief_contributed_v1.topic,
-        <<"brief">> => E#research_brief_contributed_v1.brief,
-        <<"agent_role">> => E#research_brief_contributed_v1.agent_role,
-        <<"contributed_at">> => E#research_brief_contributed_v1.contributed_at
+        event_type => <<"research_brief_contributed_v1">>,
+        venture_id => E#research_brief_contributed_v1.venture_id,
+        topic => E#research_brief_contributed_v1.topic,
+        brief => E#research_brief_contributed_v1.brief,
+        agent_role => E#research_brief_contributed_v1.agent_role,
+        contributed_at => E#research_brief_contributed_v1.contributed_at
     }.
 
 -spec from_map(map()) -> {ok, research_brief_contributed_v1()} | {error, term()}.

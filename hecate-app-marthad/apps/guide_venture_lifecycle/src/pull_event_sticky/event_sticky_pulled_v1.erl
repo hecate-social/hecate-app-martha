@@ -27,10 +27,10 @@ new(#{venture_id := VentureId, sticky_id := StickyId} = Params) ->
 -spec to_map(event_sticky_pulled_v1()) -> map().
 to_map(#event_sticky_pulled_v1{venture_id = V, sticky_id = S, pulled_at = PA}) ->
     #{
-        <<"event_type">> => <<"event_sticky_pulled_v1">>,
-        <<"venture_id">> => V,
-        <<"sticky_id">> => S,
-        <<"pulled_at">> => PA
+        event_type => <<"event_sticky_pulled_v1">>,
+        venture_id => V,
+        sticky_id => S,
+        pulled_at => PA
     }.
 
 -spec from_map(map()) -> {ok, event_sticky_pulled_v1()} | {error, term()}.

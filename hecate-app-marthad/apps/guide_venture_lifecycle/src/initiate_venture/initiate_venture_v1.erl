@@ -1,7 +1,9 @@
 %%% @doc initiate_venture_v1 command
 %%% Initiates a new venture (business endeavor).
 -module(initiate_venture_v1).
+-behaviour(evoq_command).
 
+-export([command_type/0]).
 -export([new/1, from_map/1, validate/1, to_map/1]).
 -export([get_venture_id/1, get_name/1, get_brief/1, get_initiated_by/1]).
 -export([generate_id/0]).
@@ -17,6 +19,9 @@
 -opaque initiate_venture_v1() :: #initiate_venture_v1{}.
 
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
+
+-spec command_type() -> atom().
+command_type() -> initiate_venture_v1.
 
 -spec new(map()) -> {ok, initiate_venture_v1()} | {error, term()}.
 new(#{name := Name} = Params) ->
@@ -40,11 +45,11 @@ validate(#initiate_venture_v1{} = Cmd) ->
 -spec to_map(initiate_venture_v1()) -> map().
 to_map(#initiate_venture_v1{} = Cmd) ->
     #{
-        <<"command_type">> => <<"initiate_venture">>,
-        <<"venture_id">> => Cmd#initiate_venture_v1.venture_id,
-        <<"name">> => Cmd#initiate_venture_v1.name,
-        <<"brief">> => Cmd#initiate_venture_v1.brief,
-        <<"initiated_by">> => Cmd#initiate_venture_v1.initiated_by
+        command_type => initiate_venture_v1,
+        venture_id => Cmd#initiate_venture_v1.venture_id,
+        name => Cmd#initiate_venture_v1.name,
+        brief => Cmd#initiate_venture_v1.brief,
+        initiated_by => Cmd#initiate_venture_v1.initiated_by
     }.
 
 -spec from_map(map()) -> {ok, initiate_venture_v1()} | {error, term()}.

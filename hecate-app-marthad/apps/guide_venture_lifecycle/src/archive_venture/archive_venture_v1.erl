@@ -34,9 +34,9 @@ validate(#archive_venture_v1{} = Cmd) ->
 -spec to_map(archive_venture_v1()) -> map().
 to_map(#archive_venture_v1{} = Cmd) ->
     #{
-        <<"command_type">> => <<"archive_venture">>,
-        <<"venture_id">> => Cmd#archive_venture_v1.venture_id,
-        <<"reason">> => Cmd#archive_venture_v1.reason
+        command_type => <<"archive_venture">>,
+        venture_id => Cmd#archive_venture_v1.venture_id,
+        reason => Cmd#archive_venture_v1.reason
     }.
 
 -spec from_map(map()) -> {ok, archive_venture_v1()} | {error, term()}.

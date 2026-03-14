@@ -35,9 +35,9 @@ validate(_) -> ok.
 -spec to_map(shelve_big_picture_storm_v1()) -> map().
 to_map(#shelve_big_picture_storm_v1{venture_id = V, reason = R}) ->
     #{
-        <<"command_type">> => <<"shelve_big_picture_storm">>,
-        <<"venture_id">> => V,
-        <<"reason">> => R
+        command_type => <<"shelve_big_picture_storm">>,
+        venture_id => V,
+        reason => R
     }.
 
 -spec from_map(map()) -> {ok, shelve_big_picture_storm_v1()} | {error, term()}.

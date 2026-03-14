@@ -34,13 +34,13 @@ new(#{division_id := DivisionId, desk_name := DeskName} = Params) ->
 -spec to_map(desk_planned_v1()) -> map().
 to_map(#desk_planned_v1{} = E) ->
     #{
-        <<"event_type">> => <<"desk_planned_v1">>,
-        <<"division_id">> => E#desk_planned_v1.division_id,
-        <<"desk_name">> => E#desk_planned_v1.desk_name,
-        <<"department">> => E#desk_planned_v1.department,
-        <<"description">> => E#desk_planned_v1.description,
-        <<"commands">> => E#desk_planned_v1.commands,
-        <<"planned_at">> => E#desk_planned_v1.planned_at
+        event_type => <<"desk_planned_v1">>,
+        division_id => E#desk_planned_v1.division_id,
+        desk_name => E#desk_planned_v1.desk_name,
+        department => E#desk_planned_v1.department,
+        description => E#desk_planned_v1.description,
+        commands => E#desk_planned_v1.commands,
+        planned_at => E#desk_planned_v1.planned_at
     }.
 
 -spec from_map(map()) -> {ok, desk_planned_v1()} | {error, term()}.

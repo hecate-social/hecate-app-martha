@@ -1,7 +1,9 @@
 %%% @doc venture_initiated_v1 event
 %%% Emitted when a venture is successfully initiated.
 -module(venture_initiated_v1).
+-behaviour(evoq_event).
 
+-export([event_type/0]).
 -export([new/1, to_map/1, from_map/1]).
 -export([get_venture_id/1, get_name/1, get_brief/1, get_repos/1, get_skills/1,
          get_context_map/1, get_initiated_by/1, get_initiated_at/1]).
@@ -22,6 +24,9 @@
 
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
+-spec event_type() -> atom().
+event_type() -> venture_initiated_v1.
+
 -spec new(map()) -> venture_initiated_v1().
 new(#{venture_id := VentureId, name := Name} = Params) ->
     #venture_initiated_v1{
@@ -38,15 +43,15 @@ new(#{venture_id := VentureId, name := Name} = Params) ->
 -spec to_map(venture_initiated_v1()) -> map().
 to_map(#venture_initiated_v1{} = E) ->
     #{
-        <<"event_type">> => <<"venture_initiated_v1">>,
-        <<"venture_id">> => E#venture_initiated_v1.venture_id,
-        <<"name">> => E#venture_initiated_v1.name,
-        <<"brief">> => E#venture_initiated_v1.brief,
-        <<"repos">> => E#venture_initiated_v1.repos,
-        <<"skills">> => E#venture_initiated_v1.skills,
-        <<"context_map">> => E#venture_initiated_v1.context_map,
-        <<"initiated_by">> => E#venture_initiated_v1.initiated_by,
-        <<"initiated_at">> => E#venture_initiated_v1.initiated_at
+        event_type => venture_initiated_v1,
+        venture_id => E#venture_initiated_v1.venture_id,
+        name => E#venture_initiated_v1.name,
+        brief => E#venture_initiated_v1.brief,
+        repos => E#venture_initiated_v1.repos,
+        skills => E#venture_initiated_v1.skills,
+        context_map => E#venture_initiated_v1.context_map,
+        initiated_by => E#venture_initiated_v1.initiated_by,
+        initiated_at => E#venture_initiated_v1.initiated_at
     }.
 
 -spec from_map(map()) -> {ok, venture_initiated_v1()} | {error, term()}.

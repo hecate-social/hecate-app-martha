@@ -72,11 +72,11 @@ initiate_event_fields() ->
     }),
     {ok, [Event]} = maybe_initiate_venture:handle(Cmd),
     Map = venture_initiated_v1:to_map(Event),
-    ?assertEqual(<<"v-123">>, maps:get(<<"venture_id">>, Map)),
-    ?assertEqual(<<"Test">>, maps:get(<<"name">>, Map)),
-    ?assertEqual(<<"A brief">>, maps:get(<<"brief">>, Map)),
-    ?assertEqual(<<"user@host">>, maps:get(<<"initiated_by">>, Map)),
-    ?assert(is_integer(maps:get(<<"initiated_at">>, Map))).
+    ?assertEqual(<<"v-123">>, maps:get(venture_id, Map)),
+    ?assertEqual(<<"Test">>, maps:get(name, Map)),
+    ?assertEqual(<<"A brief">>, maps:get(brief, Map)),
+    ?assertEqual(<<"user@host">>, maps:get(initiated_by, Map)),
+    ?assert(is_integer(maps:get(initiated_at, Map))).
 
 initiate_auto_id() ->
     {ok, Cmd} = initiate_venture_v1:new(#{name => <<"Auto ID">>}),
@@ -111,10 +111,10 @@ refine_event_fields() ->
     }),
     {ok, [Event]} = maybe_refine_vision:handle(Cmd),
     Map = vision_refined_v1:to_map(Event),
-    ?assertEqual(<<"v-456">>, maps:get(<<"venture_id">>, Map)),
-    ?assertEqual(<<"New brief">>, maps:get(<<"brief">>, Map)),
-    ?assertEqual([<<"repo1">>, <<"repo2">>], maps:get(<<"repos">>, Map)),
-    ?assertEqual([<<"erlang">>], maps:get(<<"skills">>, Map)).
+    ?assertEqual(<<"v-456">>, maps:get(venture_id, Map)),
+    ?assertEqual(<<"New brief">>, maps:get(brief, Map)),
+    ?assertEqual([<<"repo1">>, <<"repo2">>], maps:get(repos, Map)),
+    ?assertEqual([<<"erlang">>], maps:get(skills, Map)).
 
 %% ===================================================================
 %% maybe_submit_vision
@@ -136,7 +136,7 @@ start_discovery_valid() ->
     {ok, Cmd} = start_discovery_v1:new(#{venture_id => <<"v-123">>}),
     {ok, [Event]} = maybe_start_discovery:handle(Cmd),
     Map = discovery_started_v1:to_map(Event),
-    ?assertEqual(<<"v-123">>, maps:get(<<"venture_id">>, Map)).
+    ?assertEqual(<<"v-123">>, maps:get(venture_id, Map)).
 
 start_discovery_empty_id() ->
     ?assertMatch({error, _}, start_discovery_v1:new(#{venture_id => <<>>})).
@@ -154,7 +154,7 @@ identify_valid() ->
     Context = #{discovered_divisions => #{}},
     {ok, [Event]} = maybe_identify_division:handle(Cmd, Context),
     Map = division_identified_v1:to_map(Event),
-    ?assertEqual(<<"auth_division">>, maps:get(<<"context_name">>, Map)).
+    ?assertEqual(<<"auth_division">>, maps:get(context_name, Map)).
 
 identify_duplicate() ->
     {ok, Cmd} = identify_division_v1:new(#{
@@ -184,7 +184,7 @@ pause_valid() ->
     }),
     {ok, [Event]} = maybe_pause_discovery:handle(Cmd),
     Map = discovery_paused_v1:to_map(Event),
-    ?assertEqual(<<"v-123">>, maps:get(<<"venture_id">>, Map)).
+    ?assertEqual(<<"v-123">>, maps:get(venture_id, Map)).
 
 pause_empty_id() ->
     ?assertMatch({error, _},
@@ -215,5 +215,5 @@ archive_event_reason() ->
     }),
     {ok, [Event]} = maybe_archive_venture:handle(Cmd),
     Map = venture_archived_v1:to_map(Event),
-    ?assertEqual(<<"v-789">>, maps:get(<<"venture_id">>, Map)),
-    ?assertEqual(<<"abandoned">>, maps:get(<<"reason">>, Map)).
+    ?assertEqual(<<"v-789">>, maps:get(venture_id, Map)),
+    ?assertEqual(<<"abandoned">>, maps:get(reason, Map)).

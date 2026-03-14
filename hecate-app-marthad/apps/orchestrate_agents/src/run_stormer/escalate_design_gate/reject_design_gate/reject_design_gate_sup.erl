@@ -9,8 +9,10 @@ start_link() ->
 
 init([]) ->
     Children = [
-        #{id => design_gate_rejected_v1_to_pg,
-          start => {design_gate_rejected_v1_to_pg, start_link, []},
-          restart => permanent, type => worker}
+        emitter(design_gate_rejected_v1_to_pg)
     ],
     {ok, {#{strategy => one_for_one, intensity => 5, period => 10}, Children}}.
+
+emitter(Mod) ->
+    #{id => Mod, start => {evoq_event_handler, start_link, [Mod, #{}]},
+      restart => permanent, type => worker}.

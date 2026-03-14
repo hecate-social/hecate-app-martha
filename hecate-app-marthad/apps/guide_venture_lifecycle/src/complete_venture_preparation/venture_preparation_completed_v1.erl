@@ -26,9 +26,9 @@ new(#{venture_id := VentureId}) ->
 -spec to_map(venture_preparation_completed_v1()) -> map().
 to_map(#venture_preparation_completed_v1{} = E) ->
     #{
-        <<"event_type">> => <<"venture_preparation_completed_v1">>,
-        <<"venture_id">> => E#venture_preparation_completed_v1.venture_id,
-        <<"completed_at">> => E#venture_preparation_completed_v1.completed_at
+        event_type => <<"venture_preparation_completed_v1">>,
+        venture_id => E#venture_preparation_completed_v1.venture_id,
+        completed_at => E#venture_preparation_completed_v1.completed_at
     }.
 
 -spec from_map(map()) -> {ok, venture_preparation_completed_v1()} | {error, term()}.

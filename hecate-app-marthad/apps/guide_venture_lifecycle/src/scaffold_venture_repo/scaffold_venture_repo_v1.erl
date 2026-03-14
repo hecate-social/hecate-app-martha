@@ -41,11 +41,11 @@ validate(#scaffold_venture_repo_v1{} = Cmd) ->
 -spec to_map(scaffold_venture_repo_v1()) -> map().
 to_map(#scaffold_venture_repo_v1{} = Cmd) ->
     #{
-        <<"command_type">> => <<"scaffold_venture_repo">>,
-        <<"venture_id">> => Cmd#scaffold_venture_repo_v1.venture_id,
-        <<"repo_path">> => Cmd#scaffold_venture_repo_v1.repo_path,
-        <<"brief">> => Cmd#scaffold_venture_repo_v1.brief,
-        <<"initiated_by">> => Cmd#scaffold_venture_repo_v1.initiated_by
+        command_type => <<"scaffold_venture_repo">>,
+        venture_id => Cmd#scaffold_venture_repo_v1.venture_id,
+        repo_path => Cmd#scaffold_venture_repo_v1.repo_path,
+        brief => Cmd#scaffold_venture_repo_v1.brief,
+        initiated_by => Cmd#scaffold_venture_repo_v1.initiated_by
     }.
 
 -spec from_map(map()) -> {ok, scaffold_venture_repo_v1()} | {error, term()}.

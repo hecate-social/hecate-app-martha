@@ -29,11 +29,11 @@ new(#{division_id := DivisionId, suite_id := SuiteId, suite_name := SuiteName}) 
 -spec to_map(test_suite_run_v1()) -> map().
 to_map(#test_suite_run_v1{} = E) ->
     #{
-        <<"event_type">> => <<"test_suite_run_v1">>,
-        <<"division_id">> => E#test_suite_run_v1.division_id,
-        <<"suite_id">> => E#test_suite_run_v1.suite_id,
-        <<"suite_name">> => E#test_suite_run_v1.suite_name,
-        <<"run_at">> => E#test_suite_run_v1.run_at
+        event_type => <<"test_suite_run_v1">>,
+        division_id => E#test_suite_run_v1.division_id,
+        suite_id => E#test_suite_run_v1.suite_id,
+        suite_name => E#test_suite_run_v1.suite_name,
+        run_at => E#test_suite_run_v1.run_at
     }.
 
 -spec from_map(map()) -> {ok, test_suite_run_v1()} | {error, term()}.

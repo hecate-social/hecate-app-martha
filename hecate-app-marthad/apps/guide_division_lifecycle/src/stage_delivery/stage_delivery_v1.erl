@@ -43,11 +43,11 @@ validate(#stage_delivery_v1{} = Cmd) ->
 -spec to_map(stage_delivery_v1()) -> map().
 to_map(#stage_delivery_v1{} = Cmd) ->
     #{
-        <<"command_type">> => <<"stage_delivery">>,
-        <<"division_id">> => Cmd#stage_delivery_v1.division_id,
-        <<"stage_id">> => Cmd#stage_delivery_v1.stage_id,
-        <<"release_id">> => Cmd#stage_delivery_v1.release_id,
-        <<"stage_name">> => Cmd#stage_delivery_v1.stage_name
+        command_type => <<"stage_delivery">>,
+        division_id => Cmd#stage_delivery_v1.division_id,
+        stage_id => Cmd#stage_delivery_v1.stage_id,
+        release_id => Cmd#stage_delivery_v1.release_id,
+        stage_name => Cmd#stage_delivery_v1.stage_name
     }.
 
 -spec from_map(map()) -> {ok, stage_delivery_v1()} | {error, term()}.

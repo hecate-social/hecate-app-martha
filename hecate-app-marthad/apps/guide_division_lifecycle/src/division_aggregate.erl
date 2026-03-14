@@ -292,69 +292,42 @@ apply(State, Event) ->
 -spec apply_event(map(), state()) -> state().
 
 %% Division lifecycle
-apply_event(#{<<"event_type">> := <<"division_initiated_v1">>} = E, S) -> apply_division_initiated(E, S);
 apply_event(#{event_type := <<"division_initiated_v1">>} = E, S)      -> apply_division_initiated(E, S);
-apply_event(#{<<"event_type">> := <<"division_archived_v1">>}, S)      -> apply_division_archived(S);
 apply_event(#{event_type := <<"division_archived_v1">>}, S)            -> apply_division_archived(S);
 
 %% Storming events (kept as-is from old aggregate)
-apply_event(#{<<"event_type">> := <<"aggregate_designed_v1">>} = E, S) -> apply_aggregate_designed(E, S);
 apply_event(#{event_type := <<"aggregate_designed_v1">>} = E, S)       -> apply_aggregate_designed(E, S);
-apply_event(#{<<"event_type">> := <<"event_designed_v1">>} = E, S)     -> apply_event_designed(E, S);
 apply_event(#{event_type := <<"event_designed_v1">>} = E, S)           -> apply_event_designed(E, S);
-apply_event(#{<<"event_type">> := <<"desk_planned_v1">>} = E, S)      -> apply_desk_planned(E, S);
 apply_event(#{event_type := <<"desk_planned_v1">>} = E, S)            -> apply_desk_planned(E, S);
-apply_event(#{<<"event_type">> := <<"dependency_planned_v1">>} = E, S) -> apply_dependency_planned(E, S);
 apply_event(#{event_type := <<"dependency_planned_v1">>} = E, S)       -> apply_dependency_planned(E, S);
 
 %% Planning events
-apply_event(#{<<"event_type">> := <<"planning_opened_v1">>} = E, S)   -> apply_planning_opened(E, S);
 apply_event(#{event_type := <<"planning_opened_v1">>} = E, S)         -> apply_planning_opened(E, S);
-apply_event(#{<<"event_type">> := <<"planning_shelved_v1">>} = E, S)  -> apply_planning_shelved(E, S);
 apply_event(#{event_type := <<"planning_shelved_v1">>} = E, S)        -> apply_planning_shelved(E, S);
-apply_event(#{<<"event_type">> := <<"planning_resumed_v1">>}, S)      -> apply_planning_resumed(S);
 apply_event(#{event_type := <<"planning_resumed_v1">>}, S)            -> apply_planning_resumed(S);
-apply_event(#{<<"event_type">> := <<"planning_submitted_v1">>}, S)    -> apply_planning_submitted(S);
 apply_event(#{event_type := <<"planning_submitted_v1">>}, S)          -> apply_planning_submitted(S);
 
 %% Kanban events
-apply_event(#{<<"event_type">> := <<"kanban_card_posted_v1">>} = E, S)     -> apply_card_posted(E, S);
 apply_event(#{event_type := <<"kanban_card_posted_v1">>} = E, S)           -> apply_card_posted(E, S);
-apply_event(#{<<"event_type">> := <<"kanban_card_picked_v1">>} = E, S)     -> apply_card_picked(E, S);
 apply_event(#{event_type := <<"kanban_card_picked_v1">>} = E, S)           -> apply_card_picked(E, S);
-apply_event(#{<<"event_type">> := <<"kanban_card_finished_v1">>} = E, S)   -> apply_card_finished(E, S);
 apply_event(#{event_type := <<"kanban_card_finished_v1">>} = E, S)         -> apply_card_finished(E, S);
-apply_event(#{<<"event_type">> := <<"kanban_card_unpicked_v1">>} = E, S)   -> apply_card_unpicked(E, S);
 apply_event(#{event_type := <<"kanban_card_unpicked_v1">>} = E, S)         -> apply_card_unpicked(E, S);
-apply_event(#{<<"event_type">> := <<"kanban_card_parked_v1">>} = E, S)     -> apply_card_parked(E, S);
 apply_event(#{event_type := <<"kanban_card_parked_v1">>} = E, S)           -> apply_card_parked(E, S);
-apply_event(#{<<"event_type">> := <<"kanban_card_unparked_v1">>} = E, S)   -> apply_card_unparked(E, S);
 apply_event(#{event_type := <<"kanban_card_unparked_v1">>} = E, S)         -> apply_card_unparked(E, S);
-apply_event(#{<<"event_type">> := <<"kanban_card_blocked_v1">>} = E, S)    -> apply_card_blocked(E, S);
 apply_event(#{event_type := <<"kanban_card_blocked_v1">>} = E, S)          -> apply_card_blocked(E, S);
-apply_event(#{<<"event_type">> := <<"kanban_card_unblocked_v1">>} = E, S)  -> apply_card_unblocked(E, S);
 apply_event(#{event_type := <<"kanban_card_unblocked_v1">>} = E, S)        -> apply_card_unblocked(E, S);
 
 %% Crafting lifecycle events
-apply_event(#{<<"event_type">> := <<"crafting_opened_v1">>} = E, S)   -> apply_crafting_opened(E, S);
 apply_event(#{event_type := <<"crafting_opened_v1">>} = E, S)         -> apply_crafting_opened(E, S);
-apply_event(#{<<"event_type">> := <<"crafting_shelved_v1">>} = E, S)  -> apply_crafting_shelved(E, S);
 apply_event(#{event_type := <<"crafting_shelved_v1">>} = E, S)        -> apply_crafting_shelved(E, S);
-apply_event(#{<<"event_type">> := <<"crafting_resumed_v1">>}, S)      -> apply_crafting_resumed(S);
 apply_event(#{event_type := <<"crafting_resumed_v1">>}, S)            -> apply_crafting_resumed(S);
 
 %% Crafting domain events
-apply_event(#{<<"event_type">> := <<"module_generated_v1">>} = E, S)      -> apply_module_generated(E, S);
 apply_event(#{event_type := <<"module_generated_v1">>} = E, S)            -> apply_module_generated(E, S);
-apply_event(#{<<"event_type">> := <<"test_generated_v1">>} = E, S)        -> apply_test_generated(E, S);
 apply_event(#{event_type := <<"test_generated_v1">>} = E, S)              -> apply_test_generated(E, S);
-apply_event(#{<<"event_type">> := <<"test_suite_run_v1">>} = E, S)        -> apply_test_suite_run(E, S);
 apply_event(#{event_type := <<"test_suite_run_v1">>} = E, S)              -> apply_test_suite_run(E, S);
-apply_event(#{<<"event_type">> := <<"test_result_recorded_v1">>} = E, S)  -> apply_test_result_recorded(E, S);
 apply_event(#{event_type := <<"test_result_recorded_v1">>} = E, S)        -> apply_test_result_recorded(E, S);
-apply_event(#{<<"event_type">> := <<"release_delivered_v1">>} = E, S)     -> apply_release_delivered(E, S);
 apply_event(#{event_type := <<"release_delivered_v1">>} = E, S)           -> apply_release_delivered(E, S);
-apply_event(#{<<"event_type">> := <<"delivery_staged_v1">>} = E, S)       -> apply_delivery_staged(E, S);
 apply_event(#{event_type := <<"delivery_staged_v1">>} = E, S)             -> apply_delivery_staged(E, S);
 
 %% Unknown — ignore
@@ -604,7 +577,6 @@ apply_delivery_staged(E, #division_state{delivery_stages = Stages} = State) ->
 
 %% --- Internal ---
 
-get_command_type(#{<<"command_type">> := T}) -> T;
 get_command_type(#{command_type := T}) when is_binary(T) -> T;
 get_command_type(#{command_type := T}) when is_atom(T) -> atom_to_binary(T);
 get_command_type(_) -> undefined.

@@ -34,13 +34,13 @@ new(#{session_id := SessionId} = Params) ->
 -spec to_map(agent_session_archived_v1()) -> map().
 to_map(#agent_session_archived_v1{} = E) ->
     #{
-        <<"event_type">> => <<"agent_session_archived_v1">>,
-        <<"session_id">> => E#agent_session_archived_v1.session_id,
-        <<"agent_role">> => E#agent_session_archived_v1.agent_role,
-        <<"venture_id">> => E#agent_session_archived_v1.venture_id,
-        <<"division_id">> => E#agent_session_archived_v1.division_id,
-        <<"archived_by">> => E#agent_session_archived_v1.archived_by,
-        <<"archived_at">> => E#agent_session_archived_v1.archived_at
+        event_type => <<"agent_session_archived_v1">>,
+        session_id => E#agent_session_archived_v1.session_id,
+        agent_role => E#agent_session_archived_v1.agent_role,
+        venture_id => E#agent_session_archived_v1.venture_id,
+        division_id => E#agent_session_archived_v1.division_id,
+        archived_by => E#agent_session_archived_v1.archived_by,
+        archived_at => E#agent_session_archived_v1.archived_at
     }.
 
 -spec from_map(map()) -> {ok, agent_session_archived_v1()} | {error, term()}.

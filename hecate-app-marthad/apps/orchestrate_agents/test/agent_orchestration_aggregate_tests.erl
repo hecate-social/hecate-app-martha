@@ -216,41 +216,41 @@ awaiting_input_state() ->
 
 %% Command payloads for state guard tests
 complete_cmd() ->
-    #{<<"command_type">> => <<"complete_agent">>,
+    #{command_type => <<"complete_agent">>,
       <<"session_id">> => <<"vis-TEST01">>,
       <<"agent_role">> => <<"visionary">>,
       <<"venture_id">> => <<"v-test-1">>}.
 
 fail_cmd() ->
-    #{<<"command_type">> => <<"fail_agent">>,
+    #{command_type => <<"fail_agent">>,
       <<"session_id">> => <<"vis-TEST01">>,
       <<"agent_role">> => <<"visionary">>,
       <<"venture_id">> => <<"v-test-1">>,
       <<"error_reason">> => <<"provider_down">>}.
 
 archive_cmd() ->
-    #{<<"command_type">> => <<"archive_agent_session">>,
+    #{command_type => <<"archive_agent_session">>,
       <<"session_id">> => <<"vis-TEST01">>,
       <<"archived_by">> => <<"user@test">>}.
 
 escalate_cmd() ->
-    #{<<"command_type">> => <<"escalate_to_gate">>,
+    #{command_type => <<"escalate_to_gate">>,
       <<"session_id">> => <<"vis-TEST01">>,
       <<"gate_name">> => <<"vision_gate">>}.
 
 pass_gate_cmd() ->
-    #{<<"command_type">> => <<"pass_gate">>,
+    #{command_type => <<"pass_gate">>,
       <<"session_id">> => <<"vis-TEST01">>,
       <<"passed_by">> => <<"reviewer@test">>}.
 
 reject_gate_cmd() ->
-    #{<<"command_type">> => <<"reject_gate">>,
+    #{command_type => <<"reject_gate">>,
       <<"session_id">> => <<"vis-TEST01">>,
       <<"rejected_by">> => <<"reviewer@test">>,
       <<"rejection_reason">> => <<"vision too vague">>}.
 
 complete_turn_cmd() ->
-    #{<<"command_type">> => <<"complete_agent_turn">>,
+    #{command_type => <<"complete_agent_turn">>,
       <<"session_id">> => <<"crd-TEST01">>,
       <<"agent_role">> => <<"coordinator">>,
       <<"venture_id">> => <<"v-test-1">>,
@@ -259,7 +259,7 @@ complete_turn_cmd() ->
       <<"tokens_out">> => 200}.
 
 receive_input_cmd() ->
-    #{<<"command_type">> => <<"receive_agent_input">>,
+    #{command_type => <<"receive_agent_input">>,
       <<"session_id">> => <<"crd-TEST01">>,
       <<"input_content">> => <<"We solve invoice processing pain">>,
       <<"input_by">> => <<"user@test">>}.
@@ -277,7 +277,7 @@ exec_archived_rejects_all() ->
                  agent_orchestration_aggregate:execute(archived_state(), complete_cmd())).
 
 exec_unknown_command() ->
-    Cmd = #{<<"command_type">> => <<"do_something_weird">>},
+    Cmd = #{command_type => <<"do_something_weird">>},
     ?assertEqual({error, unknown_command},
                  agent_orchestration_aggregate:execute(initiated_state(), Cmd)).
 
@@ -339,17 +339,17 @@ exec_complete_while_awaiting() ->
 %% ===================================================================
 
 exec_initiate_visionary() ->
-    Cmd = #{<<"command_type">> => <<"initiate_agent">>,
+    Cmd = #{command_type => <<"initiate_agent">>,
             <<"agent_role">> => <<"visionary">>,
             <<"venture_id">> => <<"v-1">>,
             <<"session_id">> => <<"vis-1">>},
     {ok, [Event]} = agent_orchestration_aggregate:execute(fresh(), Cmd),
-    ?assertEqual(<<"visionary_initiated_v1">>, maps:get(<<"event_type">>, Event)),
-    ?assertEqual(<<"vis-1">>, maps:get(<<"session_id">>, Event)),
-    ?assertEqual(<<"visionary">>, maps:get(<<"agent_role">>, Event)).
+    ?assertEqual(<<"visionary_initiated_v1">>, maps:get(event_type, Event)),
+    ?assertEqual(<<"vis-1">>, maps:get(session_id, Event)),
+    ?assertEqual(<<"visionary">>, maps:get(agent_role, Event)).
 
 exec_initiate_unknown_role() ->
-    Cmd = #{<<"command_type">> => <<"initiate_agent">>,
+    Cmd = #{command_type => <<"initiate_agent">>,
             <<"agent_role">> => <<"unknown_role">>,
             <<"venture_id">> => <<"v-1">>,
             <<"session_id">> => <<"x-1">>},
@@ -361,7 +361,7 @@ exec_initiate_unknown_role() ->
 %% ===================================================================
 
 exec_complete_visionary() ->
-    CompleteCmd = #{<<"command_type">> => <<"complete_agent">>,
+    CompleteCmd = #{command_type => <<"complete_agent">>,
                    <<"agent_role">> => <<"visionary">>,
                    <<"session_id">> => <<"vis-TEST01">>,
                    <<"notation_output">> => <<"DIV billing">>,
@@ -369,25 +369,25 @@ exec_complete_visionary() ->
                    <<"tokens_in">> => 100,
                    <<"tokens_out">> => 200},
     {ok, [Event]} = agent_orchestration_aggregate:execute(initiated_state(), CompleteCmd),
-    ?assertEqual(<<"visionary_completed_v1">>, maps:get(<<"event_type">>, Event)),
-    ?assertEqual(<<"vis-TEST01">>, maps:get(<<"session_id">>, Event)),
+    ?assertEqual(<<"visionary_completed_v1">>, maps:get(event_type, Event)),
+    ?assertEqual(<<"vis-TEST01">>, maps:get(session_id, Event)),
     %% Event echoes aggregate state
-    ?assertEqual(<<"v-test-1">>, maps:get(<<"venture_id">>, Event)),
-    ?assertEqual(<<"T1">>, maps:get(<<"tier">>, Event)).
+    ?assertEqual(<<"v-test-1">>, maps:get(venture_id, Event)),
+    ?assertEqual(<<"T1">>, maps:get(tier, Event)).
 
 exec_fail_visionary() ->
-    FailCmd = #{<<"command_type">> => <<"fail_agent">>,
+    FailCmd = #{command_type => <<"fail_agent">>,
                 <<"agent_role">> => <<"visionary">>,
                 <<"session_id">> => <<"vis-TEST01">>,
                 <<"error_reason">> => <<"llm_timeout">>,
                 <<"tokens_in">> => 50,
                 <<"tokens_out">> => 0},
     {ok, [Event]} = agent_orchestration_aggregate:execute(initiated_state(), FailCmd),
-    ?assertEqual(<<"visionary_failed_v1">>, maps:get(<<"event_type">>, Event)),
-    ?assertEqual(<<"vis-TEST01">>, maps:get(<<"session_id">>, Event)),
-    ?assertEqual(<<"llm_timeout">>, maps:get(<<"error_reason">>, Event)),
+    ?assertEqual(<<"visionary_failed_v1">>, maps:get(event_type, Event)),
+    ?assertEqual(<<"vis-TEST01">>, maps:get(session_id, Event)),
+    ?assertEqual(<<"llm_timeout">>, maps:get(error_reason, Event)),
     %% Event echoes aggregate state
-    ?assertEqual(<<"v-test-1">>, maps:get(<<"venture_id">>, Event)).
+    ?assertEqual(<<"v-test-1">>, maps:get(venture_id, Event)).
 
 %% ===================================================================
 %% Execute: Archive (role-agnostic)
@@ -395,15 +395,15 @@ exec_fail_visionary() ->
 
 exec_archive_after_initiate() ->
     {ok, [Event]} = agent_orchestration_aggregate:execute(initiated_state(), archive_cmd()),
-    ?assertEqual(<<"agent_session_archived_v1">>, maps:get(<<"event_type">>, Event)).
+    ?assertEqual(<<"agent_session_archived_v1">>, maps:get(event_type, Event)).
 
 exec_archive_after_complete() ->
     {ok, [Event]} = agent_orchestration_aggregate:execute(completed_state(), archive_cmd()),
-    ?assertEqual(<<"agent_session_archived_v1">>, maps:get(<<"event_type">>, Event)).
+    ?assertEqual(<<"agent_session_archived_v1">>, maps:get(event_type, Event)).
 
 exec_archive_after_fail() ->
     {ok, [Event]} = agent_orchestration_aggregate:execute(failed_state(), archive_cmd()),
-    ?assertEqual(<<"agent_session_archived_v1">>, maps:get(<<"event_type">>, Event)).
+    ?assertEqual(<<"agent_session_archived_v1">>, maps:get(event_type, Event)).
 
 exec_archive_on_archived() ->
     ?assertEqual({error, session_archived},
@@ -455,7 +455,7 @@ apply_unknown_event() ->
 %% ===================================================================
 
 apply_binary_keys() ->
-    Event = #{<<"event_type">> => <<"visionary_initiated_v1">>,
+    Event = #{event_type => <<"visionary_initiated_v1">>,
               <<"session_id">> => <<"vis-BIN">>,
               <<"agent_role">> => <<"visionary">>,
               <<"venture_id">> => <<"v-bin">>,

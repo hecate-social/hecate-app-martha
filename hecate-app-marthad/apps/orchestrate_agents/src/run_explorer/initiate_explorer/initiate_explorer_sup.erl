@@ -9,14 +9,12 @@ start_link() ->
 
 init([]) ->
     Children = [
-        #{id => explorer_initiated_v1_to_pg,
-          start => {explorer_initiated_v1_to_pg, start_link, []},
-          restart => permanent, type => worker},
-        #{id => on_vision_gate_passed_initiate_explorer,
-          start => {on_vision_gate_passed_initiate_explorer, start_link, []},
-          restart => permanent, type => worker},
-        #{id => on_explorer_initiated_run_explorer_llm,
-          start => {on_explorer_initiated_run_explorer_llm, start_link, []},
-          restart => permanent, type => worker}
+        emitter(explorer_initiated_v1_to_pg),
+        emitter(on_vision_gate_passed_initiate_explorer),
+        emitter(on_explorer_initiated_run_explorer_llm)
     ],
     {ok, {#{strategy => one_for_one, intensity => 5, period => 10}, Children}}.
+
+emitter(Mod) ->
+    #{id => Mod, start => {evoq_event_handler, start_link, [Mod, #{}]},
+      restart => permanent, type => worker}.

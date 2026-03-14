@@ -33,9 +33,9 @@ validate(#shelve_crafting_v1{} = Cmd) ->
 -spec to_map(shelve_crafting_v1()) -> map().
 to_map(#shelve_crafting_v1{} = Cmd) ->
     #{
-        <<"command_type">> => <<"shelve_crafting">>,
-        <<"division_id">> => Cmd#shelve_crafting_v1.division_id,
-        <<"reason">> => Cmd#shelve_crafting_v1.reason
+        command_type => <<"shelve_crafting">>,
+        division_id => Cmd#shelve_crafting_v1.division_id,
+        reason => Cmd#shelve_crafting_v1.reason
     }.
 
 -spec from_map(map()) -> {ok, shelve_crafting_v1()} | {error, term()}.

@@ -31,12 +31,12 @@ new(#{division_id := DivisionId, stage_id := StageId, release_id := ReleaseId, s
 -spec to_map(delivery_staged_v1()) -> map().
 to_map(#delivery_staged_v1{} = E) ->
     #{
-        <<"event_type">> => <<"delivery_staged_v1">>,
-        <<"division_id">> => E#delivery_staged_v1.division_id,
-        <<"stage_id">> => E#delivery_staged_v1.stage_id,
-        <<"release_id">> => E#delivery_staged_v1.release_id,
-        <<"stage_name">> => E#delivery_staged_v1.stage_name,
-        <<"staged_at">> => E#delivery_staged_v1.staged_at
+        event_type => <<"delivery_staged_v1">>,
+        division_id => E#delivery_staged_v1.division_id,
+        stage_id => E#delivery_staged_v1.stage_id,
+        release_id => E#delivery_staged_v1.release_id,
+        stage_name => E#delivery_staged_v1.stage_name,
+        staged_at => E#delivery_staged_v1.staged_at
     }.
 
 -spec from_map(map()) -> {ok, delivery_staged_v1()} | {error, term()}.

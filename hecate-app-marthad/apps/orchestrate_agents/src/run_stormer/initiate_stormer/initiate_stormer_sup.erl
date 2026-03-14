@@ -9,14 +9,12 @@ start_link() ->
 
 init([]) ->
     Children = [
-        #{id => stormer_initiated_v1_to_pg,
-          start => {stormer_initiated_v1_to_pg, start_link, []},
-          restart => permanent, type => worker},
-        #{id => on_team_formed_initiate_stormer,
-          start => {on_team_formed_initiate_stormer, start_link, []},
-          restart => permanent, type => worker},
-        #{id => on_stormer_initiated_run_stormer_llm,
-          start => {on_stormer_initiated_run_stormer_llm, start_link, []},
-          restart => permanent, type => worker}
+        emitter(stormer_initiated_v1_to_pg),
+        emitter(on_team_formed_initiate_stormer),
+        emitter(on_stormer_initiated_run_stormer_llm)
     ],
     {ok, {#{strategy => one_for_one, intensity => 5, period => 10}, Children}}.
+
+emitter(Mod) ->
+    #{id => Mod, start => {evoq_event_handler, start_link, [Mod, #{}]},
+      restart => permanent, type => worker}.

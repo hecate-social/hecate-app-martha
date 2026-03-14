@@ -45,18 +45,18 @@ new(#{session_id := SessionId} = Params) ->
 -spec to_map(stormer_completed_v1()) -> map().
 to_map(#stormer_completed_v1{} = E) ->
     #{
-        <<"event_type">> => <<"stormer_completed_v1">>,
-        <<"session_id">> => E#stormer_completed_v1.session_id,
-        <<"agent_role">> => E#stormer_completed_v1.agent_role,
-        <<"venture_id">> => E#stormer_completed_v1.venture_id,
-        <<"division_id">> => E#stormer_completed_v1.division_id,
-        <<"tier">> => E#stormer_completed_v1.tier,
-        <<"model">> => E#stormer_completed_v1.model,
-        <<"notation_output">> => E#stormer_completed_v1.notation_output,
-        <<"parsed_terms">> => E#stormer_completed_v1.parsed_terms,
-        <<"tokens_in">> => E#stormer_completed_v1.tokens_in,
-        <<"tokens_out">> => E#stormer_completed_v1.tokens_out,
-        <<"completed_at">> => E#stormer_completed_v1.completed_at
+        event_type => <<"stormer_completed_v1">>,
+        session_id => E#stormer_completed_v1.session_id,
+        agent_role => E#stormer_completed_v1.agent_role,
+        venture_id => E#stormer_completed_v1.venture_id,
+        division_id => E#stormer_completed_v1.division_id,
+        tier => E#stormer_completed_v1.tier,
+        model => E#stormer_completed_v1.model,
+        notation_output => E#stormer_completed_v1.notation_output,
+        parsed_terms => E#stormer_completed_v1.parsed_terms,
+        tokens_in => E#stormer_completed_v1.tokens_in,
+        tokens_out => E#stormer_completed_v1.tokens_out,
+        completed_at => E#stormer_completed_v1.completed_at
     }.
 
 -spec from_map(map()) -> {ok, stormer_completed_v1()} | {error, term()}.

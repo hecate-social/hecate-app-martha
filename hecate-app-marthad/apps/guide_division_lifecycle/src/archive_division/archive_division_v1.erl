@@ -17,8 +17,8 @@ validate(#archive_division_v1{division_id = D}) when not is_binary(D); byte_size
 validate(#archive_division_v1{} = Cmd) -> {ok, Cmd}.
 
 to_map(#archive_division_v1{} = Cmd) ->
-    #{<<"command_type">> => <<"archive_division">>,
-      <<"division_id">> => Cmd#archive_division_v1.division_id}.
+    #{command_type => <<"archive_division">>,
+      division_id => Cmd#archive_division_v1.division_id}.
 
 from_map(Map) ->
     DivisionId = get_value(division_id, Map),

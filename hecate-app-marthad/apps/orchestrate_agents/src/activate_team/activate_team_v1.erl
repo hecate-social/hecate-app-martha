@@ -33,9 +33,9 @@ validate(#activate_team_v1{} = Cmd) ->
 -spec to_map(activate_team_v1()) -> map().
 to_map(#activate_team_v1{} = Cmd) ->
     #{
-        <<"command_type">> => <<"activate_team">>,
-        <<"division_id">> => Cmd#activate_team_v1.division_id,
-        <<"activated_by">> => Cmd#activate_team_v1.activated_by
+        command_type => <<"activate_team">>,
+        division_id => Cmd#activate_team_v1.division_id,
+        activated_by => Cmd#activate_team_v1.activated_by
     }.
 
 -spec from_map(map()) -> {ok, activate_team_v1()} | {error, term()}.

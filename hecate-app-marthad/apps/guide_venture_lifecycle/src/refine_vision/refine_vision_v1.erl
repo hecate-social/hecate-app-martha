@@ -42,12 +42,12 @@ validate(#refine_vision_v1{} = Cmd) ->
 -spec to_map(refine_vision_v1()) -> map().
 to_map(#refine_vision_v1{} = Cmd) ->
     #{
-        <<"command_type">> => <<"refine_vision">>,
-        <<"venture_id">> => Cmd#refine_vision_v1.venture_id,
-        <<"brief">> => Cmd#refine_vision_v1.brief,
-        <<"repos">> => Cmd#refine_vision_v1.repos,
-        <<"skills">> => Cmd#refine_vision_v1.skills,
-        <<"context_map">> => Cmd#refine_vision_v1.context_map
+        command_type => <<"refine_vision">>,
+        venture_id => Cmd#refine_vision_v1.venture_id,
+        brief => Cmd#refine_vision_v1.brief,
+        repos => Cmd#refine_vision_v1.repos,
+        skills => Cmd#refine_vision_v1.skills,
+        context_map => Cmd#refine_vision_v1.context_map
     }.
 
 -spec from_map(map()) -> {ok, refine_vision_v1()} | {error, term()}.

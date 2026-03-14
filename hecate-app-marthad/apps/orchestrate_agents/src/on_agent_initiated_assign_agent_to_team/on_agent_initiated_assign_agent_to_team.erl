@@ -1,16 +1,11 @@
 %%% @doc Process manager: on {role}_initiated_v1, assign agent to division team.
-%%% Subscribes to all per-role initiated events from orchestration_store.
 %%% When an agent session is initiated with a division_id, assigns it
 %%% to the corresponding division team.
 -module(on_agent_initiated_assign_agent_to_team).
--behaviour(gen_server).
--export([start_link/0]).
--export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2]).
+-behaviour(evoq_event_handler).
+-export([interested_in/0, init/1, handle_event/4]).
 
--define(SUB_PREFIX, <<"on_agent_initiated_assign_agent_to_team_">>).
--define(STORE_ID, orchestration_store).
-
--define(INITIATED_EVENTS, [
+interested_in() -> [
     <<"visionary_initiated_v1">>,
     <<"explorer_initiated_v1">>,
     <<"stormer_initiated_v1">>,
@@ -23,36 +18,15 @@
     <<"coordinator_initiated_v1">>,
     <<"delivery_manager_initiated_v1">>,
     <<"mentor_initiated_v1">>
-]).
+].
 
-start_link() ->
-    gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
+init(_Config) -> {ok, #{}}.
 
-init([]) ->
-    lists:foreach(fun(EventType) ->
-        SubName = <<?SUB_PREFIX/binary, EventType/binary>>,
-        {ok, _} = reckon_evoq_adapter:subscribe(
-            ?STORE_ID, event_type, EventType, SubName,
-            #{subscriber_pid => self()})
-    end, ?INITIATED_EVENTS),
-    {ok, #{}}.
-
-handle_info({events, Events}, State) ->
-    lists:foreach(fun process_event/1, Events),
-    {noreply, State};
-handle_info(_Info, State) -> {noreply, State}.
-
-handle_call(_Req, _From, State) -> {reply, ok, State}.
-handle_cast(_Msg, State) -> {noreply, State}.
-terminate(_Reason, _State) -> ok.
-
-%% Internal
-
-process_event(RawEvent) ->
-    Event = app_marthad_projection_event:to_map(RawEvent),
-    SessionId = get_value(session_id, Event),
-    AgentRole = get_value(agent_role, Event),
-    DivisionId = get_value(division_id, Event),
+handle_event(_EventType, Event, _Metadata, State) ->
+    Data = maps:get(data, Event),
+    SessionId = gv(session_id, Data),
+    AgentRole = gv(agent_role, Data),
+    DivisionId = gv(division_id, Data),
     case DivisionId of
         undefined ->
             %% Venture-level agents (visionary, explorer) have no division — skip
@@ -78,9 +52,10 @@ process_event(RawEvent) ->
                 {error, Reason} ->
                     logger:warning("[~s] failed to create command: ~p", [?MODULE, Reason])
             end
-    end.
+    end,
+    {ok, State}.
 
-get_value(Key, Map) when is_atom(Key) ->
+gv(Key, Map) when is_atom(Key) ->
     case maps:find(Key, Map) of
         {ok, V} -> V;
         error -> maps:get(atom_to_binary(Key), Map, undefined)

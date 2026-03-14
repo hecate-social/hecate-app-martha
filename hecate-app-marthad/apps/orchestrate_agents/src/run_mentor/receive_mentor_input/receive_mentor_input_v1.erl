@@ -35,11 +35,11 @@ validate(#receive_mentor_input_v1{}) ->
 -spec to_map(receive_mentor_input_v1()) -> map().
 to_map(#receive_mentor_input_v1{} = Cmd) ->
     #{
-        <<"command_type">> => <<"receive_agent_input">>,
-        <<"agent_role">> => <<"mentor">>,
-        <<"session_id">> => Cmd#receive_mentor_input_v1.session_id,
-        <<"input_content">> => Cmd#receive_mentor_input_v1.input_content,
-        <<"input_by">> => Cmd#receive_mentor_input_v1.input_by
+        command_type => <<"receive_agent_input">>,
+        agent_role => <<"mentor">>,
+        session_id => Cmd#receive_mentor_input_v1.session_id,
+        input_content => Cmd#receive_mentor_input_v1.input_content,
+        input_by => Cmd#receive_mentor_input_v1.input_by
     }.
 
 -spec from_map(map()) -> {ok, receive_mentor_input_v1()} | {error, term()}.

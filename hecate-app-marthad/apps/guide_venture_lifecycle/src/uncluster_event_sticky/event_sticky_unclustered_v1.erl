@@ -30,11 +30,11 @@ new(#{venture_id := VentureId, sticky_id := StickyId, cluster_id := ClusterId} =
 to_map(#event_sticky_unclustered_v1{venture_id = V, sticky_id = SI,
                                      cluster_id = CI, unclustered_at = UA}) ->
     #{
-        <<"event_type">> => <<"event_sticky_unclustered_v1">>,
-        <<"venture_id">> => V,
-        <<"sticky_id">> => SI,
-        <<"cluster_id">> => CI,
-        <<"unclustered_at">> => UA
+        event_type => <<"event_sticky_unclustered_v1">>,
+        venture_id => V,
+        sticky_id => SI,
+        cluster_id => CI,
+        unclustered_at => UA
     }.
 
 -spec from_map(map()) -> {ok, event_sticky_unclustered_v1()} | {error, term()}.

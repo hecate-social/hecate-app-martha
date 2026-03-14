@@ -43,9 +43,9 @@ validate(#advance_storm_phase_v1{target_phase = T}) ->
 -spec to_map(advance_storm_phase_v1()) -> map().
 to_map(#advance_storm_phase_v1{venture_id = V, target_phase = T}) ->
     #{
-        <<"command_type">> => <<"advance_storm_phase">>,
-        <<"venture_id">> => V,
-        <<"target_phase">> => T
+        command_type => <<"advance_storm_phase">>,
+        venture_id => V,
+        target_phase => T
     }.
 
 -spec from_map(map()) -> {ok, advance_storm_phase_v1()} | {error, term()}.

@@ -30,11 +30,11 @@ new(#{venture_id := VentureId, phase := Phase} = Params) ->
 to_map(#storm_phase_advanced_v1{venture_id = V, phase = P,
                                  previous_phase = PP, advanced_at = AA}) ->
     #{
-        <<"event_type">> => <<"storm_phase_advanced_v1">>,
-        <<"venture_id">> => V,
-        <<"phase">> => P,
-        <<"previous_phase">> => PP,
-        <<"advanced_at">> => AA
+        event_type => <<"storm_phase_advanced_v1">>,
+        venture_id => V,
+        phase => P,
+        previous_phase => PP,
+        advanced_at => AA
     }.
 
 -spec from_map(map()) -> {ok, storm_phase_advanced_v1()} | {error, term()}.

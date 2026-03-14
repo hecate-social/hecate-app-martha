@@ -9,17 +9,17 @@ start_link() ->
 
 init([]) ->
     Children = [
-        #{id => boundary_gate_escalated_v1_to_pg,
-          start => {boundary_gate_escalated_v1_to_pg, start_link, []},
-          restart => permanent, type => worker},
+        emitter(boundary_gate_escalated_v1_to_pg),
         #{id => pass_boundary_gate_sup,
           start => {pass_boundary_gate_sup, start_link, []},
           restart => permanent, type => supervisor},
         #{id => reject_boundary_gate_sup,
           start => {reject_boundary_gate_sup, start_link, []},
           restart => permanent, type => supervisor},
-        #{id => on_explorer_completed_escalate_boundary_gate,
-          start => {on_explorer_completed_escalate_boundary_gate, start_link, []},
-          restart => permanent, type => worker}
+        emitter(on_explorer_completed_escalate_boundary_gate)
     ],
     {ok, {#{strategy => one_for_one, intensity => 5, period => 10}, Children}}.
+
+emitter(Mod) ->
+    #{id => Mod, start => {evoq_event_handler, start_link, [Mod, #{}]},
+      restart => permanent, type => worker}.

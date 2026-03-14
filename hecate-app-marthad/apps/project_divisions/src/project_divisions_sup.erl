@@ -22,7 +22,7 @@ init([]) ->
     ],
     ProjectionChildren = [#{
         id => Mod,
-        start => {evoq_projection, start_link, [Mod, #{}]},
+        start => {evoq_projection, start_link, [Mod, #{}, #{store_id => martha_store}]},
         restart => permanent,
         type => worker
     } || Mod <- Projections],

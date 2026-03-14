@@ -9,17 +9,17 @@ start_link() ->
 
 init([]) ->
     Children = [
-        #{id => vision_gate_escalated_v1_to_pg,
-          start => {vision_gate_escalated_v1_to_pg, start_link, []},
-          restart => permanent, type => worker},
+        emitter(vision_gate_escalated_v1_to_pg),
         #{id => pass_vision_gate_sup,
           start => {pass_vision_gate_sup, start_link, []},
           restart => permanent, type => supervisor},
         #{id => reject_vision_gate_sup,
           start => {reject_vision_gate_sup, start_link, []},
           restart => permanent, type => supervisor},
-        #{id => on_visionary_completed_escalate_vision_gate,
-          start => {on_visionary_completed_escalate_vision_gate, start_link, []},
-          restart => permanent, type => worker}
+        emitter(on_visionary_completed_escalate_vision_gate)
     ],
     {ok, {#{strategy => one_for_one, intensity => 5, period => 10}, Children}}.
+
+emitter(Mod) ->
+    #{id => Mod, start => {evoq_event_handler, start_link, [Mod, #{}]},
+      restart => permanent, type => worker}.

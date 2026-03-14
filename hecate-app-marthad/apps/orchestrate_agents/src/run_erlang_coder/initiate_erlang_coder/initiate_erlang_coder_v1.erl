@@ -44,13 +44,13 @@ validate(#initiate_erlang_coder_v1{}) ->
 -spec to_map(initiate_erlang_coder_v1()) -> map().
 to_map(#initiate_erlang_coder_v1{} = Cmd) ->
     #{
-        <<"command_type">> => <<"initiate_agent">>,
-        <<"agent_role">> => <<"erlang_coder">>,
-        <<"session_id">> => Cmd#initiate_erlang_coder_v1.session_id,
-        <<"venture_id">> => Cmd#initiate_erlang_coder_v1.venture_id,
-        <<"tier">> => Cmd#initiate_erlang_coder_v1.tier,
-        <<"initiated_by">> => Cmd#initiate_erlang_coder_v1.initiated_by,
-        <<"input_context">> => Cmd#initiate_erlang_coder_v1.input_context
+        command_type => <<"initiate_agent">>,
+        agent_role => <<"erlang_coder">>,
+        session_id => Cmd#initiate_erlang_coder_v1.session_id,
+        venture_id => Cmd#initiate_erlang_coder_v1.venture_id,
+        tier => Cmd#initiate_erlang_coder_v1.tier,
+        initiated_by => Cmd#initiate_erlang_coder_v1.initiated_by,
+        input_context => Cmd#initiate_erlang_coder_v1.input_context
     }.
 
 -spec from_map(map()) -> {ok, initiate_erlang_coder_v1()} | {error, term()}.

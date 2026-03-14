@@ -338,79 +338,51 @@ apply(State, Event) ->
 
 -spec apply_event(map(), state()) -> state().
 
+%% Normalize atom event_type to binary (from typed evoq_event modules)
+apply_event(#{event_type := Type} = E, S) when is_atom(Type) ->
+    apply_event(E#{event_type := atom_to_binary(Type, utf8)}, S);
+
 %% Inception events
-apply_event(#{<<"event_type">> := <<"venture_initiated_v1">>} = E, S) -> apply_initiated(E, S);
 apply_event(#{event_type := <<"venture_initiated_v1">>} = E, S)      -> apply_initiated(E, S);
-apply_event(#{<<"event_type">> := <<"vision_refined_v1">>} = E, S)   -> apply_vision_refined(E, S);
 apply_event(#{event_type := <<"vision_refined_v1">>} = E, S)         -> apply_vision_refined(E, S);
-apply_event(#{<<"event_type">> := <<"vision_submitted_v1">>} = E, S) -> apply_vision_submitted(E, S);
 apply_event(#{event_type := <<"vision_submitted_v1">>} = E, S)       -> apply_vision_submitted(E, S);
 
 %% Knowledge preparation events
-apply_event(#{<<"event_type">> := <<"venture_knowledge_preparation_started_v1">>} = E, S) -> apply_preparation_started(E, S);
 apply_event(#{event_type := <<"venture_knowledge_preparation_started_v1">>} = E, S)       -> apply_preparation_started(E, S);
-apply_event(#{<<"event_type">> := <<"research_brief_contributed_v1">>} = E, S)             -> apply_brief_contributed(E, S);
 apply_event(#{event_type := <<"research_brief_contributed_v1">>} = E, S)                   -> apply_brief_contributed(E, S);
-apply_event(#{<<"event_type">> := <<"venture_preparation_completed_v1">>} = E, S)          -> apply_preparation_completed(E, S);
 apply_event(#{event_type := <<"venture_preparation_completed_v1">>} = E, S)                -> apply_preparation_completed(E, S);
 
-apply_event(#{<<"event_type">> := <<"venture_repo_scaffolded_v1">>} = E, S) -> apply_repo_scaffolded(E, S);
 apply_event(#{event_type := <<"venture_repo_scaffolded_v1">>} = E, S)       -> apply_repo_scaffolded(E, S);
 
 %% Discovery events
-apply_event(#{<<"event_type">> := <<"discovery_started_v1">>} = E, S)   -> apply_discovery_started(E, S);
 apply_event(#{event_type := <<"discovery_started_v1">>} = E, S)         -> apply_discovery_started(E, S);
-apply_event(#{<<"event_type">> := <<"division_identified_v1">>} = E, S) -> apply_division_identified(E, S);
 apply_event(#{event_type := <<"division_identified_v1">>} = E, S)       -> apply_division_identified(E, S);
-apply_event(#{<<"event_type">> := <<"discovery_paused_v1">>} = E, S)    -> apply_discovery_paused(E, S);
 apply_event(#{event_type := <<"discovery_paused_v1">>} = E, S)          -> apply_discovery_paused(E, S);
-apply_event(#{<<"event_type">> := <<"discovery_resumed_v1">>} = _E, S)  -> apply_discovery_resumed(S);
 apply_event(#{event_type := <<"discovery_resumed_v1">>} = _E, S)        -> apply_discovery_resumed(S);
-apply_event(#{<<"event_type">> := <<"discovery_completed_v1">>} = E, S) -> apply_discovery_completed(E, S);
 apply_event(#{event_type := <<"discovery_completed_v1">>} = E, S)       -> apply_discovery_completed(E, S);
 
 %% Archive
-apply_event(#{<<"event_type">> := <<"venture_archived_v1">>} = _E, S) -> apply_archived(S);
 apply_event(#{event_type := <<"venture_archived_v1">>} = _E, S)       -> apply_archived(S);
 
 %% Big Picture Event Storming events
-apply_event(#{<<"event_type">> := <<"big_picture_storm_started_v1">>} = E, S)  -> apply_storm_started(E, S);
 apply_event(#{event_type := <<"big_picture_storm_started_v1">>} = E, S)        -> apply_storm_started(E, S);
-apply_event(#{<<"event_type">> := <<"event_sticky_posted_v1">>} = E, S)        -> apply_sticky_posted(E, S);
 apply_event(#{event_type := <<"event_sticky_posted_v1">>} = E, S)              -> apply_sticky_posted(E, S);
-apply_event(#{<<"event_type">> := <<"event_sticky_pulled_v1">>} = E, S)        -> apply_sticky_pulled(E, S);
 apply_event(#{event_type := <<"event_sticky_pulled_v1">>} = E, S)              -> apply_sticky_pulled(E, S);
-apply_event(#{<<"event_type">> := <<"event_stack_emerged_v1">>} = E, S)        -> apply_stack_emerged(E, S);
 apply_event(#{event_type := <<"event_stack_emerged_v1">>} = E, S)              -> apply_stack_emerged(E, S);
-apply_event(#{<<"event_type">> := <<"event_sticky_stacked_v1">>} = E, S)       -> apply_sticky_stacked(E, S);
 apply_event(#{event_type := <<"event_sticky_stacked_v1">>} = E, S)             -> apply_sticky_stacked(E, S);
-apply_event(#{<<"event_type">> := <<"event_sticky_unstacked_v1">>} = E, S)     -> apply_sticky_unstacked(E, S);
 apply_event(#{event_type := <<"event_sticky_unstacked_v1">>} = E, S)           -> apply_sticky_unstacked(E, S);
-apply_event(#{<<"event_type">> := <<"event_stack_groomed_v1">>} = E, S)        -> apply_stack_groomed(E, S);
 apply_event(#{event_type := <<"event_stack_groomed_v1">>} = E, S)              -> apply_stack_groomed(E, S);
-apply_event(#{<<"event_type">> := <<"event_cluster_emerged_v1">>} = E, S)      -> apply_cluster_emerged(E, S);
 apply_event(#{event_type := <<"event_cluster_emerged_v1">>} = E, S)            -> apply_cluster_emerged(E, S);
-apply_event(#{<<"event_type">> := <<"event_sticky_clustered_v1">>} = E, S)     -> apply_sticky_clustered(E, S);
 apply_event(#{event_type := <<"event_sticky_clustered_v1">>} = E, S)           -> apply_sticky_clustered(E, S);
-apply_event(#{<<"event_type">> := <<"event_sticky_unclustered_v1">>} = E, S)   -> apply_sticky_unclustered(E, S);
 apply_event(#{event_type := <<"event_sticky_unclustered_v1">>} = E, S)         -> apply_sticky_unclustered(E, S);
-apply_event(#{<<"event_type">> := <<"event_cluster_dissolved_v1">>} = E, S)    -> apply_cluster_dissolved(E, S);
 apply_event(#{event_type := <<"event_cluster_dissolved_v1">>} = E, S)          -> apply_cluster_dissolved(E, S);
-apply_event(#{<<"event_type">> := <<"event_cluster_named_v1">>} = E, S)        -> apply_cluster_named(E, S);
 apply_event(#{event_type := <<"event_cluster_named_v1">>} = E, S)              -> apply_cluster_named(E, S);
-apply_event(#{<<"event_type">> := <<"fact_arrow_drawn_v1">>} = E, S)           -> apply_arrow_drawn(E, S);
 apply_event(#{event_type := <<"fact_arrow_drawn_v1">>} = E, S)                 -> apply_arrow_drawn(E, S);
-apply_event(#{<<"event_type">> := <<"fact_arrow_erased_v1">>} = E, S)          -> apply_arrow_erased(E, S);
 apply_event(#{event_type := <<"fact_arrow_erased_v1">>} = E, S)                -> apply_arrow_erased(E, S);
-apply_event(#{<<"event_type">> := <<"event_cluster_promoted_v1">>} = E, S)     -> apply_cluster_promoted(E, S);
 apply_event(#{event_type := <<"event_cluster_promoted_v1">>} = E, S)           -> apply_cluster_promoted(E, S);
-apply_event(#{<<"event_type">> := <<"storm_phase_advanced_v1">>} = E, S)       -> apply_phase_advanced(E, S);
 apply_event(#{event_type := <<"storm_phase_advanced_v1">>} = E, S)             -> apply_phase_advanced(E, S);
-apply_event(#{<<"event_type">> := <<"big_picture_storm_shelved_v1">>} = E, S)  -> apply_storm_shelved(E, S);
 apply_event(#{event_type := <<"big_picture_storm_shelved_v1">>} = E, S)        -> apply_storm_shelved(E, S);
-apply_event(#{<<"event_type">> := <<"big_picture_storm_resumed_v1">>} = _E, S) -> apply_storm_resumed(S);
 apply_event(#{event_type := <<"big_picture_storm_resumed_v1">>} = _E, S)       -> apply_storm_resumed(S);
-apply_event(#{<<"event_type">> := <<"big_picture_storm_archived_v1">>} = _E, S) -> apply_storm_archived(S);
 apply_event(#{event_type := <<"big_picture_storm_archived_v1">>} = _E, S)       -> apply_storm_archived(S);
 
 %% Unknown — ignore
@@ -761,7 +733,6 @@ set_field(repos, V, S) -> S#venture_state{repos = V};
 set_field(skills, V, S) -> S#venture_state{skills = V};
 set_field(context_map, V, S) -> S#venture_state{context_map = V}.
 
-get_command_type(#{<<"command_type">> := T}) -> T;
 get_command_type(#{command_type := T}) when is_binary(T) -> T;
 get_command_type(#{command_type := T}) when is_atom(T) -> atom_to_binary(T);
 get_command_type(_) -> undefined.

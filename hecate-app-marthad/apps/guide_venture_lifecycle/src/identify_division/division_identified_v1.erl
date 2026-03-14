@@ -35,13 +35,13 @@ new(#{venture_id := VentureId, context_name := ContextName} = Params) ->
 to_map(#division_identified_v1{venture_id = V, division_id = DI, context_name = CN,
                                 description = D, identified_by = IB, identified_at = IA}) ->
     #{
-        <<"event_type">> => <<"division_identified_v1">>,
-        <<"venture_id">> => V,
-        <<"division_id">> => DI,
-        <<"context_name">> => CN,
-        <<"description">> => D,
-        <<"identified_by">> => IB,
-        <<"identified_at">> => IA
+        event_type => <<"division_identified_v1">>,
+        venture_id => V,
+        division_id => DI,
+        context_name => CN,
+        description => D,
+        identified_by => IB,
+        identified_at => IA
     }.
 
 -spec from_map(map()) -> {ok, division_identified_v1()} | {error, term()}.

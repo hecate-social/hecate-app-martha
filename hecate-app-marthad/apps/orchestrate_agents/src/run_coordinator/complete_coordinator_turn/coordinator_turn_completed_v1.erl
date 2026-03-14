@@ -38,15 +38,15 @@ new(#{session_id := SessionId} = Params) ->
 -spec to_map(coordinator_turn_completed_v1()) -> map().
 to_map(#coordinator_turn_completed_v1{} = E) ->
     #{
-        <<"event_type">> => <<"coordinator_turn_completed_v1">>,
-        <<"session_id">> => E#coordinator_turn_completed_v1.session_id,
-        <<"agent_role">> => E#coordinator_turn_completed_v1.agent_role,
-        <<"venture_id">> => E#coordinator_turn_completed_v1.venture_id,
-        <<"agent_output">> => E#coordinator_turn_completed_v1.agent_output,
-        <<"turn_number">> => E#coordinator_turn_completed_v1.turn_number,
-        <<"tokens_in">> => E#coordinator_turn_completed_v1.tokens_in,
-        <<"tokens_out">> => E#coordinator_turn_completed_v1.tokens_out,
-        <<"completed_at">> => E#coordinator_turn_completed_v1.completed_at
+        event_type => <<"coordinator_turn_completed_v1">>,
+        session_id => E#coordinator_turn_completed_v1.session_id,
+        agent_role => E#coordinator_turn_completed_v1.agent_role,
+        venture_id => E#coordinator_turn_completed_v1.venture_id,
+        agent_output => E#coordinator_turn_completed_v1.agent_output,
+        turn_number => E#coordinator_turn_completed_v1.turn_number,
+        tokens_in => E#coordinator_turn_completed_v1.tokens_in,
+        tokens_out => E#coordinator_turn_completed_v1.tokens_out,
+        completed_at => E#coordinator_turn_completed_v1.completed_at
     }.
 
 -spec from_map(map()) -> {ok, coordinator_turn_completed_v1()} | {error, term()}.

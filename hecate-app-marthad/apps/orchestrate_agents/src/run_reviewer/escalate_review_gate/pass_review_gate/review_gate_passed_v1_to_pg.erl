@@ -1,32 +1,17 @@
 %%% @doc Emitter: review_gate_passed_v1 -> pg (internal pub/sub)
 -module(review_gate_passed_v1_to_pg).
--behaviour(gen_server).
--export([start_link/0]).
--export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2]).
+-behaviour(evoq_event_handler).
+-export([interested_in/0, init/1, handle_event/4]).
 
--define(EVENT_TYPE, <<"review_gate_passed_v1">>).
 -define(PG_GROUP, review_gate_passed_v1).
--define(SUB_NAME, <<"review_gate_passed_v1_to_pg">>).
--define(STORE_ID, orchestration_store).
 
-start_link() ->
-    gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
+interested_in() -> [<<"review_gate_passed_v1">>].
 
-init([]) ->
-    {ok, _} = reckon_evoq_adapter:subscribe(
-        ?STORE_ID, event_type, ?EVENT_TYPE, ?SUB_NAME,
-        #{subscriber_pid => self()}),
-    {ok, #{}}.
+init(_Config) -> {ok, #{}}.
 
-handle_info({events, Events}, State) ->
+handle_event(_EventType, Event, _Metadata, State) ->
     Members = pg:get_members(pg, ?PG_GROUP),
-    lists:foreach(fun(E) ->
-        Msg = {?PG_GROUP, E},
-        lists:foreach(fun(Pid) -> Pid ! Msg end, Members)
-    end, Events),
-    {noreply, State};
-handle_info(_Info, State) -> {noreply, State}.
-
-handle_call(_Req, _From, State) -> {reply, ok, State}.
-handle_cast(_Msg, State) -> {noreply, State}.
-terminate(_Reason, _State) -> ok.
+    Msg = {?PG_GROUP, Event},
+    lists:foreach(fun(Pid) -> Pid ! Msg end, Members),
+    app_marthad_web_events:broadcast(review_gate_passed, maps:get(data, Event)),
+    {ok, State}.

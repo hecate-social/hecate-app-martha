@@ -46,12 +46,12 @@ validate(_) -> ok.
 to_map(#identify_division_v1{venture_id = V, division_id = DI, context_name = CN,
                               description = D, identified_by = IB}) ->
     #{
-        <<"command_type">> => <<"identify_division">>,
-        <<"venture_id">> => V,
-        <<"division_id">> => DI,
-        <<"context_name">> => CN,
-        <<"description">> => D,
-        <<"identified_by">> => IB
+        command_type => <<"identify_division">>,
+        venture_id => V,
+        division_id => DI,
+        context_name => CN,
+        description => D,
+        identified_by => IB
     }.
 
 -spec from_map(map()) -> {ok, identify_division_v1()} | {error, term()}.

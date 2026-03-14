@@ -32,11 +32,11 @@ new(#{division_id := DivisionId, venture_id := VentureId, context_name := Contex
 -spec to_map(planning_submitted_v1()) -> map().
 to_map(#planning_submitted_v1{} = E) ->
     #{
-        <<"event_type">> => <<"planning_submitted_v1">>,
-        <<"division_id">> => E#planning_submitted_v1.division_id,
-        <<"venture_id">> => E#planning_submitted_v1.venture_id,
-        <<"context_name">> => E#planning_submitted_v1.context_name,
-        <<"submitted_at">> => E#planning_submitted_v1.submitted_at
+        event_type => <<"planning_submitted_v1">>,
+        division_id => E#planning_submitted_v1.division_id,
+        venture_id => E#planning_submitted_v1.venture_id,
+        context_name => E#planning_submitted_v1.context_name,
+        submitted_at => E#planning_submitted_v1.submitted_at
     }.
 
 -spec from_map(map()) -> {ok, planning_submitted_v1()} | {error, term()}.

@@ -28,6 +28,21 @@ init([]) ->
         child(project_agent_sessions_sup),
         child(query_agent_sessions_sup),
 
+        %% Knowledge graph (CMD + PRJ + QRY)
+        child(guide_knowledge_graph_sup),
+        child(project_knowledge_graph_sup),
+        child(query_knowledge_graph_sup),
+
+        %% Retry strategy (CMD + PRJ + QRY)
+        child(guide_retry_strategy_sup),
+        child(project_retry_strategy_sup),
+        child(query_retry_strategy_sup),
+
+        %% Cost budget (CMD + PRJ + QRY)
+        child(guard_cost_budget_sup),
+        child(project_cost_budgets_sup),
+        child(query_cost_budgets_sup),
+
         %% Web SSE event bridge (subscribes to $all, forwards to SSE clients)
         worker(app_marthad_event_bridge)
     ],

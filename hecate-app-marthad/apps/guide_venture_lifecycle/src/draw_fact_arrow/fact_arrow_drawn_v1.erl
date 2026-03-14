@@ -39,14 +39,14 @@ to_map(#fact_arrow_drawn_v1{venture_id = V, storm_number = SN, arrow_id = AI,
                              from_cluster = FC, to_cluster = TC, fact_name = FN,
                              drawn_at = DA}) ->
     #{
-        <<"event_type">> => <<"fact_arrow_drawn_v1">>,
-        <<"venture_id">> => V,
-        <<"storm_number">> => SN,
-        <<"arrow_id">> => AI,
-        <<"from_cluster">> => FC,
-        <<"to_cluster">> => TC,
-        <<"fact_name">> => FN,
-        <<"drawn_at">> => DA
+        event_type => <<"fact_arrow_drawn_v1">>,
+        venture_id => V,
+        storm_number => SN,
+        arrow_id => AI,
+        from_cluster => FC,
+        to_cluster => TC,
+        fact_name => FN,
+        drawn_at => DA
     }.
 
 -spec from_map(map()) -> {ok, fact_arrow_drawn_v1()} | {error, term()}.

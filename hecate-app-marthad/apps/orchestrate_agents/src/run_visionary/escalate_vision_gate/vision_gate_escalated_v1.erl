@@ -38,15 +38,15 @@ new(#{session_id := SessionId} = Params) ->
 -spec to_map(vision_gate_escalated_v1()) -> map().
 to_map(#vision_gate_escalated_v1{} = E) ->
     #{
-        <<"event_type">> => <<"vision_gate_escalated_v1">>,
-        <<"session_id">> => E#vision_gate_escalated_v1.session_id,
-        <<"agent_role">> => E#vision_gate_escalated_v1.agent_role,
-        <<"venture_id">> => E#vision_gate_escalated_v1.venture_id,
-        <<"division_id">> => E#vision_gate_escalated_v1.division_id,
-        <<"gate_name">> => E#vision_gate_escalated_v1.gate_name,
-        <<"notation_output">> => E#vision_gate_escalated_v1.notation_output,
-        <<"parsed_terms">> => E#vision_gate_escalated_v1.parsed_terms,
-        <<"escalated_at">> => E#vision_gate_escalated_v1.escalated_at
+        event_type => <<"vision_gate_escalated_v1">>,
+        session_id => E#vision_gate_escalated_v1.session_id,
+        agent_role => E#vision_gate_escalated_v1.agent_role,
+        venture_id => E#vision_gate_escalated_v1.venture_id,
+        division_id => E#vision_gate_escalated_v1.division_id,
+        gate_name => E#vision_gate_escalated_v1.gate_name,
+        notation_output => E#vision_gate_escalated_v1.notation_output,
+        parsed_terms => E#vision_gate_escalated_v1.parsed_terms,
+        escalated_at => E#vision_gate_escalated_v1.escalated_at
     }.
 
 -spec from_map(map()) -> {ok, vision_gate_escalated_v1()} | {error, term()}.
