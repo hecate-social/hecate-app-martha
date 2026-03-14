@@ -4,7 +4,10 @@
 %%% Optional: warning_pct (default 0.8), model_policy.
 -module(set_cost_budget_v1).
 
+-behaviour(evoq_command).
+
 -export([new/1, from_map/1, validate/1, to_map/1]).
+-export([command_type/0]).
 -export([get_venture_id/1, get_budget_usd/1, get_warning_pct/1, get_model_policy/1]).
 
 -record(set_cost_budget_v1, {
@@ -20,6 +23,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> {ok, set_cost_budget_v1()} | {error, term()}.
+-spec command_type() -> atom().
+command_type() -> set_cost_budget_v1.
+
 new(#{venture_id := VentureId, budget_usd := BudgetUsd} = Params) ->
     {ok, #set_cost_budget_v1{
         venture_id   = VentureId,
@@ -41,7 +47,7 @@ validate(#set_cost_budget_v1{} = Cmd) ->
 -spec to_map(set_cost_budget_v1()) -> map().
 to_map(#set_cost_budget_v1{} = Cmd) ->
     #{
-        command_type => <<"set_cost_budget">>,
+        command_type => set_cost_budget_v1,
         venture_id => Cmd#set_cost_budget_v1.venture_id,
         budget_usd => Cmd#set_cost_budget_v1.budget_usd,
         warning_pct => Cmd#set_cost_budget_v1.warning_pct,

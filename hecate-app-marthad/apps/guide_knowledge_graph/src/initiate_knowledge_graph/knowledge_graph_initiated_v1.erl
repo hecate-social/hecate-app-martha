@@ -1,7 +1,10 @@
 %%% @doc Event: knowledge graph initiated for a venture.
 -module(knowledge_graph_initiated_v1).
 
+-behaviour(evoq_event).
+
 -export([new/1, from_map/1, to_map/1]).
+-export([event_type/0]).
 -export([get_venture_id/1, get_initiated_at/1]).
 
 -record(knowledge_graph_initiated_v1, {
@@ -13,6 +16,9 @@
 -export_type([knowledge_graph_initiated_v1/0]).
 
 -spec new(map()) -> knowledge_graph_initiated_v1().
+-spec event_type() -> atom().
+event_type() -> knowledge_graph_initiated_v1.
+
 new(#{venture_id := VentureId}) ->
     #knowledge_graph_initiated_v1{
         venture_id = VentureId,
@@ -28,7 +34,7 @@ from_map(Map) ->
 
 -spec to_map(knowledge_graph_initiated_v1()) -> map().
 to_map(#knowledge_graph_initiated_v1{} = E) ->
-    #{event_type => <<"knowledge_graph_initiated_v1">>,
+    #{event_type => knowledge_graph_initiated_v1,
       venture_id => E#knowledge_graph_initiated_v1.venture_id,
       initiated_at => E#knowledge_graph_initiated_v1.initiated_at}.
 

@@ -1,7 +1,10 @@
 %%% @doc initiate_retry_v1 command.
 %%% Initiates a retry strategy for a failed/rejected agent session.
 -module(initiate_retry_v1).
+
+-behaviour(evoq_command).
 -export([new/1, from_map/1, to_map/1]).
+-export([command_type/0]).
 -export([get_session_id/1, get_venture_id/1, get_agent_role/1]).
 
 -record(initiate_retry_v1, {
@@ -17,6 +20,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> {ok, initiate_retry_v1()} | {error, term()}.
+-spec command_type() -> atom().
+command_type() -> initiate_retry_v1.
+
 new(#{session_id := SId, venture_id := VId, agent_role := Role} = P) ->
     {ok, #initiate_retry_v1{
         session_id = SId,
@@ -31,7 +37,7 @@ new(_) ->
 -spec to_map(initiate_retry_v1()) -> map().
 to_map(#initiate_retry_v1{} = C) ->
     #{
-        command_type => <<"initiate_retry">>,
+        command_type => initiate_retry_v1,
         session_id => C#initiate_retry_v1.session_id,
         venture_id => C#initiate_retry_v1.venture_id,
         agent_role => C#initiate_retry_v1.agent_role,

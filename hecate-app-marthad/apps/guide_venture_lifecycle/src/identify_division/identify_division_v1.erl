@@ -2,7 +2,10 @@
 %%% Identifies a new division within a venture during discovery.
 -module(identify_division_v1).
 
+-behaviour(evoq_command).
+
 -export([new/1, from_map/1, validate/1, to_map/1]).
+-export([command_type/0]).
 -export([get_venture_id/1, get_division_id/1, get_context_name/1,
          get_description/1, get_identified_by/1]).
 
@@ -20,6 +23,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> {ok, identify_division_v1()} | {error, term()}.
+-spec command_type() -> atom().
+command_type() -> identify_division_v1.
+
 new(#{venture_id := VentureId, context_name := ContextName} = Params) ->
     Cmd = #identify_division_v1{
         venture_id = VentureId,
@@ -46,7 +52,7 @@ validate(_) -> ok.
 to_map(#identify_division_v1{venture_id = V, division_id = DI, context_name = CN,
                               description = D, identified_by = IB}) ->
     #{
-        command_type => <<"identify_division">>,
+        command_type => identify_division_v1,
         venture_id => V,
         division_id => DI,
         context_name => CN,

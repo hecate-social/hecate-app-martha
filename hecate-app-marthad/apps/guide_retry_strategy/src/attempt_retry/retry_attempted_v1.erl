@@ -1,7 +1,10 @@
 %%% @doc retry_attempted_v1 event.
 %%% Emitted when a retry attempt is made with adjustments.
 -module(retry_attempted_v1).
+
+-behaviour(evoq_event).
 -export([new/1, to_map/1, from_map/1]).
+-export([event_type/0]).
 
 -record(retry_attempted_v1, {
     session_id     :: binary(),
@@ -14,6 +17,9 @@
 -export_type([retry_attempted_v1/0]).
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
+-spec event_type() -> atom().
+event_type() -> retry_attempted_v1.
+
 new(#{session_id := SId} = P) ->
     #retry_attempted_v1{
         session_id = SId,
@@ -24,7 +30,7 @@ new(#{session_id := SId} = P) ->
 
 to_map(#retry_attempted_v1{} = E) ->
     #{
-        event_type => <<"retry_attempted_v1">>,
+        event_type => retry_attempted_v1,
         session_id => E#retry_attempted_v1.session_id,
         attempt_number => E#retry_attempted_v1.attempt_number,
         adjustment => E#retry_attempted_v1.adjustment,

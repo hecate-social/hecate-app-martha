@@ -2,7 +2,10 @@
 %%% Emitted when spending is recorded against a cost budget.
 -module(spending_recorded_v1).
 
+-behaviour(evoq_event).
+
 -export([new/1, to_map/1, from_map/1]).
+-export([event_type/0]).
 -export([get_venture_id/1, get_amount_usd/1, get_new_total_usd/1,
          get_model/1, get_session_id/1, get_recorded_at/1]).
 
@@ -21,6 +24,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> spending_recorded_v1().
+-spec event_type() -> atom().
+event_type() -> spending_recorded_v1.
+
 new(#{venture_id := VentureId, amount_usd := AmountUsd,
       new_total_usd := NewTotalUsd, model := Model} = Params) ->
     #spending_recorded_v1{
@@ -35,7 +41,7 @@ new(#{venture_id := VentureId, amount_usd := AmountUsd,
 -spec to_map(spending_recorded_v1()) -> map().
 to_map(#spending_recorded_v1{} = E) ->
     #{
-        event_type    => <<"spending_recorded_v1">>,
+        event_type => spending_recorded_v1,
         venture_id    => E#spending_recorded_v1.venture_id,
         amount_usd    => E#spending_recorded_v1.amount_usd,
         new_total_usd => E#spending_recorded_v1.new_total_usd,

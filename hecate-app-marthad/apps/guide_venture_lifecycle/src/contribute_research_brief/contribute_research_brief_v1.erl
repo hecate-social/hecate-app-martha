@@ -2,7 +2,10 @@
 %%% An agent contributes a research brief for a specific topic.
 -module(contribute_research_brief_v1).
 
+-behaviour(evoq_command).
+
 -export([new/1, from_map/1, validate/1, to_map/1]).
+-export([command_type/0]).
 -export([get_venture_id/1, get_topic/1, get_brief/1, get_agent_role/1]).
 
 -record(contribute_research_brief_v1, {
@@ -18,6 +21,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> {ok, contribute_research_brief_v1()} | {error, term()}.
+-spec command_type() -> atom().
+command_type() -> contribute_research_brief_v1.
+
 new(#{venture_id := VentureId, topic := Topic, brief := Brief, agent_role := Role}) when
     is_binary(VentureId), is_binary(Topic), is_binary(Brief), is_binary(Role) ->
     {ok, #contribute_research_brief_v1{
@@ -46,7 +52,7 @@ validate(#contribute_research_brief_v1{} = Cmd) ->
 -spec to_map(contribute_research_brief_v1()) -> map().
 to_map(#contribute_research_brief_v1{} = Cmd) ->
     #{
-        command_type => <<"contribute_research_brief">>,
+        command_type => contribute_research_brief_v1,
         venture_id => Cmd#contribute_research_brief_v1.venture_id,
         topic => Cmd#contribute_research_brief_v1.topic,
         brief => Cmd#contribute_research_brief_v1.brief,

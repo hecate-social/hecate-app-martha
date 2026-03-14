@@ -74,11 +74,11 @@ aggregate_test_() ->
 %% Helpers
 %% ===================================================================
 
-fresh() -> venture_aggregate:initial_state().
+fresh() -> venture_state:new(<<>>).
 
 %% Build a state by applying a sequence of events
 apply_events(Events) ->
-    lists:foldl(fun(E, S) -> venture_aggregate:apply_event(E, S) end, fresh(), Events).
+    lists:foldl(fun(E, S) -> venture_aggregate:apply(S, E) end, fresh(), Events).
 
 initiated_state() ->
     apply_events([initiated_event()]).
@@ -198,7 +198,7 @@ exec_refine_vision_ok() ->
             <<"venture_id">> => <<"v-test-1">>,
             <<"brief">> => <<"Updated brief">>},
     {ok, [Event]} = venture_aggregate:execute(initiated_state(), Cmd),
-    ?assertEqual(<<"vision_refined_v1">>, maps:get(event_type, Event)).
+    ?assertEqual(vision_refined_v1, maps:get(event_type, Event)).
 
 exec_refine_after_submit() ->
     %% Vision can always be adjusted — refining after submit succeeds
@@ -206,7 +206,7 @@ exec_refine_after_submit() ->
     Cmd = #{command_type => <<"refine_vision">>,
             <<"venture_id">> => <<"v-test-1">>},
     {ok, [Event]} = venture_aggregate:execute(submitted_state(), Cmd),
-    ?assertEqual(<<"vision_refined_v1">>, maps:get(event_type, Event)),
+    ?assertEqual(vision_refined_v1, maps:get(event_type, Event)),
     %% Applying the event should clear SUBMITTED
     State1 = venture_aggregate:apply(submitted_state(), Event),
     Status = State1#venture_state.status,
@@ -217,7 +217,7 @@ exec_submit_vision_ok() ->
     Cmd = #{command_type => <<"submit_vision">>,
             <<"venture_id">> => <<"v-test-1">>},
     {ok, [Event]} = venture_aggregate:execute(initiated_state(), Cmd),
-    ?assertEqual(<<"vision_submitted_v1">>, maps:get(event_type, Event)).
+    ?assertEqual(vision_submitted_v1, maps:get(event_type, Event)).
 
 exec_submit_twice() ->
     Cmd = #{command_type => <<"submit_vision">>,
@@ -233,7 +233,7 @@ exec_start_discovery_ok() ->
     Cmd = #{command_type => <<"start_discovery">>,
             <<"venture_id">> => <<"v-test-1">>},
     {ok, [Event]} = venture_aggregate:execute(initiated_state(), Cmd),
-    ?assertEqual(<<"discovery_started_v1">>, maps:get(event_type, Event)).
+    ?assertEqual(discovery_started_v1, maps:get(event_type, Event)).
 
 exec_start_discovery_twice() ->
     Cmd = #{command_type => <<"start_discovery">>,
@@ -252,7 +252,7 @@ exec_identify_division_ok() ->
             <<"venture_id">> => <<"v-test-1">>,
             <<"context_name">> => <<"auth_division">>},
     {ok, [Event]} = venture_aggregate:execute(discovering_state(), Cmd),
-    ?assertEqual(<<"division_identified_v1">>, maps:get(event_type, Event)),
+    ?assertEqual(division_identified_v1, maps:get(event_type, Event)),
     ?assertEqual(<<"auth_division">>, maps:get(context_name, Event)).
 
 exec_identify_division_not_active() ->
@@ -269,7 +269,7 @@ exec_identify_division_duplicate() ->
                <<"venture_id">> => <<"v-test-1">>,
                <<"division_id">> => <<"div-1">>,
                <<"context_name">> => <<"auth_division">>},
-    State1 = venture_aggregate:apply_event(EvtMap, State0),
+    State1 = venture_aggregate:apply(State0, EvtMap),
     %% Second: try to identify same context_name
     Cmd = #{command_type => <<"identify_division">>,
             <<"venture_id">> => <<"v-test-1">>,
@@ -282,7 +282,7 @@ exec_pause_discovery_ok() ->
             <<"venture_id">> => <<"v-test-1">>,
             <<"reason">> => <<"need more info">>},
     {ok, [Event]} = venture_aggregate:execute(discovering_state(), Cmd),
-    ?assertEqual(<<"discovery_paused_v1">>, maps:get(event_type, Event)).
+    ?assertEqual(discovery_paused_v1, maps:get(event_type, Event)).
 
 exec_pause_not_active() ->
     Cmd = #{command_type => <<"pause_discovery">>,
@@ -295,7 +295,7 @@ exec_resume_discovery_ok() ->
     Cmd = #{command_type => <<"resume_discovery">>,
             <<"venture_id">> => <<"v-test-1">>},
     {ok, [Event]} = venture_aggregate:execute(paused_state(), Cmd),
-    ?assertEqual(<<"discovery_resumed_v1">>, maps:get(event_type, Event)).
+    ?assertEqual(discovery_resumed_v1, maps:get(event_type, Event)).
 
 exec_resume_not_paused() ->
     Cmd = #{command_type => <<"resume_discovery">>,
@@ -307,7 +307,7 @@ exec_complete_discovery_ok() ->
     Cmd = #{command_type => <<"complete_discovery">>,
             <<"venture_id">> => <<"v-test-1">>},
     {ok, [Event]} = venture_aggregate:execute(discovering_state(), Cmd),
-    ?assertEqual(<<"discovery_completed_v1">>, maps:get(event_type, Event)).
+    ?assertEqual(discovery_completed_v1, maps:get(event_type, Event)).
 
 exec_complete_not_active() ->
     Cmd = #{command_type => <<"complete_discovery">>,
@@ -324,7 +324,7 @@ exec_archive_ok() ->
             <<"venture_id">> => <<"v-test-1">>,
             <<"reason">> => <<"no longer needed">>},
     {ok, [Event]} = venture_aggregate:execute(initiated_state(), Cmd),
-    ?assertEqual(<<"venture_archived_v1">>, maps:get(event_type, Event)).
+    ?assertEqual(venture_archived_v1, maps:get(event_type, Event)).
 
 %% ===================================================================
 %% Apply: State Transitions
@@ -348,7 +348,7 @@ apply_vision_refined() ->
               <<"repos">> => [<<"repo2">>],
               <<"skills">> => [<<"go">>],
               <<"context_map">> => #{<<"x">> => <<"y">>}},
-    State = venture_aggregate:apply_event(Event, initiated_state()),
+    State = venture_aggregate:apply(initiated_state(), Event),
     ?assertEqual(<<"New brief">>, State#venture_state.brief),
     ?assertEqual([<<"repo2">>], State#venture_state.repos),
     ?assertEqual([<<"go">>], State#venture_state.skills),
@@ -360,7 +360,7 @@ apply_vision_refined_partial() ->
     Event = #{event_type => <<"vision_refined_v1">>,
               <<"venture_id">> => <<"v-test-1">>,
               <<"brief">> => <<"Only brief updated">>},
-    State = venture_aggregate:apply_event(Event, initiated_state()),
+    State = venture_aggregate:apply(initiated_state(), Event),
     ?assertEqual(<<"Only brief updated">>, State#venture_state.brief),
     %% Original values preserved
     ?assertEqual([<<"repo1">>], State#venture_state.repos),
@@ -369,14 +369,14 @@ apply_vision_refined_partial() ->
 apply_vision_submitted() ->
     Event = #{event_type => <<"vision_submitted_v1">>,
               <<"venture_id">> => <<"v-test-1">>},
-    State = venture_aggregate:apply_event(Event, initiated_state()),
+    State = venture_aggregate:apply(initiated_state(), Event),
     ?assert(State#venture_state.status band ?VL_SUBMITTED =/= 0).
 
 apply_discovery_started() ->
     Event = #{event_type => <<"discovery_started_v1">>,
               <<"venture_id">> => <<"v-test-1">>,
               <<"started_at">> => 5000},
-    State = venture_aggregate:apply_event(Event, initiated_state()),
+    State = venture_aggregate:apply(initiated_state(), Event),
     ?assert(State#venture_state.status band ?VL_DISCOVERING =/= 0),
     ?assertEqual(5000, State#venture_state.discovery_started_at).
 
@@ -385,7 +385,7 @@ apply_division_identified() ->
               <<"venture_id">> => <<"v-test-1">>,
               <<"division_id">> => <<"div-abc">>,
               <<"context_name">> => <<"payments">>},
-    State = venture_aggregate:apply_event(Event, discovering_state()),
+    State = venture_aggregate:apply(discovering_state(), Event),
     Discovered = State#venture_state.discovered_divisions,
     ?assertEqual(<<"div-abc">>, maps:get(<<"payments">>, Discovered)).
 
@@ -394,7 +394,7 @@ apply_discovery_paused() ->
               <<"venture_id">> => <<"v-test-1">>,
               <<"paused_at">> => 6000,
               <<"reason">> => <<"waiting for feedback">>},
-    State = venture_aggregate:apply_event(Event, discovering_state()),
+    State = venture_aggregate:apply(discovering_state(), Event),
     ?assert(State#venture_state.status band ?VL_DISCOVERY_PAUSED =/= 0),
     ?assert(State#venture_state.status band ?VL_DISCOVERING =:= 0),
     ?assertEqual(6000, State#venture_state.discovery_paused_at),
@@ -403,7 +403,7 @@ apply_discovery_paused() ->
 apply_discovery_resumed() ->
     Event = #{event_type => <<"discovery_resumed_v1">>,
               <<"venture_id">> => <<"v-test-1">>},
-    State = venture_aggregate:apply_event(Event, paused_state()),
+    State = venture_aggregate:apply(paused_state(), Event),
     ?assert(State#venture_state.status band ?VL_DISCOVERING =/= 0),
     ?assert(State#venture_state.status band ?VL_DISCOVERY_PAUSED =:= 0),
     ?assertEqual(undefined, State#venture_state.discovery_paused_at),
@@ -413,7 +413,7 @@ apply_discovery_completed() ->
     Event = #{event_type => <<"discovery_completed_v1">>,
               <<"venture_id">> => <<"v-test-1">>,
               <<"completed_at">> => 9000},
-    State = venture_aggregate:apply_event(Event, discovering_state()),
+    State = venture_aggregate:apply(discovering_state(), Event),
     ?assert(State#venture_state.status band ?VL_DISCOVERY_COMPLETED =/= 0),
     ?assert(State#venture_state.status band ?VL_DISCOVERING =:= 0),
     ?assertEqual(9000, State#venture_state.discovery_completed_at).
@@ -421,13 +421,13 @@ apply_discovery_completed() ->
 apply_archived() ->
     Event = #{event_type => <<"venture_archived_v1">>,
               <<"venture_id">> => <<"v-test-1">>},
-    State = venture_aggregate:apply_event(Event, initiated_state()),
+    State = venture_aggregate:apply(initiated_state(), Event),
     ?assert(State#venture_state.status band ?VL_ARCHIVED =/= 0).
 
 apply_unknown_event() ->
     Event = #{event_type => <<"something_weird_v1">>},
     State = initiated_state(),
-    ?assertEqual(State, venture_aggregate:apply_event(Event, State)).
+    ?assertEqual(State, venture_aggregate:apply(State, Event)).
 
 %% ===================================================================
 %% Apply: binary vs atom keys
@@ -438,7 +438,7 @@ apply_binary_keys() ->
               <<"venture_id">> => <<"v-bin">>,
               <<"name">> => <<"Binary Keys">>,
               <<"initiated_at">> => 1000},
-    State = venture_aggregate:apply_event(Event, fresh()),
+    State = venture_aggregate:apply(fresh(), Event),
     ?assertEqual(<<"v-bin">>, State#venture_state.venture_id),
     ?assertEqual(<<"Binary Keys">>, State#venture_state.name).
 
@@ -447,7 +447,7 @@ apply_atom_keys() ->
               venture_id => <<"v-atom">>,
               name => <<"Atom Keys">>,
               initiated_at => 2000},
-    State = venture_aggregate:apply_event(Event, fresh()),
+    State = venture_aggregate:apply(fresh(), Event),
     ?assertEqual(<<"v-atom">>, State#venture_state.venture_id),
     ?assertEqual(<<"Atom Keys">>, State#venture_state.name).
 
@@ -463,7 +463,7 @@ full_lifecycle() ->
         #{command_type => <<"initiate_venture">>,
           <<"venture_id">> => <<"v-full">>,
           <<"name">> => <<"Full Lifecycle">>}),
-    S1 = venture_aggregate:apply_event(E1, S0),
+    S1 = venture_aggregate:apply(S0, E1),
     ?assert(S1#venture_state.status band ?VL_INITIATED =/= 0),
 
     %% 2. Refine vision
@@ -471,21 +471,21 @@ full_lifecycle() ->
         #{command_type => <<"refine_vision">>,
           <<"venture_id">> => <<"v-full">>,
           <<"brief">> => <<"Refined">>}),
-    S2 = venture_aggregate:apply_event(E2, S1),
+    S2 = venture_aggregate:apply(S1, E2),
     ?assert(S2#venture_state.status band ?VL_VISION_REFINED =/= 0),
 
     %% 3. Submit vision
     {ok, [E3]} = venture_aggregate:execute(S2,
         #{command_type => <<"submit_vision">>,
           <<"venture_id">> => <<"v-full">>}),
-    S3 = venture_aggregate:apply_event(E3, S2),
+    S3 = venture_aggregate:apply(S2, E3),
     ?assert(S3#venture_state.status band ?VL_SUBMITTED =/= 0),
 
     %% 4. Start discovery
     {ok, [E4]} = venture_aggregate:execute(S3,
         #{command_type => <<"start_discovery">>,
           <<"venture_id">> => <<"v-full">>}),
-    S4 = venture_aggregate:apply_event(E4, S3),
+    S4 = venture_aggregate:apply(S3, E4),
     ?assert(S4#venture_state.status band ?VL_DISCOVERING =/= 0),
 
     %% 5. Identify a division
@@ -493,7 +493,7 @@ full_lifecycle() ->
         #{command_type => <<"identify_division">>,
           <<"venture_id">> => <<"v-full">>,
           <<"context_name">> => <<"payments">>}),
-    S5 = venture_aggregate:apply_event(E5, S4),
+    S5 = venture_aggregate:apply(S4, E5),
     ?assert(maps:is_key(<<"payments">>, S5#venture_state.discovered_divisions)),
 
     %% 6. Pause discovery
@@ -501,21 +501,21 @@ full_lifecycle() ->
         #{command_type => <<"pause_discovery">>,
           <<"venture_id">> => <<"v-full">>,
           <<"reason">> => <<"thinking">>}),
-    S6 = venture_aggregate:apply_event(E6, S5),
+    S6 = venture_aggregate:apply(S5, E6),
     ?assert(S6#venture_state.status band ?VL_DISCOVERY_PAUSED =/= 0),
 
     %% 7. Resume discovery
     {ok, [E7]} = venture_aggregate:execute(S6,
         #{command_type => <<"resume_discovery">>,
           <<"venture_id">> => <<"v-full">>}),
-    S7 = venture_aggregate:apply_event(E7, S6),
+    S7 = venture_aggregate:apply(S6, E7),
     ?assert(S7#venture_state.status band ?VL_DISCOVERING =/= 0),
 
     %% 8. Complete discovery
     {ok, [E8]} = venture_aggregate:execute(S7,
         #{command_type => <<"complete_discovery">>,
           <<"venture_id">> => <<"v-full">>}),
-    S8 = venture_aggregate:apply_event(E8, S7),
+    S8 = venture_aggregate:apply(S7, E8),
     ?assert(S8#venture_state.status band ?VL_DISCOVERY_COMPLETED =/= 0),
 
     %% 9. Archive
@@ -523,7 +523,7 @@ full_lifecycle() ->
         #{command_type => <<"archive_venture">>,
           <<"venture_id">> => <<"v-full">>,
           <<"reason">> => <<"done">>}),
-    S9 = venture_aggregate:apply_event(E9, S8),
+    S9 = venture_aggregate:apply(S8, E9),
     ?assert(S9#venture_state.status band ?VL_ARCHIVED =/= 0),
 
     %% Verify archived rejects

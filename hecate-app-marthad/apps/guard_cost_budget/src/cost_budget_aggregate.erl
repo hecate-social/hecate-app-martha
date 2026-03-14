@@ -17,11 +17,13 @@
 -include("cost_budget_state.hrl").
 
 -export([init/1, execute/2, apply/2]).
--export([initial_state/0, apply_event/2]).
--export([flag_map/0]).
+-export([state_module/0, flag_map/0]).
 
 -type state() :: #cost_budget_state{}.
 -export_type([state/0]).
+
+-spec state_module() -> module().
+state_module() -> cost_budget_state.
 
 -spec flag_map() -> evoq_bit_flags:flag_map().
 flag_map() -> ?CB_FLAG_MAP.
@@ -29,12 +31,8 @@ flag_map() -> ?CB_FLAG_MAP.
 %% --- Callbacks ---
 
 -spec init(binary()) -> {ok, state()}.
-init(_AggregateId) ->
-    {ok, initial_state()}.
-
--spec initial_state() -> state().
-initial_state() ->
-    #cost_budget_state{status = 0}.
+init(AggregateId) ->
+    {ok, cost_budget_state:new(AggregateId)}.
 
 %% --- Execute ---
 %% NOTE: evoq calls execute(State, Payload) - State FIRST!
@@ -87,58 +85,10 @@ execute_adjust_cost_budget(Payload) ->
     convert_events(maybe_adjust_cost_budget:handle(Cmd), fun cost_budget_adjusted_v1:to_map/1).
 
 %% --- Apply ---
-%% NOTE: evoq calls apply(State, Event) - State FIRST!
 
 -spec apply(state(), map()) -> state().
 apply(State, Event) ->
-    apply_event(Event, State).
-
--spec apply_event(map(), state()) -> state().
-
-apply_event(#{event_type := <<"cost_budget_set_v1">>} = E, S)              -> apply_set(E, S);
-apply_event(#{event_type := <<"spending_recorded_v1">>} = E, S)            -> apply_spending(E, S);
-apply_event(#{event_type := <<"cost_budget_warning_v1">>}, S)              -> apply_warning(S);
-apply_event(#{event_type := <<"cost_budget_breached_v1">>} = E, S)         -> apply_breached(E, S);
-apply_event(#{event_type := <<"cost_budget_adjusted_v1">>} = E, S)         -> apply_adjusted(E, S);
-%% Unknown — ignore
-apply_event(_E, S) -> S.
-
-%% --- Apply helpers ---
-
-apply_set(E, State) ->
-    State#cost_budget_state{
-        venture_id   = gf(venture_id, E),
-        budget_usd   = gf(budget_usd, E),
-        warning_pct  = gf(warning_pct, E),
-        model_policy = gf(model_policy, E),
-        status       = evoq_bit_flags:set(evoq_bit_flags:set(0, ?CB_INITIATED), ?CB_ACTIVE),
-        initiated_at = gf(initiated_at, E)
-    }.
-
-apply_spending(E, #cost_budget_state{} = State) ->
-    State#cost_budget_state{
-        spent_usd = gf(new_total_usd, E)
-    }.
-
-apply_warning(#cost_budget_state{status = Status} = State) ->
-    State#cost_budget_state{
-        status = evoq_bit_flags:set(Status, ?CB_WARNING)
-    }.
-
-apply_breached(E, #cost_budget_state{status = Status} = State) ->
-    State#cost_budget_state{
-        status      = evoq_bit_flags:set(Status, ?CB_BREACHED),
-        breached_at = gf(breached_at, E)
-    }.
-
-apply_adjusted(E, #cost_budget_state{status = Status} = State) ->
-    %% Adjusting clears breach and warning flags
-    NewStatus0 = evoq_bit_flags:unset(Status, ?CB_BREACHED),
-    NewStatus1 = evoq_bit_flags:unset(NewStatus0, ?CB_WARNING),
-    State#cost_budget_state{
-        budget_usd = gf(new_budget_usd, E),
-        status     = NewStatus1
-    }.
+    cost_budget_state:apply_event(State, Event).
 
 %% --- Internal ---
 
@@ -158,5 +108,3 @@ events_to_maps(Event) ->
         cost_budget_warning_v1   -> cost_budget_warning_v1:to_map(Event);
         cost_budget_breached_v1  -> cost_budget_breached_v1:to_map(Event)
     end.
-
-gf(Key, Data) -> app_marthad_api_utils:get_field(Key, Data).

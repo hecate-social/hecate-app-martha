@@ -3,7 +3,10 @@
 %%% This happens when two unclustered stickies are grouped together.
 -module(event_cluster_emerged_v1).
 
+-behaviour(evoq_event).
+
 -export([new/1, from_map/1, to_map/1]).
+-export([event_type/0]).
 -export([get_venture_id/1, get_cluster_id/1, get_color/1,
          get_sticky_ids/1, get_emerged_at/1]).
 
@@ -21,6 +24,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> event_cluster_emerged_v1().
+-spec event_type() -> atom().
+event_type() -> event_cluster_emerged_v1.
+
 new(#{venture_id := VentureId} = Params) ->
     #event_cluster_emerged_v1{
         venture_id = VentureId,
@@ -34,7 +40,7 @@ new(#{venture_id := VentureId} = Params) ->
 to_map(#event_cluster_emerged_v1{venture_id = V, cluster_id = CI, color = C,
                                   sticky_ids = SI, emerged_at = EA}) ->
     #{
-        event_type => <<"event_cluster_emerged_v1">>,
+        event_type => event_cluster_emerged_v1,
         venture_id => V,
         cluster_id => CI,
         color => C,

@@ -1,7 +1,10 @@
 %%% @doc Command: initiate a knowledge graph for a venture.
 -module(initiate_knowledge_graph_v1).
 
+-behaviour(evoq_command).
+
 -export([new/1, from_map/1, to_map/1, validate/1]).
+-export([command_type/0]).
 -export([get_venture_id/1]).
 -export([generate_id/0]).
 
@@ -13,6 +16,9 @@
 -export_type([initiate_knowledge_graph_v1/0]).
 
 -spec new(map()) -> {ok, initiate_knowledge_graph_v1()} | {error, term()}.
+-spec command_type() -> atom().
+command_type() -> initiate_knowledge_graph_v1.
+
 new(#{venture_id := VentureId}) ->
     {ok, #initiate_knowledge_graph_v1{venture_id = VentureId}};
 new(_) ->
@@ -28,7 +34,7 @@ from_map(Map) ->
 
 -spec to_map(initiate_knowledge_graph_v1()) -> map().
 to_map(#initiate_knowledge_graph_v1{venture_id = VId}) ->
-    #{command_type => <<"initiate_knowledge_graph">>,
+    #{command_type => initiate_knowledge_graph_v1,
       venture_id => VId}.
 
 -spec validate(initiate_knowledge_graph_v1()) -> {ok, initiate_knowledge_graph_v1()} | {error, term()}.

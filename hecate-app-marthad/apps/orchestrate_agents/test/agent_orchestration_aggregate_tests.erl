@@ -75,10 +75,10 @@ aggregate_test_() ->
 %% Helpers — build states from raw event maps (no per-role modules)
 %% ===================================================================
 
-fresh() -> agent_orchestration_aggregate:initial_state().
+fresh() -> agent_session_state:new(<<>>).
 
 apply_events(Events) ->
-    lists:foldl(fun(E, S) -> agent_orchestration_aggregate:apply_event(E, S) end, fresh(), Events).
+    lists:foldl(fun(E, S) -> agent_orchestration_aggregate:apply(S, E) end, fresh(), Events).
 
 initiated_event() ->
     #{event_type => <<"visionary_initiated_v1">>,
@@ -93,7 +93,7 @@ initiated_event() ->
 %% Build initiated state by directly calling apply_initiated
 %% (bypasses apply_event which needs per-role event type matching)
 initiated_state() ->
-    agent_orchestration_aggregate:apply_event(initiated_event(), fresh()).
+    agent_orchestration_aggregate:apply(fresh(), initiated_event()).
 
 completed_event() ->
     #{event_type => <<"visionary_completed_v1">>,
@@ -202,7 +202,8 @@ input_received_event(TurnNum) ->
       received_at => 1600}.
 
 awaiting_input_state() ->
-    Initiated = agent_orchestration_aggregate:apply_event(
+    Initiated = agent_orchestration_aggregate:apply(
+        fresh(),
         #{event_type => <<"coordinator_initiated_v1">>,
           session_id => <<"crd-TEST01">>,
           agent_role => <<"coordinator">>,
@@ -210,9 +211,8 @@ awaiting_input_state() ->
           tier => <<"T2">>,
           model => <<"claude-sonnet-4-20250514">>,
           initiated_by => <<"system:pm">>,
-          initiated_at => 1000},
-        fresh()),
-    agent_orchestration_aggregate:apply_event(turn_completed_event(1), Initiated).
+          initiated_at => 1000}),
+    agent_orchestration_aggregate:apply(Initiated, turn_completed_event(1)).
 
 %% Command payloads for state guard tests
 complete_cmd() ->
@@ -344,7 +344,7 @@ exec_initiate_visionary() ->
             <<"venture_id">> => <<"v-1">>,
             <<"session_id">> => <<"vis-1">>},
     {ok, [Event]} = agent_orchestration_aggregate:execute(fresh(), Cmd),
-    ?assertEqual(<<"visionary_initiated_v1">>, maps:get(event_type, Event)),
+    ?assertEqual(visionary_initiated_v1, maps:get(event_type, Event)),
     ?assertEqual(<<"vis-1">>, maps:get(session_id, Event)),
     ?assertEqual(<<"visionary">>, maps:get(agent_role, Event)).
 
@@ -369,7 +369,7 @@ exec_complete_visionary() ->
                    <<"tokens_in">> => 100,
                    <<"tokens_out">> => 200},
     {ok, [Event]} = agent_orchestration_aggregate:execute(initiated_state(), CompleteCmd),
-    ?assertEqual(<<"visionary_completed_v1">>, maps:get(event_type, Event)),
+    ?assertEqual(visionary_completed_v1, maps:get(event_type, Event)),
     ?assertEqual(<<"vis-TEST01">>, maps:get(session_id, Event)),
     %% Event echoes aggregate state
     ?assertEqual(<<"v-test-1">>, maps:get(venture_id, Event)),
@@ -383,7 +383,7 @@ exec_fail_visionary() ->
                 <<"tokens_in">> => 50,
                 <<"tokens_out">> => 0},
     {ok, [Event]} = agent_orchestration_aggregate:execute(initiated_state(), FailCmd),
-    ?assertEqual(<<"visionary_failed_v1">>, maps:get(event_type, Event)),
+    ?assertEqual(visionary_failed_v1, maps:get(event_type, Event)),
     ?assertEqual(<<"vis-TEST01">>, maps:get(session_id, Event)),
     ?assertEqual(<<"llm_timeout">>, maps:get(error_reason, Event)),
     %% Event echoes aggregate state
@@ -395,15 +395,15 @@ exec_fail_visionary() ->
 
 exec_archive_after_initiate() ->
     {ok, [Event]} = agent_orchestration_aggregate:execute(initiated_state(), archive_cmd()),
-    ?assertEqual(<<"agent_session_archived_v1">>, maps:get(event_type, Event)).
+    ?assertEqual(agent_session_archived_v1, maps:get(event_type, Event)).
 
 exec_archive_after_complete() ->
     {ok, [Event]} = agent_orchestration_aggregate:execute(completed_state(), archive_cmd()),
-    ?assertEqual(<<"agent_session_archived_v1">>, maps:get(event_type, Event)).
+    ?assertEqual(agent_session_archived_v1, maps:get(event_type, Event)).
 
 exec_archive_after_fail() ->
     {ok, [Event]} = agent_orchestration_aggregate:execute(failed_state(), archive_cmd()),
-    ?assertEqual(<<"agent_session_archived_v1">>, maps:get(event_type, Event)).
+    ?assertEqual(agent_session_archived_v1, maps:get(event_type, Event)).
 
 exec_archive_on_archived() ->
     ?assertEqual({error, session_archived},
@@ -448,7 +448,7 @@ apply_archived() ->
 apply_unknown_event() ->
     Event = #{event_type => <<"something_weird_v1">>},
     State = initiated_state(),
-    ?assertEqual(State, agent_orchestration_aggregate:apply_event(Event, State)).
+    ?assertEqual(State, agent_orchestration_aggregate:apply(State, Event)).
 
 %% ===================================================================
 %% Apply: binary vs atom keys
@@ -462,7 +462,7 @@ apply_binary_keys() ->
               <<"tier">> => <<"T2">>,
               <<"model">> => <<"test-model">>,
               <<"initiated_at">> => 9000},
-    State = agent_orchestration_aggregate:apply_event(Event, fresh()),
+    State = agent_orchestration_aggregate:apply(fresh(), Event),
     ?assertEqual(<<"vis-BIN">>, State#agent_session_state.session_id),
     ?assertEqual(<<"v-bin">>, State#agent_session_state.venture_id),
     ?assertEqual(<<"T2">>, State#agent_session_state.tier).
@@ -475,7 +475,7 @@ apply_atom_keys() ->
               tier => <<"T3">>,
               model => <<"atom-model">>,
               initiated_at => 8000},
-    State = agent_orchestration_aggregate:apply_event(Event, fresh()),
+    State = agent_orchestration_aggregate:apply(fresh(), Event),
     ?assertEqual(<<"vis-ATOM">>, State#agent_session_state.session_id),
     ?assertEqual(<<"v-atom">>, State#agent_session_state.venture_id),
     ?assertEqual(<<"T3">>, State#agent_session_state.tier).
@@ -519,7 +519,8 @@ apply_turn_completed() ->
     ?assertEqual(200, State#agent_session_state.tokens_out).
 
 apply_input_received() ->
-    Initiated = agent_orchestration_aggregate:apply_event(
+    Initiated = agent_orchestration_aggregate:apply(
+        fresh(),
         #{event_type => <<"coordinator_initiated_v1">>,
           session_id => <<"crd-TEST01">>,
           agent_role => <<"coordinator">>,
@@ -527,10 +528,9 @@ apply_input_received() ->
           tier => <<"T2">>,
           model => <<"claude-sonnet-4-20250514">>,
           initiated_by => <<"system:pm">>,
-          initiated_at => 1000},
-        fresh()),
-    TurnDone = agent_orchestration_aggregate:apply_event(turn_completed_event(1), Initiated),
-    State = agent_orchestration_aggregate:apply_event(input_received_event(1), TurnDone),
+          initiated_at => 1000}),
+    TurnDone = agent_orchestration_aggregate:apply(Initiated, turn_completed_event(1)),
+    State = agent_orchestration_aggregate:apply(TurnDone, input_received_event(1)),
     %% AWAITING_INPUT should be cleared
     ?assert(State#agent_session_state.status band ?AO_AWAITING_INPUT =:= 0),
     %% INITIATED should still be set
@@ -539,7 +539,8 @@ apply_input_received() ->
     ?assertEqual(<<"user@test">>, State#agent_session_state.last_input_by).
 
 apply_tokens_accumulate() ->
-    Initiated = agent_orchestration_aggregate:apply_event(
+    Initiated = agent_orchestration_aggregate:apply(
+        fresh(),
         #{event_type => <<"coordinator_initiated_v1">>,
           session_id => <<"crd-TEST01">>,
           agent_role => <<"coordinator">>,
@@ -547,11 +548,10 @@ apply_tokens_accumulate() ->
           tier => <<"T2">>,
           model => <<"claude-sonnet-4-20250514">>,
           initiated_by => <<"system:pm">>,
-          initiated_at => 1000},
-        fresh()),
+          initiated_at => 1000}),
     %% Two turns then complete — tokens should sum
     State = lists:foldl(
-        fun(E, S) -> agent_orchestration_aggregate:apply_event(E, S) end,
+        fun(E, S) -> agent_orchestration_aggregate:apply(S, E) end,
         Initiated,
         [turn_completed_event(1),    %% +100 in, +200 out
          input_received_event(1),

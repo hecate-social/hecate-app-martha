@@ -1,6 +1,8 @@
 %%% @doc Event: kanban_card_blocked.
 -module(kanban_card_blocked_v1).
 
+-behaviour(evoq_event).
+
 -record(kanban_card_blocked_v1, {
     division_id :: binary(),
     card_id     :: binary(),
@@ -11,6 +13,7 @@
 
 -type kanban_card_blocked_v1() :: #kanban_card_blocked_v1{}.
 -export_type([kanban_card_blocked_v1/0]).
+-export([event_type/0]).
 
 -export([new/1, to_map/1, from_map/1]).
 -export([get_division_id/1, get_card_id/1, get_block_reason/1, get_blocked_by/1, get_blocked_at/1]).
@@ -22,6 +25,9 @@ get_blocked_by(#kanban_card_blocked_v1{blocked_by = V}) -> V.
 get_blocked_at(#kanban_card_blocked_v1{blocked_at = V}) -> V.
 
 -spec new(map()) -> kanban_card_blocked_v1().
+-spec event_type() -> atom().
+event_type() -> kanban_card_blocked_v1.
+
 new(Params) ->
     #kanban_card_blocked_v1{
         division_id = maps:get(division_id, Params),
@@ -33,7 +39,7 @@ new(Params) ->
 
 -spec to_map(kanban_card_blocked_v1()) -> map().
 to_map(#kanban_card_blocked_v1{} = E) ->
-    #{      event_type   => <<"kanban_card_blocked_v1">>,
+    #{      event_type => kanban_card_blocked_v1,
       division_id => E#kanban_card_blocked_v1.division_id,
       card_id => E#kanban_card_blocked_v1.card_id,
       block_reason => E#kanban_card_blocked_v1.block_reason,

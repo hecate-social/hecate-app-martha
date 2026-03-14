@@ -1,7 +1,10 @@
 %%% @doc Command: recognize an entity in the knowledge graph.
 -module(recognize_entity_v1).
 
+-behaviour(evoq_command).
+
 -export([new/1, from_map/1, to_map/1, validate/1]).
+-export([command_type/0]).
 -export([get_venture_id/1, get_entity_id/1, get_entity_type/1,
          get_name/1, get_description/1, get_source_agent/1]).
 
@@ -18,6 +21,9 @@
 -export_type([recognize_entity_v1/0]).
 
 -spec new(map()) -> {ok, recognize_entity_v1()} | {error, term()}.
+-spec command_type() -> atom().
+command_type() -> recognize_entity_v1.
+
 new(#{venture_id := VId, name := Name, entity_type := Type} = Params) ->
     EntityId = maps:get(entity_id, Params, generate_id()),
     {ok, #recognize_entity_v1{
@@ -50,7 +56,7 @@ from_map(Map) ->
 
 -spec to_map(recognize_entity_v1()) -> map().
 to_map(#recognize_entity_v1{} = C) ->
-    #{command_type => <<"recognize_entity">>,
+    #{command_type => recognize_entity_v1,
       venture_id => C#recognize_entity_v1.venture_id,
       entity_id => C#recognize_entity_v1.entity_id,
       entity_type => C#recognize_entity_v1.entity_type,

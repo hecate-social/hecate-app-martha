@@ -3,7 +3,10 @@
 %%% Required: venture_id.
 -module(breach_cost_budget_v1).
 
+-behaviour(evoq_command).
+
 -export([new/1, from_map/1, validate/1, to_map/1]).
+-export([command_type/0]).
 -export([get_venture_id/1]).
 
 -record(breach_cost_budget_v1, {
@@ -16,6 +19,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> {ok, breach_cost_budget_v1()} | {error, term()}.
+-spec command_type() -> atom().
+command_type() -> breach_cost_budget_v1.
+
 new(#{venture_id := VentureId}) ->
     {ok, #breach_cost_budget_v1{venture_id = VentureId}};
 new(_) ->
@@ -30,7 +36,7 @@ validate(#breach_cost_budget_v1{} = Cmd) ->
 -spec to_map(breach_cost_budget_v1()) -> map().
 to_map(#breach_cost_budget_v1{} = Cmd) ->
     #{
-        command_type => <<"breach_cost_budget">>,
+        command_type => breach_cost_budget_v1,
         venture_id => Cmd#breach_cost_budget_v1.venture_id
     }.
 

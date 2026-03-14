@@ -2,7 +2,10 @@
 %%% Emitted when a dependency is planned between desks.
 -module(dependency_planned_v1).
 
+-behaviour(evoq_event).
+
 -export([new/1, to_map/1, from_map/1]).
+-export([event_type/0]).
 -export([get_division_id/1, get_dependency_id/1, get_from_desk/1,
          get_to_desk/1, get_dep_type/1, get_planned_at/1]).
 
@@ -21,6 +24,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> dependency_planned_v1().
+-spec event_type() -> atom().
+event_type() -> dependency_planned_v1.
+
 new(#{division_id := DivisionId, dependency_id := DepId,
       from_desk := FromDesk, to_desk := ToDesk} = Params) ->
     #dependency_planned_v1{
@@ -35,7 +41,7 @@ new(#{division_id := DivisionId, dependency_id := DepId,
 -spec to_map(dependency_planned_v1()) -> map().
 to_map(#dependency_planned_v1{} = E) ->
     #{
-        event_type => <<"dependency_planned_v1">>,
+        event_type => dependency_planned_v1,
         division_id => E#dependency_planned_v1.division_id,
         dependency_id => E#dependency_planned_v1.dependency_id,
         from_desk => E#dependency_planned_v1.from_desk,

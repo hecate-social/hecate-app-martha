@@ -1,5 +1,8 @@
 -module(division_archived_v1).
+
+-behaviour(evoq_event).
 -export([new/1, to_map/1, from_map/1]).
+-export([event_type/0]).
 -export([get_division_id/1, get_archived_at/1]).
 
 -record(division_archived_v1, {
@@ -9,6 +12,9 @@
 -export_type([division_archived_v1/0]).
 -opaque division_archived_v1() :: #division_archived_v1{}.
 
+-spec event_type() -> atom().
+event_type() -> division_archived_v1.
+
 new(Params) ->
     #division_archived_v1{
         division_id = maps:get(division_id, Params),
@@ -16,7 +22,7 @@ new(Params) ->
     }.
 
 to_map(#division_archived_v1{} = E) ->
-    #{event_type => <<"division_archived_v1">>,
+    #{event_type => division_archived_v1,
       division_id => E#division_archived_v1.division_id,
       archived_at => E#division_archived_v1.archived_at}.
 

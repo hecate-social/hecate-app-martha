@@ -2,7 +2,10 @@
 %%% Emitted when a fact arrow is drawn between clusters during Big Picture Event Storming.
 -module(fact_arrow_drawn_v1).
 
+-behaviour(evoq_event).
+
 -export([new/1, from_map/1, to_map/1]).
+-export([event_type/0]).
 -export([get_venture_id/1, get_arrow_id/1, get_from_cluster/1,
          get_to_cluster/1, get_fact_name/1, get_drawn_at/1]).
 
@@ -22,6 +25,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> fact_arrow_drawn_v1().
+-spec event_type() -> atom().
+event_type() -> fact_arrow_drawn_v1.
+
 new(#{venture_id := VentureId, from_cluster := FromCluster,
       to_cluster := ToCluster, fact_name := FactName} = Params) ->
     #fact_arrow_drawn_v1{
@@ -39,7 +45,7 @@ to_map(#fact_arrow_drawn_v1{venture_id = V, storm_number = SN, arrow_id = AI,
                              from_cluster = FC, to_cluster = TC, fact_name = FN,
                              drawn_at = DA}) ->
     #{
-        event_type => <<"fact_arrow_drawn_v1">>,
+        event_type => fact_arrow_drawn_v1,
         venture_id => V,
         storm_number => SN,
         arrow_id => AI,

@@ -2,7 +2,10 @@
 %%% Advances the storm phase during Big Picture Event Storming.
 -module(advance_storm_phase_v1).
 
+-behaviour(evoq_command).
+
 -export([new/1, from_map/1, validate/1, to_map/1]).
+-export([command_type/0]).
 -export([get_venture_id/1, get_target_phase/1]).
 
 -record(advance_storm_phase_v1, {
@@ -16,6 +19,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> {ok, advance_storm_phase_v1()} | {error, term()}.
+-spec command_type() -> atom().
+command_type() -> advance_storm_phase_v1.
+
 new(#{venture_id := VentureId, target_phase := TargetPhase}) ->
     Cmd = #advance_storm_phase_v1{
         venture_id = VentureId,
@@ -43,7 +49,7 @@ validate(#advance_storm_phase_v1{target_phase = T}) ->
 -spec to_map(advance_storm_phase_v1()) -> map().
 to_map(#advance_storm_phase_v1{venture_id = V, target_phase = T}) ->
     #{
-        command_type => <<"advance_storm_phase">>,
+        command_type => advance_storm_phase_v1,
         venture_id => V,
         target_phase => T
     }.

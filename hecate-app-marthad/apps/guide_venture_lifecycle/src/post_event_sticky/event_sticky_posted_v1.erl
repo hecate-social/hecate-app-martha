@@ -2,7 +2,10 @@
 %%% Emitted when an event sticky is posted during Big Picture Event Storming.
 -module(event_sticky_posted_v1).
 
+-behaviour(evoq_event).
+
 -export([new/1, from_map/1, to_map/1]).
+-export([event_type/0]).
 -export([get_venture_id/1, get_sticky_id/1, get_text/1,
          get_author/1, get_storm_number/1, get_created_at/1]).
 
@@ -21,6 +24,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> event_sticky_posted_v1().
+-spec event_type() -> atom().
+event_type() -> event_sticky_posted_v1.
+
 new(#{venture_id := VentureId, text := Text} = Params) ->
     #event_sticky_posted_v1{
         venture_id = VentureId,
@@ -35,7 +41,7 @@ new(#{venture_id := VentureId, text := Text} = Params) ->
 to_map(#event_sticky_posted_v1{venture_id = V, sticky_id = SI, text = T,
                                 author = A, storm_number = SN, created_at = CA}) ->
     #{
-        event_type => <<"event_sticky_posted_v1">>,
+        event_type => event_sticky_posted_v1,
         venture_id => V,
         sticky_id => SI,
         text => T,

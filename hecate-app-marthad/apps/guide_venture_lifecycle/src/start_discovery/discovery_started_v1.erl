@@ -2,7 +2,10 @@
 %%% Emitted when discovery phase is started for a venture.
 -module(discovery_started_v1).
 
+-behaviour(evoq_event).
+
 -export([new/1, from_map/1, to_map/1, get_venture_id/1, get_started_at/1]).
+-export([event_type/0]).
 
 -record(discovery_started_v1, {
     venture_id :: binary(),
@@ -15,6 +18,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> discovery_started_v1().
+-spec event_type() -> atom().
+event_type() -> discovery_started_v1.
+
 new(#{venture_id := VentureId} = Params) ->
     #discovery_started_v1{
         venture_id = VentureId,
@@ -24,7 +30,7 @@ new(#{venture_id := VentureId} = Params) ->
 -spec to_map(discovery_started_v1()) -> map().
 to_map(#discovery_started_v1{venture_id = V, started_at = SA}) ->
     #{
-        event_type => <<"discovery_started_v1">>,
+        event_type => discovery_started_v1,
         venture_id => V,
         started_at => SA
     }.

@@ -1,7 +1,10 @@
 %%% @doc exhaust_retry_v1 command.
 %%% Marks a retry strategy as exhausted (no more attempts).
 -module(exhaust_retry_v1).
+
+-behaviour(evoq_command).
 -export([new/1, from_map/1, to_map/1]).
+-export([command_type/0]).
 -export([get_session_id/1]).
 
 -record(exhaust_retry_v1, {
@@ -12,6 +15,9 @@
 -export_type([exhaust_retry_v1/0]).
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
+-spec command_type() -> atom().
+command_type() -> exhaust_retry_v1.
+
 new(#{session_id := SId}) ->
     {ok, #exhaust_retry_v1{session_id = SId}};
 new(_) ->
@@ -19,7 +25,7 @@ new(_) ->
 
 to_map(#exhaust_retry_v1{} = C) ->
     #{
-        command_type => <<"exhaust_retry">>,
+        command_type => exhaust_retry_v1,
         session_id => C#exhaust_retry_v1.session_id
     }.
 

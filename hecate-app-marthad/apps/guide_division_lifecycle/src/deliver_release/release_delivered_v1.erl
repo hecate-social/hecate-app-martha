@@ -2,7 +2,10 @@
 %%% Emitted when a release is delivered within a crafting dossier.
 -module(release_delivered_v1).
 
+-behaviour(evoq_event).
+
 -export([new/1, to_map/1, from_map/1]).
+-export([event_type/0]).
 -export([get_division_id/1, get_release_id/1, get_version/1, get_delivered_at/1]).
 
 -record(release_delivered_v1, {
@@ -18,6 +21,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> release_delivered_v1().
+-spec event_type() -> atom().
+event_type() -> release_delivered_v1.
+
 new(#{division_id := DivisionId, release_id := ReleaseId, version := Version}) ->
     #release_delivered_v1{
         division_id = DivisionId,
@@ -29,7 +35,7 @@ new(#{division_id := DivisionId, release_id := ReleaseId, version := Version}) -
 -spec to_map(release_delivered_v1()) -> map().
 to_map(#release_delivered_v1{} = E) ->
     #{
-        event_type => <<"release_delivered_v1">>,
+        event_type => release_delivered_v1,
         division_id => E#release_delivered_v1.division_id,
         release_id => E#release_delivered_v1.release_id,
         version => E#release_delivered_v1.version,

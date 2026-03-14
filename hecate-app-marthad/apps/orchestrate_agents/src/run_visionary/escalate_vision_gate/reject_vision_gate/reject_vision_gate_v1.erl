@@ -2,7 +2,10 @@
 %%% Rejects the vision_gate for a visionary session.
 -module(reject_vision_gate_v1).
 
+-behaviour(evoq_command).
+
 -export([new/1, from_map/1, validate/1, to_map/1]).
+-export([command_type/0]).
 -export([get_session_id/1, get_rejected_by/1, get_rejection_reason/1]).
 
 -record(reject_vision_gate_v1, {
@@ -17,6 +20,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> {ok, reject_vision_gate_v1()} | {error, term()}.
+-spec command_type() -> atom().
+command_type() -> reject_vision_gate_v1.
+
 new(#{session_id := SessionId} = Params) when is_binary(SessionId), byte_size(SessionId) > 0 ->
     {ok, #reject_vision_gate_v1{
         session_id = SessionId,
@@ -35,7 +41,7 @@ validate(#reject_vision_gate_v1{}) ->
 -spec to_map(reject_vision_gate_v1()) -> map().
 to_map(#reject_vision_gate_v1{} = Cmd) ->
     #{
-        command_type => <<"reject_gate">>,
+        command_type => reject_vision_gate_v1,
         agent_role => <<"visionary">>,
         gate_name => <<"vision_gate">>,
         session_id => Cmd#reject_vision_gate_v1.session_id,

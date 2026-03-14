@@ -2,7 +2,10 @@
 %%% Assigns an agent session to a division team.
 -module(assign_agent_to_team_v1).
 
+-behaviour(evoq_command).
+
 -export([new/1, from_map/1, validate/1, to_map/1]).
+-export([command_type/0]).
 -export([get_division_id/1, get_agent_role/1, get_session_id/1]).
 
 -record(assign_agent_to_team_v1, {
@@ -17,6 +20,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> {ok, assign_agent_to_team_v1()} | {error, term()}.
+-spec command_type() -> atom().
+command_type() -> assign_agent_to_team_v1.
+
 new(#{division_id := DivId, agent_role := Role, session_id := SessId}) ->
     {ok, #assign_agent_to_team_v1{
         division_id = DivId,
@@ -39,7 +45,7 @@ validate(#assign_agent_to_team_v1{} = Cmd) ->
 -spec to_map(assign_agent_to_team_v1()) -> map().
 to_map(#assign_agent_to_team_v1{} = Cmd) ->
     #{
-        command_type => <<"assign_agent_to_team">>,
+        command_type => assign_agent_to_team_v1,
         division_id => Cmd#assign_agent_to_team_v1.division_id,
         agent_role => Cmd#assign_agent_to_team_v1.agent_role,
         session_id => Cmd#assign_agent_to_team_v1.session_id

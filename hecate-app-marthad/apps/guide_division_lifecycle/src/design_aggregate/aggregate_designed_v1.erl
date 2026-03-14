@@ -2,7 +2,10 @@
 %%% Emitted when an aggregate is designed within a division planning dossier.
 -module(aggregate_designed_v1).
 
+-behaviour(evoq_event).
+
 -export([new/1, to_map/1, from_map/1]).
+-export([event_type/0]).
 -export([get_division_id/1, get_aggregate_name/1, get_description/1,
          get_stream_prefix/1, get_fields/1, get_designed_at/1]).
 
@@ -21,6 +24,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> aggregate_designed_v1().
+-spec event_type() -> atom().
+event_type() -> aggregate_designed_v1.
+
 new(#{division_id := DivisionId, aggregate_name := AggName} = Params) ->
     #aggregate_designed_v1{
         division_id = DivisionId,
@@ -34,7 +40,7 @@ new(#{division_id := DivisionId, aggregate_name := AggName} = Params) ->
 -spec to_map(aggregate_designed_v1()) -> map().
 to_map(#aggregate_designed_v1{} = E) ->
     #{
-        event_type => <<"aggregate_designed_v1">>,
+        event_type => aggregate_designed_v1,
         division_id => E#aggregate_designed_v1.division_id,
         aggregate_name => E#aggregate_designed_v1.aggregate_name,
         description => E#aggregate_designed_v1.description,

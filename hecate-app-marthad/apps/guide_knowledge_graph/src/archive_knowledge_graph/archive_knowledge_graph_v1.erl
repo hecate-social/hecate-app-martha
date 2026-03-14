@@ -1,7 +1,10 @@
 %%% @doc Command: archive a knowledge graph.
 -module(archive_knowledge_graph_v1).
 
+-behaviour(evoq_command).
+
 -export([new/1, from_map/1, to_map/1, validate/1]).
+-export([command_type/0]).
 -export([get_venture_id/1, get_reason/1]).
 
 -record(archive_knowledge_graph_v1, {
@@ -13,6 +16,9 @@
 -export_type([archive_knowledge_graph_v1/0]).
 
 -spec new(map()) -> {ok, archive_knowledge_graph_v1()} | {error, term()}.
+-spec command_type() -> atom().
+command_type() -> archive_knowledge_graph_v1.
+
 new(#{venture_id := VId} = Params) ->
     {ok, #archive_knowledge_graph_v1{
         venture_id = VId,
@@ -35,7 +41,7 @@ from_map(Map) ->
 
 -spec to_map(archive_knowledge_graph_v1()) -> map().
 to_map(#archive_knowledge_graph_v1{} = C) ->
-    #{command_type => <<"archive_knowledge_graph">>,
+    #{command_type => archive_knowledge_graph_v1,
       venture_id => C#archive_knowledge_graph_v1.venture_id,
       reason => C#archive_knowledge_graph_v1.reason}.
 

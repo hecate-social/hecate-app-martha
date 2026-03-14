@@ -2,7 +2,10 @@
 %%% Emitted when a cost budget is configured for a venture.
 -module(cost_budget_set_v1).
 
+-behaviour(evoq_event).
+
 -export([new/1, to_map/1, from_map/1]).
+-export([event_type/0]).
 -export([get_venture_id/1, get_budget_usd/1, get_warning_pct/1,
          get_model_policy/1, get_initiated_at/1]).
 
@@ -20,6 +23,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> cost_budget_set_v1().
+-spec event_type() -> atom().
+event_type() -> cost_budget_set_v1.
+
 new(#{venture_id := VentureId, budget_usd := BudgetUsd} = Params) ->
     #cost_budget_set_v1{
         venture_id   = VentureId,
@@ -32,7 +38,7 @@ new(#{venture_id := VentureId, budget_usd := BudgetUsd} = Params) ->
 -spec to_map(cost_budget_set_v1()) -> map().
 to_map(#cost_budget_set_v1{} = E) ->
     #{
-        event_type   => <<"cost_budget_set_v1">>,
+        event_type => cost_budget_set_v1,
         venture_id   => E#cost_budget_set_v1.venture_id,
         budget_usd   => E#cost_budget_set_v1.budget_usd,
         warning_pct  => E#cost_budget_set_v1.warning_pct,

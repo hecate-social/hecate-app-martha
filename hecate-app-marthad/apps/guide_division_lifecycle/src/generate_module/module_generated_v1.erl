@@ -2,7 +2,10 @@
 %%% Emitted when a module is generated within a crafting dossier.
 -module(module_generated_v1).
 
+-behaviour(evoq_event).
+
 -export([new/1, to_map/1, from_map/1]).
+-export([event_type/0]).
 -export([get_division_id/1, get_module_name/1, get_module_type/1, get_path/1, get_generated_at/1]).
 
 -record(module_generated_v1, {
@@ -19,6 +22,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> module_generated_v1().
+-spec event_type() -> atom().
+event_type() -> module_generated_v1.
+
 new(#{division_id := DivisionId, module_name := ModuleName, module_type := ModuleType, path := Path}) ->
     #module_generated_v1{
         division_id = DivisionId,
@@ -31,7 +37,7 @@ new(#{division_id := DivisionId, module_name := ModuleName, module_type := Modul
 -spec to_map(module_generated_v1()) -> map().
 to_map(#module_generated_v1{} = E) ->
     #{
-        event_type => <<"module_generated_v1">>,
+        event_type => module_generated_v1,
         division_id => E#module_generated_v1.division_id,
         module_name => E#module_generated_v1.module_name,
         module_type => E#module_generated_v1.module_type,

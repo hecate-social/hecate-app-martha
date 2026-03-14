@@ -2,7 +2,10 @@
 %%% Emitted when an event sticky is removed from its stack during Big Picture Event Storming.
 -module(event_sticky_unstacked_v1).
 
+-behaviour(evoq_event).
+
 -export([new/1, from_map/1, to_map/1]).
+-export([event_type/0]).
 -export([get_venture_id/1, get_sticky_id/1, get_stack_id/1, get_unstacked_at/1]).
 
 -record(event_sticky_unstacked_v1, {
@@ -18,6 +21,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> event_sticky_unstacked_v1().
+-spec event_type() -> atom().
+event_type() -> event_sticky_unstacked_v1.
+
 new(#{venture_id := VentureId, sticky_id := StickyId, stack_id := StackId} = Params) ->
     #event_sticky_unstacked_v1{
         venture_id = VentureId,
@@ -30,7 +36,7 @@ new(#{venture_id := VentureId, sticky_id := StickyId, stack_id := StackId} = Par
 to_map(#event_sticky_unstacked_v1{venture_id = V, sticky_id = SI,
                                    stack_id = StI, unstacked_at = UA}) ->
     #{
-        event_type => <<"event_sticky_unstacked_v1">>,
+        event_type => event_sticky_unstacked_v1,
         venture_id => V,
         sticky_id => SI,
         stack_id => StI,

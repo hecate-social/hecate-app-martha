@@ -1,6 +1,9 @@
 -module(initiate_division_v1).
 
+-behaviour(evoq_command).
+
 -export([new/1, from_map/1, validate/1, to_map/1]).
+-export([command_type/0]).
 -export([get_division_id/1, get_venture_id/1, get_context_name/1, get_initiated_by/1]).
 
 -record(initiate_division_v1, {
@@ -16,6 +19,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> {ok, initiate_division_v1()} | {error, term()}.
+-spec command_type() -> atom().
+command_type() -> initiate_division_v1.
+
 new(#{division_id := DivisionId, venture_id := VentureId, context_name := ContextName} = Params) ->
     {ok, #initiate_division_v1{
         division_id = DivisionId,
@@ -39,7 +45,7 @@ validate(#initiate_division_v1{} = Cmd) ->
 -spec to_map(initiate_division_v1()) -> map().
 to_map(#initiate_division_v1{} = Cmd) ->
     #{
-        command_type => <<"initiate_division">>,
+        command_type => initiate_division_v1,
         division_id => Cmd#initiate_division_v1.division_id,
         venture_id => Cmd#initiate_division_v1.venture_id,
         context_name => Cmd#initiate_division_v1.context_name,

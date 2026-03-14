@@ -3,7 +3,10 @@
 %%% Domain expert agents will research the identified topics.
 -module(venture_knowledge_preparation_started_v1).
 
+-behaviour(evoq_event).
+
 -export([new/1, to_map/1, from_map/1]).
+-export([event_type/0]).
 -export([get_venture_id/1, get_research_topics/1, get_started_at/1]).
 
 -record(venture_knowledge_preparation_started_v1, {
@@ -19,6 +22,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> venture_knowledge_preparation_started_v1().
+-spec event_type() -> atom().
+event_type() -> venture_knowledge_preparation_started_v1.
+
 new(#{venture_id := VentureId, research_topics := Topics}) ->
     #venture_knowledge_preparation_started_v1{
         venture_id = VentureId,
@@ -29,7 +35,7 @@ new(#{venture_id := VentureId, research_topics := Topics}) ->
 -spec to_map(venture_knowledge_preparation_started_v1()) -> map().
 to_map(#venture_knowledge_preparation_started_v1{} = E) ->
     #{
-        event_type => <<"venture_knowledge_preparation_started_v1">>,
+        event_type => venture_knowledge_preparation_started_v1,
         venture_id => E#venture_knowledge_preparation_started_v1.venture_id,
         research_topics => E#venture_knowledge_preparation_started_v1.research_topics,
         started_at => E#venture_knowledge_preparation_started_v1.started_at

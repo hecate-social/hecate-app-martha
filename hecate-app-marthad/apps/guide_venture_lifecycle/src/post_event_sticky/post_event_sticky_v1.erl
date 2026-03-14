@@ -2,7 +2,10 @@
 %%% Posts a new event sticky during Big Picture Event Storming.
 -module(post_event_sticky_v1).
 
+-behaviour(evoq_command).
+
 -export([new/1, from_map/1, validate/1, to_map/1]).
+-export([command_type/0]).
 -export([get_venture_id/1, get_text/1, get_author/1]).
 
 -record(post_event_sticky_v1, {
@@ -17,6 +20,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> {ok, post_event_sticky_v1()} | {error, term()}.
+-spec command_type() -> atom().
+command_type() -> post_event_sticky_v1.
+
 new(#{venture_id := VentureId, text := Text} = Params) ->
     Cmd = #post_event_sticky_v1{
         venture_id = VentureId,
@@ -40,7 +46,7 @@ validate(_) -> ok.
 -spec to_map(post_event_sticky_v1()) -> map().
 to_map(#post_event_sticky_v1{venture_id = V, text = T, author = A}) ->
     #{
-        command_type => <<"post_event_sticky">>,
+        command_type => post_event_sticky_v1,
         venture_id => V,
         text => T,
         author => A

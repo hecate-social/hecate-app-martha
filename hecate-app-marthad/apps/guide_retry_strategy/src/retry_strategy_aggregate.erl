@@ -17,17 +17,16 @@
 -include("retry_state.hrl").
 
 -export([init/1, execute/2, apply/2]).
--export([initial_state/0, apply_event/2]).
--export([flag_map/0]).
+-export([state_module/0, flag_map/0]).
+
+-spec state_module() -> module().
+state_module() -> retry_state.
 
 -spec flag_map() -> evoq_bit_flags:flag_map().
 flag_map() -> ?RS_FLAG_MAP.
 
-init(_AggregateId) ->
-    {ok, initial_state()}.
-
-initial_state() ->
-    #retry_state{}.
+init(AggregateId) ->
+    {ok, retry_state:new(AggregateId)}.
 
 %% --- Execute ---
 
@@ -64,55 +63,8 @@ execute(_State, _Payload) ->
 %% --- Apply ---
 
 apply(State, Event) ->
-    apply_event(Event, State).
-
-apply_event(#{event_type := <<"retry_initiated_v1">>} = E, S) ->
-    apply_initiated(E, S);
-apply_event(#{event_type := <<"retry_attempted_v1">>} = E, S) ->
-    apply_attempted(E, S);
-apply_event(#{event_type := <<"retry_exhausted_v1">>} = E, S) ->
-    apply_exhausted(E, S);
-apply_event(#{event_type := <<"retry_succeeded_v1">>} = E, S) ->
-    apply_succeeded(E, S);
-apply_event(_E, S) -> S.
-
-%% --- Apply helpers ---
-
-apply_initiated(E, State) ->
-    State#retry_state{
-        session_id = gf(session_id, E),
-        venture_id = gf(venture_id, E),
-        agent_role = gf(agent_role, E),
-        status = evoq_bit_flags:set(0, ?RS_INITIATED),
-        max_attempts = gf(max_attempts, E, 3),
-        last_failure = gf(failure_reason, E),
-        initiated_at = gf(initiated_at, E, 0)
-    }.
-
-apply_attempted(E, #retry_state{status = Status, adjustments = Adj} = State) ->
-    Adjustment = gf(adjustment, E, #{}),
-    State#retry_state{
-        status = evoq_bit_flags:set(Status, ?RS_RETRYING),
-        attempt_count = gf(attempt_number, E, State#retry_state.attempt_count + 1),
-        adjustments = Adj ++ [Adjustment],
-        last_attempt_at = gf(attempted_at, E, 0)
-    }.
-
-apply_exhausted(_E, #retry_state{status = Status} = State) ->
-    State#retry_state{
-        status = evoq_bit_flags:set(Status, ?RS_EXHAUSTED)
-    }.
-
-apply_succeeded(_E, #retry_state{status = Status} = State) ->
-    State#retry_state{
-        status = evoq_bit_flags:set(Status, ?RS_SUCCEEDED)
-    }.
+    retry_state:apply_event(State, Event).
 
 %% --- Internal ---
 
 gf(Key, Map) -> app_marthad_api_utils:get_field(Key, Map).
-gf(Key, Map, Default) ->
-    case app_marthad_api_utils:get_field(Key, Map) of
-        undefined -> Default;
-        V -> V
-    end.

@@ -2,7 +2,10 @@
 %%% Emitted when an agent is assigned to a division team.
 -module(agent_assigned_to_team_v1).
 
+-behaviour(evoq_event).
+
 -export([new/1, to_map/1, from_map/1]).
+-export([event_type/0]).
 -export([get_division_id/1, get_agent_role/1, get_session_id/1, get_assigned_at/1]).
 
 -record(agent_assigned_to_team_v1, {
@@ -18,6 +21,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> agent_assigned_to_team_v1().
+-spec event_type() -> atom().
+event_type() -> agent_assigned_to_team_v1.
+
 new(#{division_id := DivId, agent_role := Role, session_id := SessId}) ->
     #agent_assigned_to_team_v1{
         division_id = DivId,
@@ -29,7 +35,7 @@ new(#{division_id := DivId, agent_role := Role, session_id := SessId}) ->
 -spec to_map(agent_assigned_to_team_v1()) -> map().
 to_map(#agent_assigned_to_team_v1{} = E) ->
     #{
-        event_type => <<"agent_assigned_to_team_v1">>,
+        event_type => agent_assigned_to_team_v1,
         division_id => E#agent_assigned_to_team_v1.division_id,
         agent_role => E#agent_assigned_to_team_v1.agent_role,
         session_id => E#agent_assigned_to_team_v1.session_id,

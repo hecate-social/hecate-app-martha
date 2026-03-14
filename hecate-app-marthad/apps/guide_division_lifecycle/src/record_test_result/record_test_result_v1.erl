@@ -2,7 +2,10 @@
 %%% Records a test result within a crafting dossier.
 -module(record_test_result_v1).
 
+-behaviour(evoq_command).
+
 -export([new/1, from_map/1, validate/1, to_map/1]).
+-export([command_type/0]).
 -export([get_division_id/1, get_result_id/1, get_suite_id/1, get_passed/1, get_failed/1]).
 -export([generate_id/0]).
 
@@ -20,6 +23,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> {ok, record_test_result_v1()} | {error, term()}.
+-spec command_type() -> atom().
+command_type() -> record_test_result_v1.
+
 new(#{division_id := DivisionId, suite_id := SuiteId, passed := Passed, failed := Failed} = Params) ->
     ResultId = maps:get(result_id, Params, generate_id()),
     {ok, #record_test_result_v1{
@@ -43,7 +49,7 @@ validate(#record_test_result_v1{} = Cmd) ->
 -spec to_map(record_test_result_v1()) -> map().
 to_map(#record_test_result_v1{} = Cmd) ->
     #{
-        command_type => <<"record_test_result">>,
+        command_type => record_test_result_v1,
         division_id => Cmd#record_test_result_v1.division_id,
         result_id => Cmd#record_test_result_v1.result_id,
         suite_id => Cmd#record_test_result_v1.suite_id,

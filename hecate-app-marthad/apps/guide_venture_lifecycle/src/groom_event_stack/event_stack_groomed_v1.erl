@@ -2,7 +2,10 @@
 %%% Emitted when a stack is groomed: canonical sticky chosen, others absorbed.
 -module(event_stack_groomed_v1).
 
+-behaviour(evoq_event).
+
 -export([new/1, from_map/1, to_map/1]).
+-export([event_type/0]).
 -export([get_venture_id/1, get_stack_id/1, get_canonical_sticky_id/1,
          get_weight/1, get_absorbed_sticky_ids/1, get_groomed_at/1]).
 
@@ -21,6 +24,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> event_stack_groomed_v1().
+-spec event_type() -> atom().
+event_type() -> event_stack_groomed_v1.
+
 new(#{venture_id := VentureId, stack_id := StackId,
       canonical_sticky_id := CanonicalStickyId} = Params) ->
     #event_stack_groomed_v1{
@@ -37,7 +43,7 @@ to_map(#event_stack_groomed_v1{venture_id = V, stack_id = SI,
                                 canonical_sticky_id = C, weight = W,
                                 absorbed_sticky_ids = A, groomed_at = GA}) ->
     #{
-        event_type => <<"event_stack_groomed_v1">>,
+        event_type => event_stack_groomed_v1,
         venture_id => V,
         stack_id => SI,
         canonical_sticky_id => C,

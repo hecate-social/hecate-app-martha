@@ -2,7 +2,10 @@
 %%% Emitted when a mentor agent receives new input.
 -module(mentor_input_received_v1).
 
+-behaviour(evoq_event).
+
 -export([new/1, to_map/1, from_map/1]).
+-export([event_type/0]).
 -export([get_session_id/1, get_input_content/1, get_input_by/1, get_received_at/1]).
 
 -record(mentor_input_received_v1, {
@@ -20,6 +23,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> mentor_input_received_v1().
+-spec event_type() -> atom().
+event_type() -> mentor_input_received_v1.
+
 new(#{session_id := SessionId} = Params) ->
     #mentor_input_received_v1{
         session_id = SessionId,
@@ -33,7 +39,7 @@ new(#{session_id := SessionId} = Params) ->
 -spec to_map(mentor_input_received_v1()) -> map().
 to_map(#mentor_input_received_v1{} = E) ->
     #{
-        event_type => <<"mentor_input_received_v1">>,
+        event_type => mentor_input_received_v1,
         session_id => E#mentor_input_received_v1.session_id,
         agent_role => E#mentor_input_received_v1.agent_role,
         venture_id => E#mentor_input_received_v1.venture_id,

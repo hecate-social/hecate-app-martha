@@ -10,7 +10,7 @@
 %% ===================================================================
 
 fresh() ->
-    knowledge_graph_aggregate:initial_state().
+    knowledge_graph_state:new(<<>>).
 
 initiated_state() ->
     E = #{event_type => <<"knowledge_graph_initiated_v1">>,
@@ -60,7 +60,7 @@ initiate_fresh_aggregate_test() ->
     Payload = #{command_type => <<"initiate_knowledge_graph">>,
                 <<"venture_id">> => <<"v-1">>},
     {ok, [Event]} = knowledge_graph_aggregate:execute(fresh(), Payload),
-    ?assertEqual(<<"knowledge_graph_initiated_v1">>, maps:get(event_type, Event)),
+    ?assertEqual(knowledge_graph_initiated_v1, maps:get(event_type, Event)),
     ?assertEqual(<<"v-1">>, maps:get(venture_id, Event)).
 
 initiate_rejects_non_initiate_on_fresh_test() ->
@@ -82,7 +82,7 @@ capture_insight_on_initiated_test() ->
                 <<"source_session">> => <<"s-1">>,
                 <<"insight_type">> => <<"preference">>},
     {ok, [Event]} = knowledge_graph_aggregate:execute(initiated_state(), Payload),
-    ?assertEqual(<<"insight_captured_v1">>, maps:get(event_type, Event)),
+    ?assertEqual(insight_captured_v1, maps:get(event_type, Event)),
     ?assertEqual(<<"ins-1">>, maps:get(insight_id, Event)).
 
 %% ===================================================================
@@ -97,7 +97,7 @@ recognize_entity_test() ->
                 <<"name">> => <<"User">>,
                 <<"description">> => <<"A person">>},
     {ok, [Event]} = knowledge_graph_aggregate:execute(initiated_state(), Payload),
-    ?assertEqual(<<"entity_recognized_v1">>, maps:get(event_type, Event)),
+    ?assertEqual(entity_recognized_v1, maps:get(event_type, Event)),
     ?assertEqual(<<"ent-1">>, maps:get(entity_id, Event)).
 
 %% ===================================================================
@@ -114,7 +114,7 @@ draw_relationship_test() ->
                 <<"rel_type">> => <<"depends_on">>,
                 <<"strength">> => 0.8},
     {ok, [Event]} = knowledge_graph_aggregate:execute(S, Payload),
-    ?assertEqual(<<"relationship_drawn_v1">>, maps:get(event_type, Event)).
+    ?assertEqual(relationship_drawn_v1, maps:get(event_type, Event)).
 
 draw_relationship_rejects_self_relationship_test() ->
     S = with_entity(initiated_state()),
@@ -138,7 +138,7 @@ supersede_insight_test() ->
                 <<"superseded_by">> => <<"ins-2">>,
                 <<"reason">> => <<"Updated preference">>},
     {ok, [Event]} = knowledge_graph_aggregate:execute(S, Payload),
-    ?assertEqual(<<"insight_superseded_v1">>, maps:get(event_type, Event)).
+    ?assertEqual(insight_superseded_v1, maps:get(event_type, Event)).
 
 supersede_insight_rejects_missing_test() ->
     S = initiated_state(),
@@ -165,7 +165,7 @@ archive_initiated_test() ->
                 <<"venture_id">> => <<"v-1">>,
                 <<"reason">> => <<"Done">>},
     {ok, [Event]} = knowledge_graph_aggregate:execute(initiated_state(), Payload),
-    ?assertEqual(<<"knowledge_graph_archived_v1">>, maps:get(event_type, Event)).
+    ?assertEqual(knowledge_graph_archived_v1, maps:get(event_type, Event)).
 
 archive_blocks_further_commands_test() ->
     ArchivedEvent = #{event_type => <<"knowledge_graph_archived_v1">>,
@@ -289,7 +289,7 @@ execute_with_atom_command_type_test() ->
     Payload = #{command_type => initiate_knowledge_graph,
                 venture_id => <<"v-atom">>},
     {ok, [Event]} = knowledge_graph_aggregate:execute(fresh(), Payload),
-    ?assertEqual(<<"knowledge_graph_initiated_v1">>, maps:get(event_type, Event)).
+    ?assertEqual(knowledge_graph_initiated_v1, maps:get(event_type, Event)).
 
 execute_unknown_command_on_initiated_test() ->
     Payload = #{command_type => <<"do_magic">>,

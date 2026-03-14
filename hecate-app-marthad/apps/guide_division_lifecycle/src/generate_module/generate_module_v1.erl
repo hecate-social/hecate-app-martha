@@ -2,7 +2,10 @@
 %%% Generates a module within a crafting dossier.
 -module(generate_module_v1).
 
+-behaviour(evoq_command).
+
 -export([new/1, from_map/1, validate/1, to_map/1]).
+-export([command_type/0]).
 -export([get_division_id/1, get_module_name/1, get_module_type/1, get_path/1]).
 
 -record(generate_module_v1, {
@@ -18,6 +21,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> {ok, generate_module_v1()} | {error, term()}.
+-spec command_type() -> atom().
+command_type() -> generate_module_v1.
+
 new(#{division_id := DivisionId, module_name := ModuleName, module_type := ModuleType, path := Path}) ->
     {ok, #generate_module_v1{
         division_id = DivisionId,
@@ -39,7 +45,7 @@ validate(#generate_module_v1{} = Cmd) ->
 -spec to_map(generate_module_v1()) -> map().
 to_map(#generate_module_v1{} = Cmd) ->
     #{
-        command_type => <<"generate_module">>,
+        command_type => generate_module_v1,
         division_id => Cmd#generate_module_v1.division_id,
         module_name => Cmd#generate_module_v1.module_name,
         module_type => Cmd#generate_module_v1.module_type,

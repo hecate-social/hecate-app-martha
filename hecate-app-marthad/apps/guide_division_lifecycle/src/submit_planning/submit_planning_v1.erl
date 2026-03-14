@@ -3,7 +3,10 @@
 %%% Does NOT close planning — work continues and clears the submitted flag.
 -module(submit_planning_v1).
 
+-behaviour(evoq_command).
+
 -export([new/1, from_map/1, validate/1, to_map/1]).
+-export([command_type/0]).
 -export([get_division_id/1]).
 
 -record(submit_planning_v1, {
@@ -16,6 +19,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> {ok, submit_planning_v1()} | {error, term()}.
+-spec command_type() -> atom().
+command_type() -> submit_planning_v1.
+
 new(#{division_id := DivisionId}) ->
     {ok, #submit_planning_v1{division_id = DivisionId}};
 new(_) ->
@@ -30,7 +36,7 @@ validate(#submit_planning_v1{} = Cmd) ->
 -spec to_map(submit_planning_v1()) -> map().
 to_map(#submit_planning_v1{} = Cmd) ->
     #{
-        command_type => <<"submit_planning">>,
+        command_type => submit_planning_v1,
         division_id => Cmd#submit_planning_v1.division_id
     }.
 

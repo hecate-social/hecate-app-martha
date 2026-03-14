@@ -2,7 +2,10 @@
 %%% Resumes a shelved Big Picture Event Storming session for a venture.
 -module(resume_big_picture_storm_v1).
 
+-behaviour(evoq_command).
+
 -export([new/1, from_map/1, validate/1, to_map/1, get_venture_id/1]).
+-export([command_type/0]).
 
 -record(resume_big_picture_storm_v1, {
     venture_id :: binary()
@@ -14,6 +17,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> {ok, resume_big_picture_storm_v1()} | {error, term()}.
+-spec command_type() -> atom().
+command_type() -> resume_big_picture_storm_v1.
+
 new(#{venture_id := VentureId}) ->
     Cmd = #resume_big_picture_storm_v1{venture_id = VentureId},
     case validate(Cmd) of
@@ -31,7 +37,7 @@ validate(_) -> ok.
 -spec to_map(resume_big_picture_storm_v1()) -> map().
 to_map(#resume_big_picture_storm_v1{venture_id = V}) ->
     #{
-        command_type => <<"resume_big_picture_storm">>,
+        command_type => resume_big_picture_storm_v1,
         venture_id => V
     }.
 

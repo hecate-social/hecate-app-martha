@@ -2,7 +2,10 @@
 %%% Runs a test suite within a crafting dossier.
 -module(run_test_suite_v1).
 
+-behaviour(evoq_command).
+
 -export([new/1, from_map/1, validate/1, to_map/1]).
+-export([command_type/0]).
 -export([get_division_id/1, get_suite_id/1, get_suite_name/1]).
 -export([generate_id/0]).
 
@@ -18,6 +21,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> {ok, run_test_suite_v1()} | {error, term()}.
+-spec command_type() -> atom().
+command_type() -> run_test_suite_v1.
+
 new(#{division_id := DivisionId, suite_name := SuiteName} = Params) ->
     SuiteId = maps:get(suite_id, Params, generate_id()),
     {ok, #run_test_suite_v1{
@@ -39,7 +45,7 @@ validate(#run_test_suite_v1{} = Cmd) ->
 -spec to_map(run_test_suite_v1()) -> map().
 to_map(#run_test_suite_v1{} = Cmd) ->
     #{
-        command_type => <<"run_test_suite">>,
+        command_type => run_test_suite_v1,
         division_id => Cmd#run_test_suite_v1.division_id,
         suite_id => Cmd#run_test_suite_v1.suite_id,
         suite_name => Cmd#run_test_suite_v1.suite_name

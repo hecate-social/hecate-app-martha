@@ -2,7 +2,10 @@
 %%% Stages a delivery within a crafting dossier.
 -module(stage_delivery_v1).
 
+-behaviour(evoq_command).
+
 -export([new/1, from_map/1, validate/1, to_map/1]).
+-export([command_type/0]).
 -export([get_division_id/1, get_stage_id/1, get_release_id/1, get_stage_name/1]).
 -export([generate_id/0]).
 
@@ -19,6 +22,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> {ok, stage_delivery_v1()} | {error, term()}.
+-spec command_type() -> atom().
+command_type() -> stage_delivery_v1.
+
 new(#{division_id := DivisionId, release_id := ReleaseId, stage_name := StageName} = Params) ->
     StageId = maps:get(stage_id, Params, generate_id()),
     {ok, #stage_delivery_v1{
@@ -43,7 +49,7 @@ validate(#stage_delivery_v1{} = Cmd) ->
 -spec to_map(stage_delivery_v1()) -> map().
 to_map(#stage_delivery_v1{} = Cmd) ->
     #{
-        command_type => <<"stage_delivery">>,
+        command_type => stage_delivery_v1,
         division_id => Cmd#stage_delivery_v1.division_id,
         stage_id => Cmd#stage_delivery_v1.stage_id,
         release_id => Cmd#stage_delivery_v1.release_id,

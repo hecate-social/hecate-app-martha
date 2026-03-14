@@ -1,6 +1,8 @@
 %%% @doc Command: unpick_kanban_card.
 -module(unpick_kanban_card_v1).
 
+-behaviour(evoq_command).
+
 -record(unpick_kanban_card_v1, {
     division_id :: binary(),
     card_id     :: binary(),
@@ -9,6 +11,7 @@
 
 -type unpick_kanban_card_v1() :: #unpick_kanban_card_v1{}.
 -export_type([unpick_kanban_card_v1/0]).
+-export([command_type/0]).
 
 -export([new/1, from_map/1, validate/1, to_map/1]).
 -export([get_division_id/1, get_card_id/1, get_reason/1]).
@@ -18,6 +21,9 @@ get_card_id(#unpick_kanban_card_v1{card_id = V}) -> V.
 get_reason(#unpick_kanban_card_v1{reason = V}) -> V.
 
 -spec new(map()) -> {ok, unpick_kanban_card_v1()} | {error, term()}.
+-spec command_type() -> atom().
+command_type() -> unpick_kanban_card_v1.
+
 new(Params) ->
     Cmd = #unpick_kanban_card_v1{
         division_id = maps:get(division_id, Params),
@@ -45,7 +51,7 @@ validate(_) -> {error, invalid_unpick_kanban_card}.
 
 -spec to_map(unpick_kanban_card_v1()) -> map().
 to_map(#unpick_kanban_card_v1{} = C) ->
-    #{      command_type => <<"unpick_kanban_card">>,
+    #{      command_type => unpick_kanban_card_v1,
       division_id => C#unpick_kanban_card_v1.division_id,
       card_id => C#unpick_kanban_card_v1.card_id,
       reason => C#unpick_kanban_card_v1.reason}.

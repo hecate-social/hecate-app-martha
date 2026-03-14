@@ -2,7 +2,10 @@
 %%% Emitted when an event is designed within a division planning dossier.
 -module(event_designed_v1).
 
+-behaviour(evoq_event).
+
 -export([new/1, to_map/1, from_map/1]).
+-export([event_type/0]).
 -export([get_division_id/1, get_event_name/1, get_description/1,
          get_aggregate_name/1, get_fields/1, get_designed_at/1]).
 
@@ -21,6 +24,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> event_designed_v1().
+-spec event_type() -> atom().
+event_type() -> event_designed_v1.
+
 new(#{division_id := DivisionId, event_name := EvtName} = Params) ->
     #event_designed_v1{
         division_id = DivisionId,
@@ -34,7 +40,7 @@ new(#{division_id := DivisionId, event_name := EvtName} = Params) ->
 -spec to_map(event_designed_v1()) -> map().
 to_map(#event_designed_v1{} = E) ->
     #{
-        event_type => <<"event_designed_v1">>,
+        event_type => event_designed_v1,
         division_id => E#event_designed_v1.division_id,
         event_name => E#event_designed_v1.event_name,
         description => E#event_designed_v1.description,

@@ -2,7 +2,10 @@
 %%% Designs an event within a division planning dossier.
 -module(design_event_v1).
 
+-behaviour(evoq_command).
+
 -export([new/1, from_map/1, validate/1, to_map/1]).
+-export([command_type/0]).
 -export([get_division_id/1, get_event_name/1, get_description/1,
          get_aggregate_name/1, get_fields/1]).
 
@@ -20,6 +23,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> {ok, design_event_v1()} | {error, term()}.
+-spec command_type() -> atom().
+command_type() -> design_event_v1.
+
 new(#{division_id := DivisionId, event_name := EvtName} = Params) ->
     {ok, #design_event_v1{
         division_id = DivisionId,
@@ -42,7 +48,7 @@ validate(#design_event_v1{} = Cmd) ->
 -spec to_map(design_event_v1()) -> map().
 to_map(#design_event_v1{} = Cmd) ->
     #{
-        command_type => <<"design_event">>,
+        command_type => design_event_v1,
         division_id => Cmd#design_event_v1.division_id,
         event_name => Cmd#design_event_v1.event_name,
         description => Cmd#design_event_v1.description,

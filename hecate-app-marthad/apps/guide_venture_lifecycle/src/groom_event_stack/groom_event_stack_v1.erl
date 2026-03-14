@@ -2,7 +2,10 @@
 %%% Grooms a stack by picking a canonical sticky during Big Picture Event Storming.
 -module(groom_event_stack_v1).
 
+-behaviour(evoq_command).
+
 -export([new/1, from_map/1, validate/1, to_map/1]).
+-export([command_type/0]).
 -export([get_venture_id/1, get_stack_id/1, get_canonical_sticky_id/1]).
 
 -record(groom_event_stack_v1, {
@@ -17,6 +20,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> {ok, groom_event_stack_v1()} | {error, term()}.
+-spec command_type() -> atom().
+command_type() -> groom_event_stack_v1.
+
 new(#{venture_id := VentureId, stack_id := StackId,
       canonical_sticky_id := CanonicalStickyId}) ->
     Cmd = #groom_event_stack_v1{
@@ -43,7 +49,7 @@ validate(_) -> ok.
 -spec to_map(groom_event_stack_v1()) -> map().
 to_map(#groom_event_stack_v1{venture_id = V, stack_id = S, canonical_sticky_id = C}) ->
     #{
-        command_type => <<"groom_event_stack">>,
+        command_type => groom_event_stack_v1,
         venture_id => V,
         stack_id => S,
         canonical_sticky_id => C

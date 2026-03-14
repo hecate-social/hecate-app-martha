@@ -5,7 +5,10 @@
 %%% Carries aggregate identity (venture_id, context_name) for downstream PMs.
 -module(planning_submitted_v1).
 
+-behaviour(evoq_event).
+
 -export([new/1, to_map/1, from_map/1]).
+-export([event_type/0]).
 -export([get_division_id/1, get_venture_id/1, get_context_name/1, get_submitted_at/1]).
 
 -record(planning_submitted_v1, {
@@ -21,6 +24,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> planning_submitted_v1().
+-spec event_type() -> atom().
+event_type() -> planning_submitted_v1.
+
 new(#{division_id := DivisionId, venture_id := VentureId, context_name := ContextName}) ->
     #planning_submitted_v1{
         division_id = DivisionId,
@@ -32,7 +38,7 @@ new(#{division_id := DivisionId, venture_id := VentureId, context_name := Contex
 -spec to_map(planning_submitted_v1()) -> map().
 to_map(#planning_submitted_v1{} = E) ->
     #{
-        event_type => <<"planning_submitted_v1">>,
+        event_type => planning_submitted_v1,
         division_id => E#planning_submitted_v1.division_id,
         venture_id => E#planning_submitted_v1.venture_id,
         context_name => E#planning_submitted_v1.context_name,

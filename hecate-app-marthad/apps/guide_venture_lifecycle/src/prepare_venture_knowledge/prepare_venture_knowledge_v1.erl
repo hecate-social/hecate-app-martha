@@ -3,7 +3,10 @@
 %%% Domain expert agents will research topics derived from the vision.
 -module(prepare_venture_knowledge_v1).
 
+-behaviour(evoq_command).
+
 -export([new/1, from_map/1, validate/1, to_map/1]).
+-export([command_type/0]).
 -export([get_venture_id/1, get_research_topics/1]).
 
 -record(prepare_venture_knowledge_v1, {
@@ -17,6 +20,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> {ok, prepare_venture_knowledge_v1()} | {error, term()}.
+-spec command_type() -> atom().
+command_type() -> prepare_venture_knowledge_v1.
+
 new(#{venture_id := VentureId, research_topics := Topics}) when
     is_binary(VentureId), is_list(Topics) ->
     {ok, #prepare_venture_knowledge_v1{
@@ -42,7 +48,7 @@ validate(#prepare_venture_knowledge_v1{} = Cmd) ->
 -spec to_map(prepare_venture_knowledge_v1()) -> map().
 to_map(#prepare_venture_knowledge_v1{} = Cmd) ->
     #{
-        command_type => <<"prepare_venture_knowledge">>,
+        command_type => prepare_venture_knowledge_v1,
         venture_id => Cmd#prepare_venture_knowledge_v1.venture_id,
         research_topics => Cmd#prepare_venture_knowledge_v1.research_topics
     }.

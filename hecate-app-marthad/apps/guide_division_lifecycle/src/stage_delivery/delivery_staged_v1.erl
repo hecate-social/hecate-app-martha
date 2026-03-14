@@ -2,7 +2,10 @@
 %%% Emitted when a delivery stage is completed within a crafting dossier.
 -module(delivery_staged_v1).
 
+-behaviour(evoq_event).
+
 -export([new/1, to_map/1, from_map/1]).
+-export([event_type/0]).
 -export([get_division_id/1, get_stage_id/1, get_release_id/1, get_stage_name/1, get_staged_at/1]).
 
 -record(delivery_staged_v1, {
@@ -19,6 +22,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> delivery_staged_v1().
+-spec event_type() -> atom().
+event_type() -> delivery_staged_v1.
+
 new(#{division_id := DivisionId, stage_id := StageId, release_id := ReleaseId, stage_name := StageName}) ->
     #delivery_staged_v1{
         division_id = DivisionId,
@@ -31,7 +37,7 @@ new(#{division_id := DivisionId, stage_id := StageId, release_id := ReleaseId, s
 -spec to_map(delivery_staged_v1()) -> map().
 to_map(#delivery_staged_v1{} = E) ->
     #{
-        event_type => <<"delivery_staged_v1">>,
+        event_type => delivery_staged_v1,
         division_id => E#delivery_staged_v1.division_id,
         stage_id => E#delivery_staged_v1.stage_id,
         release_id => E#delivery_staged_v1.release_id,

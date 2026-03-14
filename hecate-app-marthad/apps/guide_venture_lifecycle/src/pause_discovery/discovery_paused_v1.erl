@@ -2,7 +2,10 @@
 %%% Emitted when discovery phase is paused for a venture.
 -module(discovery_paused_v1).
 
+-behaviour(evoq_event).
+
 -export([new/1, from_map/1, to_map/1, get_venture_id/1, get_paused_at/1, get_reason/1]).
+-export([event_type/0]).
 
 -record(discovery_paused_v1, {
     venture_id :: binary(),
@@ -16,6 +19,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> discovery_paused_v1().
+-spec event_type() -> atom().
+event_type() -> discovery_paused_v1.
+
 new(#{venture_id := VentureId} = Params) ->
     #discovery_paused_v1{
         venture_id = VentureId,
@@ -26,7 +32,7 @@ new(#{venture_id := VentureId} = Params) ->
 -spec to_map(discovery_paused_v1()) -> map().
 to_map(#discovery_paused_v1{venture_id = V, reason = R, paused_at = PA}) ->
     #{
-        event_type => <<"discovery_paused_v1">>,
+        event_type => discovery_paused_v1,
         venture_id => V,
         reason => R,
         paused_at => PA

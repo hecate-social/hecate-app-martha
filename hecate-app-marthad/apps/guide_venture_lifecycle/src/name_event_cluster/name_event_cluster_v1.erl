@@ -2,7 +2,10 @@
 %%% Names an event cluster during Big Picture Event Storming.
 -module(name_event_cluster_v1).
 
+-behaviour(evoq_command).
+
 -export([new/1, from_map/1, validate/1, to_map/1]).
+-export([command_type/0]).
 -export([get_venture_id/1, get_cluster_id/1, get_name/1]).
 
 -record(name_event_cluster_v1, {
@@ -17,6 +20,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> {ok, name_event_cluster_v1()} | {error, term()}.
+-spec command_type() -> atom().
+command_type() -> name_event_cluster_v1.
+
 new(#{venture_id := VentureId, cluster_id := ClusterId, name := Name} = _Params) ->
     Cmd = #name_event_cluster_v1{
         venture_id = VentureId,
@@ -42,7 +48,7 @@ validate(_) -> ok.
 -spec to_map(name_event_cluster_v1()) -> map().
 to_map(#name_event_cluster_v1{venture_id = V, cluster_id = C, name = N}) ->
     #{
-        command_type => <<"name_event_cluster">>,
+        command_type => name_event_cluster_v1,
         venture_id => V,
         cluster_id => C,
         name => N

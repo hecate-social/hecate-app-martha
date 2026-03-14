@@ -2,7 +2,10 @@
 %%% Designs an aggregate within a division planning dossier.
 -module(design_aggregate_v1).
 
+-behaviour(evoq_command).
+
 -export([new/1, from_map/1, validate/1, to_map/1]).
+-export([command_type/0]).
 -export([get_division_id/1, get_aggregate_name/1, get_description/1,
          get_stream_prefix/1, get_fields/1]).
 
@@ -20,6 +23,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> {ok, design_aggregate_v1()} | {error, term()}.
+-spec command_type() -> atom().
+command_type() -> design_aggregate_v1.
+
 new(#{division_id := DivisionId, aggregate_name := AggName} = Params) ->
     {ok, #design_aggregate_v1{
         division_id = DivisionId,
@@ -42,7 +48,7 @@ validate(#design_aggregate_v1{} = Cmd) ->
 -spec to_map(design_aggregate_v1()) -> map().
 to_map(#design_aggregate_v1{} = Cmd) ->
     #{
-        command_type => <<"design_aggregate">>,
+        command_type => design_aggregate_v1,
         division_id => Cmd#design_aggregate_v1.division_id,
         aggregate_name => Cmd#design_aggregate_v1.aggregate_name,
         description => Cmd#design_aggregate_v1.description,

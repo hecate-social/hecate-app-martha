@@ -2,7 +2,10 @@
 %%% Emitted when a venture is archived (soft deleted).
 -module(venture_archived_v1).
 
+-behaviour(evoq_event).
+
 -export([new/1, to_map/1, from_map/1]).
+-export([event_type/0]).
 -export([get_venture_id/1, get_reason/1, get_archived_at/1]).
 
 -record(venture_archived_v1, {
@@ -17,6 +20,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> venture_archived_v1().
+-spec event_type() -> atom().
+event_type() -> venture_archived_v1.
+
 new(#{venture_id := VentureId} = Params) ->
     #venture_archived_v1{
         venture_id = VentureId,
@@ -27,7 +33,7 @@ new(#{venture_id := VentureId} = Params) ->
 -spec to_map(venture_archived_v1()) -> map().
 to_map(#venture_archived_v1{} = E) ->
     #{
-        event_type => <<"venture_archived_v1">>,
+        event_type => venture_archived_v1,
         venture_id => E#venture_archived_v1.venture_id,
         reason => E#venture_archived_v1.reason,
         archived_at => E#venture_archived_v1.archived_at

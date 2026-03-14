@@ -2,7 +2,10 @@
 %%% Emitted when a test is generated within a crafting dossier.
 -module(test_generated_v1).
 
+-behaviour(evoq_event).
+
 -export([new/1, to_map/1, from_map/1]).
+-export([event_type/0]).
 -export([get_division_id/1, get_test_name/1, get_module_name/1, get_path/1, get_generated_at/1]).
 
 -record(test_generated_v1, {
@@ -19,6 +22,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> test_generated_v1().
+-spec event_type() -> atom().
+event_type() -> test_generated_v1.
+
 new(#{division_id := DivisionId, test_name := TestName, module_name := ModuleName, path := Path}) ->
     #test_generated_v1{
         division_id = DivisionId,
@@ -31,7 +37,7 @@ new(#{division_id := DivisionId, test_name := TestName, module_name := ModuleNam
 -spec to_map(test_generated_v1()) -> map().
 to_map(#test_generated_v1{} = E) ->
     #{
-        event_type => <<"test_generated_v1">>,
+        event_type => test_generated_v1,
         division_id => E#test_generated_v1.division_id,
         test_name => E#test_generated_v1.test_name,
         module_name => E#test_generated_v1.module_name,

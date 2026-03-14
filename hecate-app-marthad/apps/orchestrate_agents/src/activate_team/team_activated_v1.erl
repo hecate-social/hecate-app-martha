@@ -2,7 +2,10 @@
 %%% Emitted when a division team is activated.
 -module(team_activated_v1).
 
+-behaviour(evoq_event).
+
 -export([new/1, to_map/1, from_map/1]).
+-export([event_type/0]).
 -export([get_division_id/1, get_activated_at/1]).
 
 -record(team_activated_v1, {
@@ -16,6 +19,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> team_activated_v1().
+-spec event_type() -> atom().
+event_type() -> team_activated_v1.
+
 new(#{division_id := DivId}) ->
     #team_activated_v1{
         division_id = DivId,
@@ -25,7 +31,7 @@ new(#{division_id := DivId}) ->
 -spec to_map(team_activated_v1()) -> map().
 to_map(#team_activated_v1{} = E) ->
     #{
-        event_type => <<"team_activated_v1">>,
+        event_type => team_activated_v1,
         division_id => E#team_activated_v1.division_id,
         activated_at => E#team_activated_v1.activated_at
     }.

@@ -1,7 +1,10 @@
 %%% @doc Event: knowledge graph archived.
 -module(knowledge_graph_archived_v1).
 
+-behaviour(evoq_event).
+
 -export([new/1, from_map/1, to_map/1]).
+-export([event_type/0]).
 
 -record(knowledge_graph_archived_v1, {
     venture_id  :: binary(),
@@ -13,6 +16,9 @@
 -export_type([knowledge_graph_archived_v1/0]).
 
 -spec new(map()) -> knowledge_graph_archived_v1().
+-spec event_type() -> atom().
+event_type() -> knowledge_graph_archived_v1.
+
 new(Params) ->
     #knowledge_graph_archived_v1{
         venture_id = maps:get(venture_id, Params),
@@ -30,7 +36,7 @@ from_map(Map) ->
 
 -spec to_map(knowledge_graph_archived_v1()) -> map().
 to_map(#knowledge_graph_archived_v1{} = E) ->
-    #{event_type => <<"knowledge_graph_archived_v1">>,
+    #{event_type => knowledge_graph_archived_v1,
       venture_id => E#knowledge_graph_archived_v1.venture_id,
       reason => E#knowledge_graph_archived_v1.reason,
       archived_at => E#knowledge_graph_archived_v1.archived_at}.

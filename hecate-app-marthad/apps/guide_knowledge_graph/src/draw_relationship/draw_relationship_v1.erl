@@ -1,7 +1,10 @@
 %%% @doc Command: draw a relationship between entities in the knowledge graph.
 -module(draw_relationship_v1).
 
+-behaviour(evoq_command).
+
 -export([new/1, from_map/1, to_map/1, validate/1]).
+-export([command_type/0]).
 -export([get_venture_id/1, get_rel_id/1, get_from_entity/1,
          get_to_entity/1, get_rel_type/1, get_strength/1]).
 
@@ -18,6 +21,9 @@
 -export_type([draw_relationship_v1/0]).
 
 -spec new(map()) -> {ok, draw_relationship_v1()} | {error, term()}.
+-spec command_type() -> atom().
+command_type() -> draw_relationship_v1.
+
 new(#{venture_id := VId, from_entity := From, to_entity := To, rel_type := Type} = Params) ->
     RelId = maps:get(rel_id, Params, generate_id()),
     {ok, #draw_relationship_v1{
@@ -52,7 +58,7 @@ from_map(Map) ->
 
 -spec to_map(draw_relationship_v1()) -> map().
 to_map(#draw_relationship_v1{} = C) ->
-    #{command_type => <<"draw_relationship">>,
+    #{command_type => draw_relationship_v1,
       venture_id => C#draw_relationship_v1.venture_id,
       rel_id => C#draw_relationship_v1.rel_id,
       from_entity => C#draw_relationship_v1.from_entity,

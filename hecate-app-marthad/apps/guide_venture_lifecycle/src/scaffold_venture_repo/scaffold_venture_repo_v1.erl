@@ -2,7 +2,10 @@
 %%% Scaffolds a venture's git repository with VISION.md and structure.
 -module(scaffold_venture_repo_v1).
 
+-behaviour(evoq_command).
+
 -export([new/1, from_map/1, validate/1, to_map/1]).
+-export([command_type/0]).
 -export([get_venture_id/1, get_repo_path/1, get_brief/1, get_initiated_by/1]).
 
 -record(scaffold_venture_repo_v1, {
@@ -18,6 +21,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> {ok, scaffold_venture_repo_v1()} | {error, term()}.
+-spec command_type() -> atom().
+command_type() -> scaffold_venture_repo_v1.
+
 new(#{venture_id := VentureId, repo_path := RepoPath} = Params) ->
     {ok, #scaffold_venture_repo_v1{
         venture_id = VentureId,
@@ -41,7 +47,7 @@ validate(#scaffold_venture_repo_v1{} = Cmd) ->
 -spec to_map(scaffold_venture_repo_v1()) -> map().
 to_map(#scaffold_venture_repo_v1{} = Cmd) ->
     #{
-        command_type => <<"scaffold_venture_repo">>,
+        command_type => scaffold_venture_repo_v1,
         venture_id => Cmd#scaffold_venture_repo_v1.venture_id,
         repo_path => Cmd#scaffold_venture_repo_v1.repo_path,
         brief => Cmd#scaffold_venture_repo_v1.brief,

@@ -2,7 +2,10 @@
 %%% Escalates a completed reviewer session to the review_gate for HITL review.
 -module(escalate_review_gate_v1).
 
+-behaviour(evoq_command).
+
 -export([new/1, from_map/1, validate/1, to_map/1]).
+-export([command_type/0]).
 -export([get_session_id/1]).
 
 -record(escalate_review_gate_v1, {
@@ -15,6 +18,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> {ok, escalate_review_gate_v1()} | {error, term()}.
+-spec command_type() -> atom().
+command_type() -> escalate_review_gate_v1.
+
 new(#{session_id := SessionId}) when is_binary(SessionId), byte_size(SessionId) > 0 ->
     {ok, #escalate_review_gate_v1{session_id = SessionId}};
 new(_) ->
@@ -29,7 +35,7 @@ validate(#escalate_review_gate_v1{}) ->
 -spec to_map(escalate_review_gate_v1()) -> map().
 to_map(#escalate_review_gate_v1{} = Cmd) ->
     #{
-        command_type => <<"escalate_to_gate">>,
+        command_type => escalate_review_gate_v1,
         agent_role => <<"reviewer">>,
         gate_name => <<"review_gate">>,
         session_id => Cmd#escalate_review_gate_v1.session_id

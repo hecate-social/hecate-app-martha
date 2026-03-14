@@ -1,7 +1,10 @@
 %%% @doc Event: entity recognized in the knowledge graph.
 -module(entity_recognized_v1).
 
+-behaviour(evoq_event).
+
 -export([new/1, from_map/1, to_map/1]).
+-export([event_type/0]).
 
 -record(entity_recognized_v1, {
     venture_id   :: binary(),
@@ -17,6 +20,9 @@
 -export_type([entity_recognized_v1/0]).
 
 -spec new(map()) -> entity_recognized_v1().
+-spec event_type() -> atom().
+event_type() -> entity_recognized_v1.
+
 new(Params) ->
     #entity_recognized_v1{
         venture_id = maps:get(venture_id, Params),
@@ -42,7 +48,7 @@ from_map(Map) ->
 
 -spec to_map(entity_recognized_v1()) -> map().
 to_map(#entity_recognized_v1{} = E) ->
-    #{event_type => <<"entity_recognized_v1">>,
+    #{event_type => entity_recognized_v1,
       venture_id => E#entity_recognized_v1.venture_id,
       entity_id => E#entity_recognized_v1.entity_id,
       entity_type => E#entity_recognized_v1.entity_type,

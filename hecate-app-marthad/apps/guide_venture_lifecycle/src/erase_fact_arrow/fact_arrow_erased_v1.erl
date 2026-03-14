@@ -2,7 +2,10 @@
 %%% Emitted when a fact arrow is erased during Big Picture Event Storming.
 -module(fact_arrow_erased_v1).
 
+-behaviour(evoq_event).
+
 -export([new/1, from_map/1, to_map/1]).
+-export([event_type/0]).
 -export([get_venture_id/1, get_arrow_id/1, get_erased_at/1]).
 
 -record(fact_arrow_erased_v1, {
@@ -17,6 +20,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> fact_arrow_erased_v1().
+-spec event_type() -> atom().
+event_type() -> fact_arrow_erased_v1.
+
 new(#{venture_id := VentureId, arrow_id := ArrowId} = Params) ->
     #fact_arrow_erased_v1{
         venture_id = VentureId,
@@ -27,7 +33,7 @@ new(#{venture_id := VentureId, arrow_id := ArrowId} = Params) ->
 -spec to_map(fact_arrow_erased_v1()) -> map().
 to_map(#fact_arrow_erased_v1{venture_id = V, arrow_id = AI, erased_at = EA}) ->
     #{
-        event_type => <<"fact_arrow_erased_v1">>,
+        event_type => fact_arrow_erased_v1,
         venture_id => V,
         arrow_id => AI,
         erased_at => EA

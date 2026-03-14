@@ -1,6 +1,9 @@
 -module(division_initiated_v1).
 
+-behaviour(evoq_event).
+
 -export([new/1, to_map/1, from_map/1]).
+-export([event_type/0]).
 -export([get_division_id/1, get_venture_id/1, get_context_name/1,
          get_initiated_by/1, get_initiated_at/1]).
 
@@ -16,6 +19,9 @@
 -opaque division_initiated_v1() :: #division_initiated_v1{}.
 
 -spec new(map()) -> division_initiated_v1().
+-spec event_type() -> atom().
+event_type() -> division_initiated_v1.
+
 new(Params) ->
     #division_initiated_v1{
         division_id = maps:get(division_id, Params),
@@ -28,7 +34,7 @@ new(Params) ->
 -spec to_map(division_initiated_v1()) -> map().
 to_map(#division_initiated_v1{} = E) ->
     #{
-        event_type => <<"division_initiated_v1">>,
+        event_type => division_initiated_v1,
         division_id => E#division_initiated_v1.division_id,
         venture_id => E#division_initiated_v1.venture_id,
         context_name => E#division_initiated_v1.context_name,

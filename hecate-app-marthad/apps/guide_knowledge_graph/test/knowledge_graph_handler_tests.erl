@@ -27,7 +27,7 @@ initiate_roundtrip_test() ->
     Map = initiate_knowledge_graph_v1:to_map(Cmd),
     {ok, Cmd2} = initiate_knowledge_graph_v1:from_map(Map),
     ?assertEqual(<<"v-rt">>, initiate_knowledge_graph_v1:get_venture_id(Cmd2)),
-    ?assertEqual(<<"initiate_knowledge_graph">>, maps:get(command_type, Map)).
+    ?assertEqual(initiate_knowledge_graph_v1, maps:get(command_type, Map)).
 
 initiate_validate_ok_test() ->
     {ok, Cmd} = initiate_knowledge_graph_v1:new(#{venture_id => <<"v-1">>}),
@@ -45,7 +45,7 @@ maybe_initiate_handler_test() ->
     {ok, Cmd} = initiate_knowledge_graph_v1:new(#{venture_id => <<"v-1">>}),
     {ok, [Event]} = maybe_initiate_knowledge_graph:handle(Cmd),
     Map = knowledge_graph_initiated_v1:to_map(Event),
-    ?assertEqual(<<"knowledge_graph_initiated_v1">>, maps:get(event_type, Map)),
+    ?assertEqual(knowledge_graph_initiated_v1, maps:get(event_type, Map)),
     ?assertEqual(<<"v-1">>, maps:get(venture_id, Map)).
 
 %% ===================================================================
@@ -111,7 +111,7 @@ maybe_capture_insight_handler_test() ->
     }),
     {ok, [Event]} = maybe_capture_insight:handle(Cmd),
     Map = insight_captured_v1:to_map(Event),
-    ?assertEqual(<<"insight_captured_v1">>, maps:get(event_type, Map)),
+    ?assertEqual(insight_captured_v1, maps:get(event_type, Map)),
     ?assertEqual(<<"Users prefer mobile">>, maps:get(content, Map)).
 
 %% ===================================================================
@@ -166,7 +166,7 @@ maybe_recognize_entity_handler_test() ->
     }),
     {ok, [Event]} = maybe_recognize_entity:handle(Cmd, #{entities => #{}}),
     Map = entity_recognized_v1:to_map(Event),
-    ?assertEqual(<<"entity_recognized_v1">>, maps:get(event_type, Map)).
+    ?assertEqual(entity_recognized_v1, maps:get(event_type, Map)).
 
 %% ===================================================================
 %% draw_relationship_v1
@@ -219,7 +219,7 @@ maybe_draw_relationship_handler_test() ->
     }),
     {ok, [Event]} = maybe_draw_relationship:handle(Cmd, #{entities => #{}}),
     Map = relationship_drawn_v1:to_map(Event),
-    ?assertEqual(<<"relationship_drawn_v1">>, maps:get(event_type, Map)).
+    ?assertEqual(relationship_drawn_v1, maps:get(event_type, Map)).
 
 %% ===================================================================
 %% supersede_insight_v1
@@ -268,7 +268,7 @@ maybe_supersede_insight_found_test() ->
     Context = #{insights => [#{insight_id => <<"ins-1">>, content => <<"old">>}]},
     {ok, [Event]} = maybe_supersede_insight:handle(Cmd, Context),
     Map = insight_superseded_v1:to_map(Event),
-    ?assertEqual(<<"insight_superseded_v1">>, maps:get(event_type, Map)).
+    ?assertEqual(insight_superseded_v1, maps:get(event_type, Map)).
 
 maybe_supersede_insight_not_found_test() ->
     {ok, Cmd} = supersede_insight_v1:new(#{
@@ -316,4 +316,4 @@ maybe_archive_handler_test() ->
     }),
     {ok, [Event]} = maybe_archive_knowledge_graph:handle(Cmd),
     Map = knowledge_graph_archived_v1:to_map(Event),
-    ?assertEqual(<<"knowledge_graph_archived_v1">>, maps:get(event_type, Map)).
+    ?assertEqual(knowledge_graph_archived_v1, maps:get(event_type, Map)).

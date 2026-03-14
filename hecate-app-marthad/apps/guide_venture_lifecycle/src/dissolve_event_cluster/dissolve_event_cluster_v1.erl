@@ -3,7 +3,10 @@
 %%% All stickies in the cluster become unclustered.
 -module(dissolve_event_cluster_v1).
 
+-behaviour(evoq_command).
+
 -export([new/1, from_map/1, validate/1, to_map/1]).
+-export([command_type/0]).
 -export([get_venture_id/1, get_cluster_id/1]).
 
 -record(dissolve_event_cluster_v1, {
@@ -17,6 +20,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> {ok, dissolve_event_cluster_v1()} | {error, term()}.
+-spec command_type() -> atom().
+command_type() -> dissolve_event_cluster_v1.
+
 new(#{venture_id := VentureId, cluster_id := ClusterId} = _Params) ->
     Cmd = #dissolve_event_cluster_v1{
         venture_id = VentureId,
@@ -39,7 +45,7 @@ validate(_) -> ok.
 -spec to_map(dissolve_event_cluster_v1()) -> map().
 to_map(#dissolve_event_cluster_v1{venture_id = V, cluster_id = C}) ->
     #{
-        command_type => <<"dissolve_event_cluster">>,
+        command_type => dissolve_event_cluster_v1,
         venture_id => V,
         cluster_id => C
     }.

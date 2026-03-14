@@ -1,6 +1,8 @@
 %%% @doc Command: unpark_kanban_card.
 -module(unpark_kanban_card_v1).
 
+-behaviour(evoq_command).
+
 -record(unpark_kanban_card_v1, {
     division_id :: binary(),
     card_id     :: binary()
@@ -8,6 +10,7 @@
 
 -type unpark_kanban_card_v1() :: #unpark_kanban_card_v1{}.
 -export_type([unpark_kanban_card_v1/0]).
+-export([command_type/0]).
 
 -export([new/1, from_map/1, validate/1, to_map/1]).
 -export([get_division_id/1, get_card_id/1]).
@@ -17,6 +20,9 @@ get_card_id(#unpark_kanban_card_v1{card_id = V}) -> V.
 
 
 -spec new(map()) -> {ok, unpark_kanban_card_v1()} | {error, term()}.
+-spec command_type() -> atom().
+command_type() -> unpark_kanban_card_v1.
+
 new(Params) ->
     Cmd = #unpark_kanban_card_v1{
         division_id = maps:get(division_id, Params),
@@ -42,7 +48,7 @@ validate(_) -> {error, invalid_unpark_kanban_card}.
 
 -spec to_map(unpark_kanban_card_v1()) -> map().
 to_map(#unpark_kanban_card_v1{} = C) ->
-    #{      command_type => <<"unpark_kanban_card">>,
+    #{      command_type => unpark_kanban_card_v1,
       division_id => C#unpark_kanban_card_v1.division_id,
       card_id => C#unpark_kanban_card_v1.card_id}.
 

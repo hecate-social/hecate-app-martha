@@ -2,7 +2,10 @@
 %%% Receives new input for a conversational mentor agent.
 -module(receive_mentor_input_v1).
 
+-behaviour(evoq_command).
+
 -export([new/1, from_map/1, validate/1, to_map/1]).
+-export([command_type/0]).
 -export([get_session_id/1, get_input_content/1, get_input_by/1]).
 
 -record(receive_mentor_input_v1, {
@@ -17,6 +20,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> {ok, receive_mentor_input_v1()} | {error, term()}.
+-spec command_type() -> atom().
+command_type() -> receive_mentor_input_v1.
+
 new(#{session_id := SessionId} = Params) when is_binary(SessionId), byte_size(SessionId) > 0 ->
     {ok, #receive_mentor_input_v1{
         session_id = SessionId,
@@ -35,7 +41,7 @@ validate(#receive_mentor_input_v1{}) ->
 -spec to_map(receive_mentor_input_v1()) -> map().
 to_map(#receive_mentor_input_v1{} = Cmd) ->
     #{
-        command_type => <<"receive_agent_input">>,
+        command_type => receive_mentor_input_v1,
         agent_role => <<"mentor">>,
         session_id => Cmd#receive_mentor_input_v1.session_id,
         input_content => Cmd#receive_mentor_input_v1.input_content,

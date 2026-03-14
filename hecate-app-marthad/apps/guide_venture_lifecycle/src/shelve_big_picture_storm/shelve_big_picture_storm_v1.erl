@@ -2,7 +2,10 @@
 %%% Shelves a Big Picture Event Storming session for a venture.
 -module(shelve_big_picture_storm_v1).
 
+-behaviour(evoq_command).
+
 -export([new/1, from_map/1, validate/1, to_map/1, get_venture_id/1, get_reason/1]).
+-export([command_type/0]).
 
 -record(shelve_big_picture_storm_v1, {
     venture_id :: binary(),
@@ -15,6 +18,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> {ok, shelve_big_picture_storm_v1()} | {error, term()}.
+-spec command_type() -> atom().
+command_type() -> shelve_big_picture_storm_v1.
+
 new(#{venture_id := VentureId} = Params) ->
     Cmd = #shelve_big_picture_storm_v1{
         venture_id = VentureId,
@@ -35,7 +41,7 @@ validate(_) -> ok.
 -spec to_map(shelve_big_picture_storm_v1()) -> map().
 to_map(#shelve_big_picture_storm_v1{venture_id = V, reason = R}) ->
     #{
-        command_type => <<"shelve_big_picture_storm">>,
+        command_type => shelve_big_picture_storm_v1,
         venture_id => V,
         reason => R
     }.

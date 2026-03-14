@@ -25,13 +25,15 @@
 -include("agent_orchestration_status.hrl").
 -include("agent_session_state.hrl").
 
--export([init/1, execute/2, apply/2]).
--export([initial_state/0, apply_event/2]).
+-export([state_module/0, init/1, execute/2, apply/2]).
 -export([flag_map/0]).
 -export([role_modules/2]).
 
 -type state() :: #agent_session_state{}.
 -export_type([state/0]).
+
+-spec state_module() -> module().
+state_module() -> agent_session_state.
 
 -spec flag_map() -> evoq_bit_flags:flag_map().
 flag_map() -> ?AO_FLAG_MAP.
@@ -39,12 +41,8 @@ flag_map() -> ?AO_FLAG_MAP.
 %% --- Callbacks ---
 
 -spec init(binary()) -> {ok, state()}.
-init(_AggregateId) ->
-    {ok, initial_state()}.
-
--spec initial_state() -> state().
-initial_state() ->
-    #agent_session_state{}.
+init(AggregateId) ->
+    {ok, agent_session_state:new(AggregateId)}.
 
 %% --- Per-Role Module Dispatch ---
 %%
@@ -255,6 +253,12 @@ execute(#agent_session_state{status = S} = State, Payload) when S band ?AO_INITI
 execute(_State, _Payload) ->
     {error, unknown_command}.
 
+%% --- Apply ---
+
+-spec apply(state(), map()) -> state().
+apply(State, Event) ->
+    agent_session_state:apply_event(State, Event).
+
 %% --- Command handlers (per-role dispatch) ---
 
 execute_initiate(Payload) ->
@@ -337,182 +341,6 @@ execute_archive(Payload, State) ->
         maybe_archive_agent_session:handle(Cmd, State),
         fun agent_session_archived_v1:to_map/1).
 
-%% --- Apply ---
-
--spec apply(state(), map()) -> state().
-apply(State, Event) ->
-    apply_event(Event, State).
-
--spec apply_event(map(), state()) -> state().
-
-%% ── Visionary ──
-apply_event(#{event_type := <<"visionary_initiated_v1">>} = E, S)       -> apply_initiated(E, S);
-apply_event(#{event_type := <<"visionary_completed_v1">>} = E, S)       -> apply_completed(E, S);
-apply_event(#{event_type := <<"visionary_failed_v1">>} = E, S)         -> apply_failed(E, S);
-
-%% ── Vision gate ──
-apply_event(#{event_type := <<"vision_gate_escalated_v1">>} = E, S)       -> apply_gate_escalated(E, S);
-apply_event(#{event_type := <<"vision_gate_passed_v1">>} = E, S)         -> apply_gate_passed(E, S);
-apply_event(#{event_type := <<"vision_gate_rejected_v1">>} = E, S)       -> apply_gate_rejected(E, S);
-
-%% ── Explorer ──
-apply_event(#{event_type := <<"explorer_initiated_v1">>} = E, S)       -> apply_initiated(E, S);
-apply_event(#{event_type := <<"explorer_completed_v1">>} = E, S)      -> apply_completed(E, S);
-apply_event(#{event_type := <<"explorer_failed_v1">>} = E, S)         -> apply_failed(E, S);
-
-%% ── Boundary gate ──
-apply_event(#{event_type := <<"boundary_gate_escalated_v1">>} = E, S)      -> apply_gate_escalated(E, S);
-apply_event(#{event_type := <<"boundary_gate_passed_v1">>} = E, S)        -> apply_gate_passed(E, S);
-apply_event(#{event_type := <<"boundary_gate_rejected_v1">>} = E, S)      -> apply_gate_rejected(E, S);
-
-%% ── Stormer ──
-apply_event(#{event_type := <<"stormer_initiated_v1">>} = E, S)       -> apply_initiated(E, S);
-apply_event(#{event_type := <<"stormer_completed_v1">>} = E, S)      -> apply_completed(E, S);
-apply_event(#{event_type := <<"stormer_failed_v1">>} = E, S)         -> apply_failed(E, S);
-
-%% ── Design gate ──
-apply_event(#{event_type := <<"design_gate_escalated_v1">>} = E, S)      -> apply_gate_escalated(E, S);
-apply_event(#{event_type := <<"design_gate_passed_v1">>} = E, S)        -> apply_gate_passed(E, S);
-apply_event(#{event_type := <<"design_gate_rejected_v1">>} = E, S)      -> apply_gate_rejected(E, S);
-
-%% ── Reviewer ──
-apply_event(#{event_type := <<"reviewer_initiated_v1">>} = E, S)       -> apply_initiated(E, S);
-apply_event(#{event_type := <<"reviewer_completed_v1">>} = E, S)      -> apply_completed(E, S);
-apply_event(#{event_type := <<"reviewer_failed_v1">>} = E, S)         -> apply_failed(E, S);
-
-%% ── Review gate ──
-apply_event(#{event_type := <<"review_gate_escalated_v1">>} = E, S)      -> apply_gate_escalated(E, S);
-apply_event(#{event_type := <<"review_gate_passed_v1">>} = E, S)        -> apply_gate_passed(E, S);
-apply_event(#{event_type := <<"review_gate_rejected_v1">>} = E, S)      -> apply_gate_rejected(E, S);
-
-%% ── Architect ──
-apply_event(#{event_type := <<"architect_initiated_v1">>} = E, S)       -> apply_initiated(E, S);
-apply_event(#{event_type := <<"architect_completed_v1">>} = E, S)      -> apply_completed(E, S);
-apply_event(#{event_type := <<"architect_failed_v1">>} = E, S)         -> apply_failed(E, S);
-
-%% ── Erlang Coder ──
-apply_event(#{event_type := <<"erlang_coder_initiated_v1">>} = E, S)       -> apply_initiated(E, S);
-apply_event(#{event_type := <<"erlang_coder_completed_v1">>} = E, S)      -> apply_completed(E, S);
-apply_event(#{event_type := <<"erlang_coder_failed_v1">>} = E, S)         -> apply_failed(E, S);
-
-%% ── Svelte Coder ──
-apply_event(#{event_type := <<"svelte_coder_initiated_v1">>} = E, S)       -> apply_initiated(E, S);
-apply_event(#{event_type := <<"svelte_coder_completed_v1">>} = E, S)      -> apply_completed(E, S);
-apply_event(#{event_type := <<"svelte_coder_failed_v1">>} = E, S)         -> apply_failed(E, S);
-
-%% ── SQL Coder ──
-apply_event(#{event_type := <<"sql_coder_initiated_v1">>} = E, S)       -> apply_initiated(E, S);
-apply_event(#{event_type := <<"sql_coder_completed_v1">>} = E, S)      -> apply_completed(E, S);
-apply_event(#{event_type := <<"sql_coder_failed_v1">>} = E, S)         -> apply_failed(E, S);
-
-%% ── Tester ──
-apply_event(#{event_type := <<"tester_initiated_v1">>} = E, S)       -> apply_initiated(E, S);
-apply_event(#{event_type := <<"tester_completed_v1">>} = E, S)      -> apply_completed(E, S);
-apply_event(#{event_type := <<"tester_failed_v1">>} = E, S)         -> apply_failed(E, S);
-
-%% ── Delivery Manager ──
-apply_event(#{event_type := <<"delivery_manager_initiated_v1">>} = E, S)       -> apply_initiated(E, S);
-apply_event(#{event_type := <<"delivery_manager_completed_v1">>} = E, S)      -> apply_completed(E, S);
-apply_event(#{event_type := <<"delivery_manager_failed_v1">>} = E, S)         -> apply_failed(E, S);
-
-%% ── Coordinator (conversational) ──
-apply_event(#{event_type := <<"coordinator_initiated_v1">>} = E, S)              -> apply_initiated(E, S);
-apply_event(#{event_type := <<"coordinator_turn_completed_v1">>} = E, S)         -> apply_turn_completed(E, S);
-apply_event(#{event_type := <<"coordinator_input_received_v1">>} = E, S)         -> apply_input_received(E, S);
-apply_event(#{event_type := <<"coordinator_completed_v1">>} = E, S)              -> apply_completed(E, S);
-apply_event(#{event_type := <<"coordinator_failed_v1">>} = E, S)                 -> apply_failed(E, S);
-
-%% ── Mentor (conversational) ──
-apply_event(#{event_type := <<"mentor_initiated_v1">>} = E, S)              -> apply_initiated(E, S);
-apply_event(#{event_type := <<"mentor_turn_completed_v1">>} = E, S)         -> apply_turn_completed(E, S);
-apply_event(#{event_type := <<"mentor_input_received_v1">>} = E, S)         -> apply_input_received(E, S);
-apply_event(#{event_type := <<"mentor_completed_v1">>} = E, S)              -> apply_completed(E, S);
-apply_event(#{event_type := <<"mentor_failed_v1">>} = E, S)                 -> apply_failed(E, S);
-
-%% ── Archive (role-agnostic) ──
-apply_event(#{event_type := <<"agent_session_archived_v1">>} = E, S)      -> apply_archived(E, S);
-
-%% Unknown — ignore
-apply_event(_E, S) -> S.
-
-%% --- Apply helpers (shared — lifecycle state changes are role-agnostic) ---
-
-apply_initiated(E, State) ->
-    State#agent_session_state{
-        session_id = get_value(session_id, E),
-        agent_role = get_value(agent_role, E),
-        venture_id = get_value(venture_id, E),
-        division_id = get_value(division_id, E),
-        tier = get_value(tier, E),
-        model = get_value(model, E),
-        status = evoq_bit_flags:set(0, ?AO_INITIATED),
-        initiated_at = get_value(initiated_at, E),
-        initiated_by = get_value(initiated_by, E)
-    }.
-
-apply_completed(E, #agent_session_state{status = Status} = State) ->
-    State#agent_session_state{
-        status = evoq_bit_flags:set(Status, ?AO_COMPLETED),
-        completed_at = get_value(completed_at, E),
-        tokens_in = State#agent_session_state.tokens_in + get_value(tokens_in, E, 0),
-        tokens_out = State#agent_session_state.tokens_out + get_value(tokens_out, E, 0),
-        notation_output = get_value(notation_output, E),
-        parsed_terms = get_value(parsed_terms, E, [])
-    }.
-
-apply_turn_completed(E, #agent_session_state{status = Status} = State) ->
-    State#agent_session_state{
-        status = evoq_bit_flags:set(Status, ?AO_AWAITING_INPUT),
-        turn_count = get_value(turn_number, E, State#agent_session_state.turn_count + 1),
-        last_agent_output = get_value(agent_output, E),
-        tokens_in = State#agent_session_state.tokens_in + get_value(tokens_in, E, 0),
-        tokens_out = State#agent_session_state.tokens_out + get_value(tokens_out, E, 0)
-    }.
-
-apply_input_received(E, #agent_session_state{status = Status} = State) ->
-    State#agent_session_state{
-        status = evoq_bit_flags:unset(Status, ?AO_AWAITING_INPUT),
-        last_input = get_value(input_content, E),
-        last_input_by = get_value(input_by, E)
-    }.
-
-apply_failed(E, #agent_session_state{status = Status} = State) ->
-    State#agent_session_state{
-        status = evoq_bit_flags:set(Status, ?AO_FAILED),
-        failed_at = get_value(failed_at, E),
-        error_reason = get_value(error_reason, E)
-    }.
-
-apply_gate_escalated(E, #agent_session_state{status = Status} = State) ->
-    State#agent_session_state{
-        status = evoq_bit_flags:set(Status, ?AO_GATE_PENDING),
-        gate_name = get_value(gate_name, E),
-        escalated_at = get_value(escalated_at, E)
-    }.
-
-apply_gate_passed(E, #agent_session_state{status = Status} = State) ->
-    State#agent_session_state{
-        status = evoq_bit_flags:set(Status, ?AO_GATE_PASSED),
-        gate_verdict = <<"passed">>,
-        gate_decided_by = get_value(passed_by, E),
-        gate_decided_at = get_value(passed_at, E)
-    }.
-
-apply_gate_rejected(E, #agent_session_state{status = Status} = State) ->
-    State#agent_session_state{
-        status = evoq_bit_flags:set(Status, ?AO_GATE_REJECTED),
-        gate_verdict = <<"rejected">>,
-        gate_decided_by = get_value(rejected_by, E),
-        gate_decided_at = get_value(rejected_at, E),
-        rejection_reason = get_value(rejection_reason, E)
-    }.
-
-apply_archived(E, #agent_session_state{status = Status} = State) ->
-    State#agent_session_state{
-        status = evoq_bit_flags:set(Status, ?AO_ARCHIVED),
-        archived_at = get_value(archived_at, E)
-    }.
-
 %% --- Internal ---
 
 get_command_type(#{command_type := T}) when is_binary(T) -> T;
@@ -522,18 +350,6 @@ get_command_type(_) -> undefined.
 get_role(#{<<"agent_role">> := R}) -> R;
 get_role(#{agent_role := R}) when is_binary(R) -> R;
 get_role(_) -> undefined.
-
-get_value(Key, Map) when is_atom(Key) ->
-    case maps:find(Key, Map) of
-        {ok, V} -> V;
-        error -> maps:get(atom_to_binary(Key), Map, undefined)
-    end.
-
-get_value(Key, Map, Default) when is_atom(Key) ->
-    case maps:find(Key, Map) of
-        {ok, V} -> V;
-        error -> maps:get(atom_to_binary(Key), Map, Default)
-    end.
 
 convert_events({ok, Events}, ToMapFn) ->
     {ok, [ToMapFn(E) || E <- Events]};

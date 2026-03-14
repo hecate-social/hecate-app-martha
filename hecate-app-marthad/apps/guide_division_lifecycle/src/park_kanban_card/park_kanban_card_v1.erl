@@ -1,6 +1,8 @@
 %%% @doc Command: park_kanban_card.
 -module(park_kanban_card_v1).
 
+-behaviour(evoq_command).
+
 -record(park_kanban_card_v1, {
     division_id :: binary(),
     card_id     :: binary(),
@@ -10,6 +12,7 @@
 
 -type park_kanban_card_v1() :: #park_kanban_card_v1{}.
 -export_type([park_kanban_card_v1/0]).
+-export([command_type/0]).
 
 -export([new/1, from_map/1, validate/1, to_map/1]).
 -export([get_division_id/1, get_card_id/1, get_park_reason/1, get_parked_by/1]).
@@ -20,6 +23,9 @@ get_park_reason(#park_kanban_card_v1{park_reason = V}) -> V.
 get_parked_by(#park_kanban_card_v1{parked_by = V}) -> V.
 
 -spec new(map()) -> {ok, park_kanban_card_v1()} | {error, term()}.
+-spec command_type() -> atom().
+command_type() -> park_kanban_card_v1.
+
 new(Params) ->
     Cmd = #park_kanban_card_v1{
         division_id = maps:get(division_id, Params),
@@ -49,7 +55,7 @@ validate(_) -> {error, invalid_park_kanban_card}.
 
 -spec to_map(park_kanban_card_v1()) -> map().
 to_map(#park_kanban_card_v1{} = C) ->
-    #{      command_type => <<"park_kanban_card">>,
+    #{      command_type => park_kanban_card_v1,
       division_id => C#park_kanban_card_v1.division_id,
       card_id => C#park_kanban_card_v1.card_id,
       park_reason => C#park_kanban_card_v1.park_reason,

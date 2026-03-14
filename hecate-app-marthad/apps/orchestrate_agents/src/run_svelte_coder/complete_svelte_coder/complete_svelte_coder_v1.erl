@@ -2,7 +2,10 @@
 %%% Completes a svelte_coder agent session with LLM output.
 -module(complete_svelte_coder_v1).
 
+-behaviour(evoq_command).
+
 -export([new/1, from_map/1, validate/1, to_map/1]).
+-export([command_type/0]).
 -export([get_session_id/1, get_notation_output/1, get_parsed_terms/1,
          get_tokens_in/1, get_tokens_out/1]).
 
@@ -20,6 +23,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> {ok, complete_svelte_coder_v1()} | {error, term()}.
+-spec command_type() -> atom().
+command_type() -> complete_svelte_coder_v1.
+
 new(#{session_id := SessionId} = Params) when is_binary(SessionId), byte_size(SessionId) > 0 ->
     {ok, #complete_svelte_coder_v1{
         session_id = SessionId,
@@ -40,7 +46,7 @@ validate(#complete_svelte_coder_v1{}) ->
 -spec to_map(complete_svelte_coder_v1()) -> map().
 to_map(#complete_svelte_coder_v1{} = Cmd) ->
     #{
-        command_type => <<"complete_agent">>,
+        command_type => complete_svelte_coder_v1,
         agent_role => <<"svelte_coder">>,
         session_id => Cmd#complete_svelte_coder_v1.session_id,
         notation_output => Cmd#complete_svelte_coder_v1.notation_output,

@@ -1,7 +1,10 @@
 %%% @doc Command: supersede an insight with a newer one.
 -module(supersede_insight_v1).
 
+-behaviour(evoq_command).
+
 -export([new/1, from_map/1, to_map/1, validate/1]).
+-export([command_type/0]).
 -export([get_venture_id/1, get_insight_id/1, get_superseded_by/1, get_reason/1]).
 
 -record(supersede_insight_v1, {
@@ -15,6 +18,9 @@
 -export_type([supersede_insight_v1/0]).
 
 -spec new(map()) -> {ok, supersede_insight_v1()} | {error, term()}.
+-spec command_type() -> atom().
+command_type() -> supersede_insight_v1.
+
 new(#{venture_id := VId, insight_id := IId, superseded_by := By} = Params) ->
     {ok, #supersede_insight_v1{
         venture_id = VId, insight_id = IId, superseded_by = By,
@@ -41,7 +47,7 @@ from_map(Map) ->
 
 -spec to_map(supersede_insight_v1()) -> map().
 to_map(#supersede_insight_v1{} = C) ->
-    #{command_type => <<"supersede_insight">>,
+    #{command_type => supersede_insight_v1,
       venture_id => C#supersede_insight_v1.venture_id,
       insight_id => C#supersede_insight_v1.insight_id,
       superseded_by => C#supersede_insight_v1.superseded_by,

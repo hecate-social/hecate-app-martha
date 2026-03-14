@@ -2,7 +2,10 @@
 %%% Plans a desk within a division planning dossier.
 -module(plan_desk_v1).
 
+-behaviour(evoq_command).
+
 -export([new/1, from_map/1, validate/1, to_map/1]).
+-export([command_type/0]).
 -export([get_division_id/1, get_desk_name/1, get_department/1,
          get_description/1, get_commands/1]).
 
@@ -20,6 +23,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> {ok, plan_desk_v1()} | {error, term()}.
+-spec command_type() -> atom().
+command_type() -> plan_desk_v1.
+
 new(#{division_id := DivisionId, desk_name := DeskName} = Params) ->
     {ok, #plan_desk_v1{
         division_id = DivisionId,
@@ -42,7 +48,7 @@ validate(#plan_desk_v1{} = Cmd) ->
 -spec to_map(plan_desk_v1()) -> map().
 to_map(#plan_desk_v1{} = Cmd) ->
     #{
-        command_type => <<"plan_desk">>,
+        command_type => plan_desk_v1,
         division_id => Cmd#plan_desk_v1.division_id,
         desk_name => Cmd#plan_desk_v1.desk_name,
         department => Cmd#plan_desk_v1.department,

@@ -2,7 +2,10 @@
 %%% Emitted when a Big Picture Event Storming session is archived for a venture.
 -module(big_picture_storm_archived_v1).
 
+-behaviour(evoq_event).
+
 -export([new/1, from_map/1, to_map/1, get_venture_id/1, get_archived_at/1]).
+-export([event_type/0]).
 
 -record(big_picture_storm_archived_v1, {
     venture_id  :: binary(),
@@ -15,6 +18,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> big_picture_storm_archived_v1().
+-spec event_type() -> atom().
+event_type() -> big_picture_storm_archived_v1.
+
 new(#{venture_id := VentureId} = Params) ->
     #big_picture_storm_archived_v1{
         venture_id = VentureId,
@@ -24,7 +30,7 @@ new(#{venture_id := VentureId} = Params) ->
 -spec to_map(big_picture_storm_archived_v1()) -> map().
 to_map(#big_picture_storm_archived_v1{venture_id = V, archived_at = AA}) ->
     #{
-        event_type => <<"big_picture_storm_archived_v1">>,
+        event_type => big_picture_storm_archived_v1,
         venture_id => V,
         archived_at => AA
     }.

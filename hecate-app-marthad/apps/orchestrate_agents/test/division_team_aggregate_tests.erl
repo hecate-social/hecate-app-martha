@@ -87,15 +87,15 @@ handler_test_() ->
 %% ===================================================================
 
 exec_form_ok() ->
-    State = division_team_aggregate:initial_state(),
+    State = division_team_state:new(<<>>),
     Cmd = form_team_cmd(),
     {ok, Events} = division_team_aggregate:execute(State, Cmd),
     ?assertEqual(1, length(Events)),
     [E] = Events,
-    ?assertEqual(<<"team_formed_v1">>, maps:get(event_type, E)).
+    ?assertEqual(team_formed_v1, maps:get(event_type, E)).
 
 exec_non_form_on_fresh() ->
-    State = division_team_aggregate:initial_state(),
+    State = division_team_state:new(<<>>),
     Cmd = assign_cmd(),
     ?assertEqual({error, team_not_formed}, division_team_aggregate:execute(State, Cmd)).
 
@@ -105,7 +105,7 @@ exec_assign_on_formed() ->
     {ok, Events} = division_team_aggregate:execute(State, Cmd),
     ?assertEqual(1, length(Events)),
     [E] = Events,
-    ?assertEqual(<<"agent_assigned_to_team_v1">>, maps:get(event_type, E)).
+    ?assertEqual(agent_assigned_to_team_v1, maps:get(event_type, E)).
 
 exec_assign_on_active() ->
     State = active_state(),
@@ -117,7 +117,7 @@ exec_assign_on_active() ->
     ?assertEqual(1, length(Events)).
 
 exec_assign_on_fresh() ->
-    State = division_team_aggregate:initial_state(),
+    State = division_team_state:new(<<>>),
     Cmd = assign_cmd(),
     ?assertEqual({error, team_not_formed}, division_team_aggregate:execute(State, Cmd)).
 
@@ -127,7 +127,7 @@ exec_activate_on_formed() ->
     {ok, Events} = division_team_aggregate:execute(State, Cmd),
     ?assertEqual(1, length(Events)),
     [E] = Events,
-    ?assertEqual(<<"team_activated_v1">>, maps:get(event_type, E)).
+    ?assertEqual(team_activated_v1, maps:get(event_type, E)).
 
 exec_activate_on_active() ->
     State = active_state(),
@@ -140,7 +140,7 @@ exec_disband_on_formed() ->
     {ok, Events} = division_team_aggregate:execute(State, Cmd),
     ?assertEqual(1, length(Events)),
     [E] = Events,
-    ?assertEqual(<<"team_disbanded_v1">>, maps:get(event_type, E)).
+    ?assertEqual(team_disbanded_v1, maps:get(event_type, E)).
 
 exec_disband_on_active() ->
     State = active_state(),
@@ -168,7 +168,7 @@ exec_disbanded_rejects_assign() ->
 %% ===================================================================
 
 apply_formed() ->
-    S0 = division_team_aggregate:initial_state(),
+    S0 = division_team_state:new(<<>>),
     E = formed_event(),
     S1 = division_team_aggregate:apply(S0, E),
     ?assertEqual(<<"div-001">>, S1#division_team_state.division_id),
@@ -207,7 +207,7 @@ apply_disbanded() ->
 %% ===================================================================
 
 full_lifecycle() ->
-    S0 = division_team_aggregate:initial_state(),
+    S0 = division_team_state:new(<<>>),
 
     %% 1. Form
     {ok, [E1]} = division_team_aggregate:execute(S0, form_team_cmd()),
@@ -302,22 +302,22 @@ cmd_disband_new() ->
 event_formed_type() ->
     E = team_formed_v1:new(#{division_id => <<"d">>, venture_id => <<"v">>}),
     M = team_formed_v1:to_map(E),
-    ?assertEqual(<<"team_formed_v1">>, maps:get(event_type, M)).
+    ?assertEqual(team_formed_v1, maps:get(event_type, M)).
 
 event_assigned_type() ->
     E = agent_assigned_to_team_v1:new(#{division_id => <<"d">>, agent_role => <<"r">>, session_id => <<"s">>}),
     M = agent_assigned_to_team_v1:to_map(E),
-    ?assertEqual(<<"agent_assigned_to_team_v1">>, maps:get(event_type, M)).
+    ?assertEqual(agent_assigned_to_team_v1, maps:get(event_type, M)).
 
 event_activated_type() ->
     E = team_activated_v1:new(#{division_id => <<"d">>}),
     M = team_activated_v1:to_map(E),
-    ?assertEqual(<<"team_activated_v1">>, maps:get(event_type, M)).
+    ?assertEqual(team_activated_v1, maps:get(event_type, M)).
 
 event_disbanded_type() ->
     E = team_disbanded_v1:new(#{division_id => <<"d">>}),
     M = team_disbanded_v1:to_map(E),
-    ?assertEqual(<<"team_disbanded_v1">>, maps:get(event_type, M)).
+    ?assertEqual(team_disbanded_v1, maps:get(event_type, M)).
 
 %% ===================================================================
 %% Helpers

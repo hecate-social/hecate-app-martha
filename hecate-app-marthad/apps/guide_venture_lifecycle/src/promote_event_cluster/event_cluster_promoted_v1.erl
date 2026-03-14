@@ -3,7 +3,10 @@
 %%% This bridges the storm into the venture lifecycle.
 -module(event_cluster_promoted_v1).
 
+-behaviour(evoq_event).
+
 -export([new/1, from_map/1, to_map/1]).
+-export([event_type/0]).
 -export([get_venture_id/1, get_cluster_id/1, get_division_id/1, get_promoted_at/1]).
 
 -record(event_cluster_promoted_v1, {
@@ -19,6 +22,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> event_cluster_promoted_v1().
+-spec event_type() -> atom().
+event_type() -> event_cluster_promoted_v1.
+
 new(#{venture_id := VentureId, cluster_id := ClusterId} = Params) ->
     #event_cluster_promoted_v1{
         venture_id = VentureId,
@@ -31,7 +37,7 @@ new(#{venture_id := VentureId, cluster_id := ClusterId} = Params) ->
 to_map(#event_cluster_promoted_v1{venture_id = V, cluster_id = CI,
                                    division_id = DI, promoted_at = PA}) ->
     #{
-        event_type => <<"event_cluster_promoted_v1">>,
+        event_type => event_cluster_promoted_v1,
         venture_id => V,
         cluster_id => CI,
         division_id => DI,

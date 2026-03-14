@@ -3,7 +3,10 @@
 %%% Required: venture_id, new_budget_usd.
 -module(adjust_cost_budget_v1).
 
+-behaviour(evoq_command).
+
 -export([new/1, from_map/1, validate/1, to_map/1]).
+-export([command_type/0]).
 -export([get_venture_id/1, get_new_budget_usd/1]).
 
 -record(adjust_cost_budget_v1, {
@@ -17,6 +20,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> {ok, adjust_cost_budget_v1()} | {error, term()}.
+-spec command_type() -> atom().
+command_type() -> adjust_cost_budget_v1.
+
 new(#{venture_id := VentureId, new_budget_usd := NewBudgetUsd}) ->
     {ok, #adjust_cost_budget_v1{
         venture_id     = VentureId,
@@ -36,7 +42,7 @@ validate(#adjust_cost_budget_v1{} = Cmd) ->
 -spec to_map(adjust_cost_budget_v1()) -> map().
 to_map(#adjust_cost_budget_v1{} = Cmd) ->
     #{
-        command_type => <<"adjust_cost_budget">>,
+        command_type => adjust_cost_budget_v1,
         venture_id => Cmd#adjust_cost_budget_v1.venture_id,
         new_budget_usd => Cmd#adjust_cost_budget_v1.new_budget_usd
     }.

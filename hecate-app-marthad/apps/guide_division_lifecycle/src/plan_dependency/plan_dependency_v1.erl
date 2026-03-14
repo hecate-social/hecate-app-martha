@@ -2,7 +2,10 @@
 %%% Plans a dependency between desks within a division planning dossier.
 -module(plan_dependency_v1).
 
+-behaviour(evoq_command).
+
 -export([new/1, from_map/1, validate/1, to_map/1]).
+-export([command_type/0]).
 -export([get_division_id/1, get_dependency_id/1, get_from_desk/1,
          get_to_desk/1, get_dep_type/1]).
 -export([generate_id/0]).
@@ -21,6 +24,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> {ok, plan_dependency_v1()} | {error, term()}.
+-spec command_type() -> atom().
+command_type() -> plan_dependency_v1.
+
 new(#{division_id := DivisionId, from_desk := FromDesk, to_desk := ToDesk} = Params) ->
     DepId = maps:get(dependency_id, Params, generate_id()),
     {ok, #plan_dependency_v1{
@@ -46,7 +52,7 @@ validate(#plan_dependency_v1{} = Cmd) ->
 -spec to_map(plan_dependency_v1()) -> map().
 to_map(#plan_dependency_v1{} = Cmd) ->
     #{
-        command_type => <<"plan_dependency">>,
+        command_type => plan_dependency_v1,
         division_id => Cmd#plan_dependency_v1.division_id,
         dependency_id => Cmd#plan_dependency_v1.dependency_id,
         from_desk => Cmd#plan_dependency_v1.from_desk,

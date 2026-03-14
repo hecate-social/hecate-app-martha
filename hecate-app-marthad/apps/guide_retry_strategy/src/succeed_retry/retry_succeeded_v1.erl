@@ -1,7 +1,10 @@
 %%% @doc retry_succeeded_v1 event.
 %%% Emitted when a retried agent session succeeds.
 -module(retry_succeeded_v1).
+
+-behaviour(evoq_event).
 -export([new/1, to_map/1, from_map/1]).
+-export([event_type/0]).
 
 -record(retry_succeeded_v1, {
     session_id   :: binary(),
@@ -12,6 +15,9 @@
 -export_type([retry_succeeded_v1/0]).
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
+-spec event_type() -> atom().
+event_type() -> retry_succeeded_v1.
+
 new(#{session_id := SId}) ->
     #retry_succeeded_v1{
         session_id = SId,
@@ -20,7 +26,7 @@ new(#{session_id := SId}) ->
 
 to_map(#retry_succeeded_v1{} = E) ->
     #{
-        event_type => <<"retry_succeeded_v1">>,
+        event_type => retry_succeeded_v1,
         session_id => E#retry_succeeded_v1.session_id,
         succeeded_at => E#retry_succeeded_v1.succeeded_at
     }.

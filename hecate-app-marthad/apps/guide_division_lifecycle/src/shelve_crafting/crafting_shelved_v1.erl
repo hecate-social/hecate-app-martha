@@ -2,7 +2,10 @@
 %%% Emitted when a crafting dossier is shelved.
 -module(crafting_shelved_v1).
 
+-behaviour(evoq_event).
+
 -export([new/1, to_map/1, from_map/1]).
+-export([event_type/0]).
 -export([get_division_id/1, get_reason/1, get_shelved_at/1]).
 
 -record(crafting_shelved_v1, {
@@ -17,6 +20,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> crafting_shelved_v1().
+-spec event_type() -> atom().
+event_type() -> crafting_shelved_v1.
+
 new(#{division_id := DivisionId} = Params) ->
     #crafting_shelved_v1{
         division_id = DivisionId,
@@ -27,7 +33,7 @@ new(#{division_id := DivisionId} = Params) ->
 -spec to_map(crafting_shelved_v1()) -> map().
 to_map(#crafting_shelved_v1{} = E) ->
     #{
-        event_type => <<"crafting_shelved_v1">>,
+        event_type => crafting_shelved_v1,
         division_id => E#crafting_shelved_v1.division_id,
         reason => E#crafting_shelved_v1.reason,
         shelved_at => E#crafting_shelved_v1.shelved_at

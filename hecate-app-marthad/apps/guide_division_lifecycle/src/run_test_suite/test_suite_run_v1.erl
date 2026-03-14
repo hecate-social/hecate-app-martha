@@ -2,7 +2,10 @@
 %%% Emitted when a test suite is run within a crafting dossier.
 -module(test_suite_run_v1).
 
+-behaviour(evoq_event).
+
 -export([new/1, to_map/1, from_map/1]).
+-export([event_type/0]).
 -export([get_division_id/1, get_suite_id/1, get_suite_name/1, get_run_at/1]).
 
 -record(test_suite_run_v1, {
@@ -18,6 +21,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> test_suite_run_v1().
+-spec event_type() -> atom().
+event_type() -> test_suite_run_v1.
+
 new(#{division_id := DivisionId, suite_id := SuiteId, suite_name := SuiteName}) ->
     #test_suite_run_v1{
         division_id = DivisionId,
@@ -29,7 +35,7 @@ new(#{division_id := DivisionId, suite_id := SuiteId, suite_name := SuiteName}) 
 -spec to_map(test_suite_run_v1()) -> map().
 to_map(#test_suite_run_v1{} = E) ->
     #{
-        event_type => <<"test_suite_run_v1">>,
+        event_type => test_suite_run_v1,
         division_id => E#test_suite_run_v1.division_id,
         suite_id => E#test_suite_run_v1.suite_id,
         suite_name => E#test_suite_run_v1.suite_name,

@@ -2,7 +2,10 @@
 %%% Removes an event sticky from its cluster during Big Picture Event Storming.
 -module(uncluster_event_sticky_v1).
 
+-behaviour(evoq_command).
+
 -export([new/1, from_map/1, validate/1, to_map/1]).
+-export([command_type/0]).
 -export([get_venture_id/1, get_sticky_id/1]).
 
 -record(uncluster_event_sticky_v1, {
@@ -16,6 +19,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> {ok, uncluster_event_sticky_v1()} | {error, term()}.
+-spec command_type() -> atom().
+command_type() -> uncluster_event_sticky_v1.
+
 new(#{venture_id := VentureId, sticky_id := StickyId} = _Params) ->
     Cmd = #uncluster_event_sticky_v1{
         venture_id = VentureId,
@@ -38,7 +44,7 @@ validate(_) -> ok.
 -spec to_map(uncluster_event_sticky_v1()) -> map().
 to_map(#uncluster_event_sticky_v1{venture_id = V, sticky_id = S}) ->
     #{
-        command_type => <<"uncluster_event_sticky">>,
+        command_type => uncluster_event_sticky_v1,
         venture_id => V,
         sticky_id => S
     }.

@@ -2,7 +2,10 @@
 %%% Emitted when a desk is planned within a division planning dossier.
 -module(desk_planned_v1).
 
+-behaviour(evoq_event).
+
 -export([new/1, to_map/1, from_map/1]).
+-export([event_type/0]).
 -export([get_division_id/1, get_desk_name/1, get_department/1,
          get_description/1, get_commands/1, get_planned_at/1]).
 
@@ -21,6 +24,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> desk_planned_v1().
+-spec event_type() -> atom().
+event_type() -> desk_planned_v1.
+
 new(#{division_id := DivisionId, desk_name := DeskName} = Params) ->
     #desk_planned_v1{
         division_id = DivisionId,
@@ -34,7 +40,7 @@ new(#{division_id := DivisionId, desk_name := DeskName} = Params) ->
 -spec to_map(desk_planned_v1()) -> map().
 to_map(#desk_planned_v1{} = E) ->
     #{
-        event_type => <<"desk_planned_v1">>,
+        event_type => desk_planned_v1,
         division_id => E#desk_planned_v1.division_id,
         desk_name => E#desk_planned_v1.desk_name,
         department => E#desk_planned_v1.department,

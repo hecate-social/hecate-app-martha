@@ -2,7 +2,10 @@
 %%% Generates a test within a crafting dossier.
 -module(generate_test_v1).
 
+-behaviour(evoq_command).
+
 -export([new/1, from_map/1, validate/1, to_map/1]).
+-export([command_type/0]).
 -export([get_division_id/1, get_test_name/1, get_module_name/1, get_path/1]).
 
 -record(generate_test_v1, {
@@ -18,6 +21,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> {ok, generate_test_v1()} | {error, term()}.
+-spec command_type() -> atom().
+command_type() -> generate_test_v1.
+
 new(#{division_id := DivisionId, test_name := TestName, module_name := ModuleName, path := Path}) ->
     {ok, #generate_test_v1{
         division_id = DivisionId,
@@ -39,7 +45,7 @@ validate(#generate_test_v1{} = Cmd) ->
 -spec to_map(generate_test_v1()) -> map().
 to_map(#generate_test_v1{} = Cmd) ->
     #{
-        command_type => <<"generate_test">>,
+        command_type => generate_test_v1,
         division_id => Cmd#generate_test_v1.division_id,
         test_name => Cmd#generate_test_v1.test_name,
         module_name => Cmd#generate_test_v1.module_name,

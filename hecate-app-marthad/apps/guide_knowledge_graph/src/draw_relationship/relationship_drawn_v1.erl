@@ -1,7 +1,10 @@
 %%% @doc Event: relationship drawn between entities in the knowledge graph.
 -module(relationship_drawn_v1).
 
+-behaviour(evoq_event).
+
 -export([new/1, from_map/1, to_map/1]).
+-export([event_type/0]).
 
 -record(relationship_drawn_v1, {
     venture_id  :: binary(),
@@ -17,6 +20,9 @@
 -export_type([relationship_drawn_v1/0]).
 
 -spec new(map()) -> relationship_drawn_v1().
+-spec event_type() -> atom().
+event_type() -> relationship_drawn_v1.
+
 new(Params) ->
     #relationship_drawn_v1{
         venture_id = maps:get(venture_id, Params),
@@ -42,7 +48,7 @@ from_map(Map) ->
 
 -spec to_map(relationship_drawn_v1()) -> map().
 to_map(#relationship_drawn_v1{} = E) ->
-    #{event_type => <<"relationship_drawn_v1">>,
+    #{event_type => relationship_drawn_v1,
       venture_id => E#relationship_drawn_v1.venture_id,
       rel_id => E#relationship_drawn_v1.rel_id,
       from_entity => E#relationship_drawn_v1.from_entity,

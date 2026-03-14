@@ -2,7 +2,10 @@
 %%% Draws a fact arrow between two clusters during Big Picture Event Storming.
 -module(draw_fact_arrow_v1).
 
+-behaviour(evoq_command).
+
 -export([new/1, from_map/1, validate/1, to_map/1]).
+-export([command_type/0]).
 -export([get_venture_id/1, get_from_cluster/1, get_to_cluster/1, get_fact_name/1]).
 
 -record(draw_fact_arrow_v1, {
@@ -18,6 +21,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> {ok, draw_fact_arrow_v1()} | {error, term()}.
+-spec command_type() -> atom().
+command_type() -> draw_fact_arrow_v1.
+
 new(#{venture_id := VentureId, from_cluster := FromCluster,
       to_cluster := ToCluster, fact_name := FactName} = _Params) ->
     Cmd = #draw_fact_arrow_v1{
@@ -48,7 +54,7 @@ validate(_) -> ok.
 to_map(#draw_fact_arrow_v1{venture_id = V, from_cluster = FC,
                             to_cluster = TC, fact_name = FN}) ->
     #{
-        command_type => <<"draw_fact_arrow">>,
+        command_type => draw_fact_arrow_v1,
         venture_id => V,
         from_cluster => FC,
         to_cluster => TC,

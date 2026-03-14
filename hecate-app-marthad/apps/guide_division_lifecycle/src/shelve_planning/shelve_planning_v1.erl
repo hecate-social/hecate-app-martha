@@ -2,7 +2,10 @@
 %%% Shelves a division planning dossier.
 -module(shelve_planning_v1).
 
+-behaviour(evoq_command).
+
 -export([new/1, from_map/1, validate/1, to_map/1]).
+-export([command_type/0]).
 -export([get_division_id/1, get_reason/1]).
 
 -record(shelve_planning_v1, {
@@ -16,6 +19,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> {ok, shelve_planning_v1()} | {error, term()}.
+-spec command_type() -> atom().
+command_type() -> shelve_planning_v1.
+
 new(#{division_id := DivisionId} = Params) ->
     Cmd = #shelve_planning_v1{
         division_id = DivisionId,
@@ -36,7 +42,7 @@ validate(_) -> ok.
 -spec to_map(shelve_planning_v1()) -> map().
 to_map(#shelve_planning_v1{division_id = D, reason = R}) ->
     #{
-        command_type => <<"shelve_planning">>,
+        command_type => shelve_planning_v1,
         division_id => D,
         reason => R
     }.

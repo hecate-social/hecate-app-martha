@@ -1,7 +1,10 @@
 %%% @doc retry_initiated_v1 event.
 %%% Emitted when a retry strategy is initiated for an agent session.
 -module(retry_initiated_v1).
+
+-behaviour(evoq_event).
 -export([new/1, to_map/1, from_map/1]).
+-export([event_type/0]).
 
 -record(retry_initiated_v1, {
     session_id     :: binary(),
@@ -17,6 +20,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> retry_initiated_v1().
+-spec event_type() -> atom().
+event_type() -> retry_initiated_v1.
+
 new(#{session_id := SId} = P) ->
     #retry_initiated_v1{
         session_id = SId,
@@ -30,7 +36,7 @@ new(#{session_id := SId} = P) ->
 -spec to_map(retry_initiated_v1()) -> map().
 to_map(#retry_initiated_v1{} = E) ->
     #{
-        event_type => <<"retry_initiated_v1">>,
+        event_type => retry_initiated_v1,
         session_id => E#retry_initiated_v1.session_id,
         venture_id => E#retry_initiated_v1.venture_id,
         agent_role => E#retry_initiated_v1.agent_role,

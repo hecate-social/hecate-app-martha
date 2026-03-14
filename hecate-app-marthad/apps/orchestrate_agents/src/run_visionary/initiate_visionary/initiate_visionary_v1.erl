@@ -2,7 +2,10 @@
 %%% Initiates a visionary agent session for a venture.
 -module(initiate_visionary_v1).
 
+-behaviour(evoq_command).
+
 -export([new/1, from_map/1, validate/1, to_map/1]).
+-export([command_type/0]).
 -export([get_session_id/1, get_venture_id/1, get_tier/1,
          get_initiated_by/1, get_input_context/1]).
 
@@ -20,6 +23,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> {ok, initiate_visionary_v1()} | {error, term()}.
+-spec command_type() -> atom().
+command_type() -> initiate_visionary_v1.
+
 new(#{venture_id := VentureId} = Params) when is_binary(VentureId), byte_size(VentureId) > 0 ->
     SessionId = case maps:get(session_id, Params, undefined) of
         undefined -> generate_session_id();
@@ -44,7 +50,7 @@ validate(#initiate_visionary_v1{}) ->
 -spec to_map(initiate_visionary_v1()) -> map().
 to_map(#initiate_visionary_v1{} = Cmd) ->
     #{
-        command_type => <<"initiate_agent">>,
+        command_type => initiate_visionary_v1,
         agent_role => <<"visionary">>,
         session_id => Cmd#initiate_visionary_v1.session_id,
         venture_id => Cmd#initiate_visionary_v1.venture_id,

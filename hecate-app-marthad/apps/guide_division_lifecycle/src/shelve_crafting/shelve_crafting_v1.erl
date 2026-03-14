@@ -2,7 +2,10 @@
 %%% Shelves a crafting dossier (pauses active work).
 -module(shelve_crafting_v1).
 
+-behaviour(evoq_command).
+
 -export([new/1, from_map/1, validate/1, to_map/1]).
+-export([command_type/0]).
 -export([get_division_id/1, get_reason/1]).
 
 -record(shelve_crafting_v1, {
@@ -16,6 +19,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> {ok, shelve_crafting_v1()} | {error, term()}.
+-spec command_type() -> atom().
+command_type() -> shelve_crafting_v1.
+
 new(#{division_id := DivisionId} = Params) ->
     {ok, #shelve_crafting_v1{
         division_id = DivisionId,
@@ -33,7 +39,7 @@ validate(#shelve_crafting_v1{} = Cmd) ->
 -spec to_map(shelve_crafting_v1()) -> map().
 to_map(#shelve_crafting_v1{} = Cmd) ->
     #{
-        command_type => <<"shelve_crafting">>,
+        command_type => shelve_crafting_v1,
         division_id => Cmd#shelve_crafting_v1.division_id,
         reason => Cmd#shelve_crafting_v1.reason
     }.

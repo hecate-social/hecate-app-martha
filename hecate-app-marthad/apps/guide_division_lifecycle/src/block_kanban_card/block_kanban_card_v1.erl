@@ -1,6 +1,8 @@
 %%% @doc Command: block_kanban_card.
 -module(block_kanban_card_v1).
 
+-behaviour(evoq_command).
+
 -record(block_kanban_card_v1, {
     division_id :: binary(),
     card_id     :: binary(),
@@ -10,6 +12,7 @@
 
 -type block_kanban_card_v1() :: #block_kanban_card_v1{}.
 -export_type([block_kanban_card_v1/0]).
+-export([command_type/0]).
 
 -export([new/1, from_map/1, validate/1, to_map/1]).
 -export([get_division_id/1, get_card_id/1, get_block_reason/1, get_blocked_by/1]).
@@ -20,6 +23,9 @@ get_block_reason(#block_kanban_card_v1{block_reason = V}) -> V.
 get_blocked_by(#block_kanban_card_v1{blocked_by = V}) -> V.
 
 -spec new(map()) -> {ok, block_kanban_card_v1()} | {error, term()}.
+-spec command_type() -> atom().
+command_type() -> block_kanban_card_v1.
+
 new(Params) ->
     Cmd = #block_kanban_card_v1{
         division_id = maps:get(division_id, Params),
@@ -49,7 +55,7 @@ validate(_) -> {error, invalid_block_kanban_card}.
 
 -spec to_map(block_kanban_card_v1()) -> map().
 to_map(#block_kanban_card_v1{} = C) ->
-    #{      command_type => <<"block_kanban_card">>,
+    #{      command_type => block_kanban_card_v1,
       division_id => C#block_kanban_card_v1.division_id,
       card_id => C#block_kanban_card_v1.card_id,
       block_reason => C#block_kanban_card_v1.block_reason,

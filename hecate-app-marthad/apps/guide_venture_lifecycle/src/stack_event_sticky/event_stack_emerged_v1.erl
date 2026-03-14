@@ -2,7 +2,10 @@
 %%% Emitted when a new stack emerges during Big Picture Event Storming.
 -module(event_stack_emerged_v1).
 
+-behaviour(evoq_event).
+
 -export([new/1, from_map/1, to_map/1]).
+-export([event_type/0]).
 -export([get_venture_id/1, get_stack_id/1, get_color/1,
          get_sticky_ids/1, get_emerged_at/1]).
 
@@ -26,6 +29,9 @@
 ]).
 
 -spec new(map()) -> event_stack_emerged_v1().
+-spec event_type() -> atom().
+event_type() -> event_stack_emerged_v1.
+
 new(#{venture_id := VentureId} = Params) ->
     #event_stack_emerged_v1{
         venture_id = VentureId,
@@ -39,7 +45,7 @@ new(#{venture_id := VentureId} = Params) ->
 to_map(#event_stack_emerged_v1{venture_id = V, stack_id = SI, color = C,
                                 sticky_ids = Ids, emerged_at = EA}) ->
     #{
-        event_type => <<"event_stack_emerged_v1">>,
+        event_type => event_stack_emerged_v1,
         venture_id => V,
         stack_id => SI,
         color => C,

@@ -2,7 +2,10 @@
 %%% Activates a formed division team.
 -module(activate_team_v1).
 
+-behaviour(evoq_command).
+
 -export([new/1, from_map/1, validate/1, to_map/1]).
+-export([command_type/0]).
 -export([get_division_id/1, get_activated_by/1]).
 
 -record(activate_team_v1, {
@@ -16,6 +19,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> {ok, activate_team_v1()} | {error, term()}.
+-spec command_type() -> atom().
+command_type() -> activate_team_v1.
+
 new(#{division_id := DivId} = Params) ->
     {ok, #activate_team_v1{
         division_id = DivId,
@@ -33,7 +39,7 @@ validate(#activate_team_v1{} = Cmd) ->
 -spec to_map(activate_team_v1()) -> map().
 to_map(#activate_team_v1{} = Cmd) ->
     #{
-        command_type => <<"activate_team">>,
+        command_type => activate_team_v1,
         division_id => Cmd#activate_team_v1.division_id,
         activated_by => Cmd#activate_team_v1.activated_by
     }.

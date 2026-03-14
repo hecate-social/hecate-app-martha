@@ -2,7 +2,10 @@
 %%% Emitted when a venture's vision is iteratively refined.
 -module(vision_refined_v1).
 
+-behaviour(evoq_event).
+
 -export([new/1, to_map/1, from_map/1]).
+-export([event_type/0]).
 -export([get_venture_id/1, get_brief/1, get_repos/1, get_skills/1,
          get_context_map/1, get_refined_at/1]).
 
@@ -21,6 +24,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> vision_refined_v1().
+-spec event_type() -> atom().
+event_type() -> vision_refined_v1.
+
 new(#{venture_id := VentureId} = Params) ->
     #vision_refined_v1{
         venture_id = VentureId,
@@ -34,7 +40,7 @@ new(#{venture_id := VentureId} = Params) ->
 -spec to_map(vision_refined_v1()) -> map().
 to_map(#vision_refined_v1{} = E) ->
     #{
-        event_type => <<"vision_refined_v1">>,
+        event_type => vision_refined_v1,
         venture_id => E#vision_refined_v1.venture_id,
         brief => E#vision_refined_v1.brief,
         repos => E#vision_refined_v1.repos,

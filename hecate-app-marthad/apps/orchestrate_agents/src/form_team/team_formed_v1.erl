@@ -2,7 +2,10 @@
 %%% Emitted when a division team is formed.
 -module(team_formed_v1).
 
+-behaviour(evoq_event).
+
 -export([new/1, to_map/1, from_map/1]).
+-export([event_type/0]).
 -export([get_division_id/1, get_venture_id/1, get_planned_roles/1,
          get_formed_by/1, get_formed_at/1]).
 
@@ -20,6 +23,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> team_formed_v1().
+-spec event_type() -> atom().
+event_type() -> team_formed_v1.
+
 new(#{division_id := DivId, venture_id := VentureId} = Params) ->
     #team_formed_v1{
         division_id = DivId,
@@ -32,7 +38,7 @@ new(#{division_id := DivId, venture_id := VentureId} = Params) ->
 -spec to_map(team_formed_v1()) -> map().
 to_map(#team_formed_v1{} = E) ->
     #{
-        event_type => <<"team_formed_v1">>,
+        event_type => team_formed_v1,
         division_id => E#team_formed_v1.division_id,
         venture_id => E#team_formed_v1.venture_id,
         planned_roles => E#team_formed_v1.planned_roles,

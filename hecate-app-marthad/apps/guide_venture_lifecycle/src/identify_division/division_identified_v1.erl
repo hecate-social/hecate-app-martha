@@ -2,7 +2,10 @@
 %%% Emitted when a division is identified within a venture during discovery.
 -module(division_identified_v1).
 
+-behaviour(evoq_event).
+
 -export([new/1, from_map/1, to_map/1]).
+-export([event_type/0]).
 -export([get_venture_id/1, get_division_id/1, get_context_name/1,
          get_description/1, get_identified_by/1, get_identified_at/1]).
 
@@ -21,6 +24,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> division_identified_v1().
+-spec event_type() -> atom().
+event_type() -> division_identified_v1.
+
 new(#{venture_id := VentureId, context_name := ContextName} = Params) ->
     #division_identified_v1{
         venture_id = VentureId,
@@ -35,7 +41,7 @@ new(#{venture_id := VentureId, context_name := ContextName} = Params) ->
 to_map(#division_identified_v1{venture_id = V, division_id = DI, context_name = CN,
                                 description = D, identified_by = IB, identified_at = IA}) ->
     #{
-        event_type => <<"division_identified_v1">>,
+        event_type => division_identified_v1,
         venture_id => V,
         division_id => DI,
         context_name => CN,

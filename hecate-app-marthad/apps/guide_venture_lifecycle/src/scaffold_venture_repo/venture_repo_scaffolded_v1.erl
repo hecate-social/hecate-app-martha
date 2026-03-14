@@ -3,7 +3,10 @@
 %%% Payload is small — only path and brief, not VISION.md content.
 -module(venture_repo_scaffolded_v1).
 
+-behaviour(evoq_event).
+
 -export([new/1, to_map/1, from_map/1]).
+-export([event_type/0]).
 -export([get_venture_id/1, get_repo_path/1, get_brief/1, get_scaffolded_at/1]).
 
 -record(venture_repo_scaffolded_v1, {
@@ -19,6 +22,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> venture_repo_scaffolded_v1().
+-spec event_type() -> atom().
+event_type() -> venture_repo_scaffolded_v1.
+
 new(#{venture_id := VentureId, repo_path := RepoPath} = Params) ->
     #venture_repo_scaffolded_v1{
         venture_id = VentureId,
@@ -30,7 +36,7 @@ new(#{venture_id := VentureId, repo_path := RepoPath} = Params) ->
 -spec to_map(venture_repo_scaffolded_v1()) -> map().
 to_map(#venture_repo_scaffolded_v1{} = E) ->
     #{
-        event_type => <<"venture_repo_scaffolded_v1">>,
+        event_type => venture_repo_scaffolded_v1,
         venture_id => E#venture_repo_scaffolded_v1.venture_id,
         repo_path => E#venture_repo_scaffolded_v1.repo_path,
         brief => E#venture_repo_scaffolded_v1.brief,

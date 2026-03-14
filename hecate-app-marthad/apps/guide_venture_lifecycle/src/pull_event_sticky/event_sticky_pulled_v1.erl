@@ -2,7 +2,10 @@
 %%% Emitted when an event sticky is pulled (removed) during Big Picture Event Storming.
 -module(event_sticky_pulled_v1).
 
+-behaviour(evoq_event).
+
 -export([new/1, from_map/1, to_map/1]).
+-export([event_type/0]).
 -export([get_venture_id/1, get_sticky_id/1, get_pulled_at/1]).
 
 -record(event_sticky_pulled_v1, {
@@ -17,6 +20,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> event_sticky_pulled_v1().
+-spec event_type() -> atom().
+event_type() -> event_sticky_pulled_v1.
+
 new(#{venture_id := VentureId, sticky_id := StickyId} = Params) ->
     #event_sticky_pulled_v1{
         venture_id = VentureId,
@@ -27,7 +33,7 @@ new(#{venture_id := VentureId, sticky_id := StickyId} = Params) ->
 -spec to_map(event_sticky_pulled_v1()) -> map().
 to_map(#event_sticky_pulled_v1{venture_id = V, sticky_id = S, pulled_at = PA}) ->
     #{
-        event_type => <<"event_sticky_pulled_v1">>,
+        event_type => event_sticky_pulled_v1,
         venture_id => V,
         sticky_id => S,
         pulled_at => PA

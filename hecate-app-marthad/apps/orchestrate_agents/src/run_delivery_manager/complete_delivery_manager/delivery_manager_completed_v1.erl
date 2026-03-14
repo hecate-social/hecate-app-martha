@@ -2,7 +2,10 @@
 %%% Emitted when a delivery_manager agent session completes successfully.
 -module(delivery_manager_completed_v1).
 
+-behaviour(evoq_event).
+
 -export([new/1, to_map/1, from_map/1]).
+-export([event_type/0]).
 -export([get_session_id/1, get_venture_id/1, get_tier/1, get_model/1,
          get_completed_at/1, get_notation_output/1, get_parsed_terms/1,
          get_tokens_in/1, get_tokens_out/1]).
@@ -27,6 +30,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> delivery_manager_completed_v1().
+-spec event_type() -> atom().
+event_type() -> delivery_manager_completed_v1.
+
 new(#{session_id := SessionId} = Params) ->
     #delivery_manager_completed_v1{
         session_id = SessionId,
@@ -45,7 +51,7 @@ new(#{session_id := SessionId} = Params) ->
 -spec to_map(delivery_manager_completed_v1()) -> map().
 to_map(#delivery_manager_completed_v1{} = E) ->
     #{
-        event_type => <<"delivery_manager_completed_v1">>,
+        event_type => delivery_manager_completed_v1,
         session_id => E#delivery_manager_completed_v1.session_id,
         agent_role => E#delivery_manager_completed_v1.agent_role,
         venture_id => E#delivery_manager_completed_v1.venture_id,

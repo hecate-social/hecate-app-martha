@@ -2,7 +2,10 @@
 %%% Stacks an event sticky onto a target sticky during Big Picture Event Storming.
 -module(stack_event_sticky_v1).
 
+-behaviour(evoq_command).
+
 -export([new/1, from_map/1, validate/1, to_map/1]).
+-export([command_type/0]).
 -export([get_venture_id/1, get_sticky_id/1, get_target_sticky_id/1]).
 
 -record(stack_event_sticky_v1, {
@@ -17,6 +20,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> {ok, stack_event_sticky_v1()} | {error, term()}.
+-spec command_type() -> atom().
+command_type() -> stack_event_sticky_v1.
+
 new(#{venture_id := VentureId, sticky_id := StickyId, target_sticky_id := TargetStickyId}) ->
     Cmd = #stack_event_sticky_v1{
         venture_id = VentureId,
@@ -44,7 +50,7 @@ validate(_) -> ok.
 -spec to_map(stack_event_sticky_v1()) -> map().
 to_map(#stack_event_sticky_v1{venture_id = V, sticky_id = S, target_sticky_id = T}) ->
     #{
-        command_type => <<"stack_event_sticky">>,
+        command_type => stack_event_sticky_v1,
         venture_id => V,
         sticky_id => S,
         target_sticky_id => T

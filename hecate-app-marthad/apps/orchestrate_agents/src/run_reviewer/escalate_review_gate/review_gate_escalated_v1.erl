@@ -2,7 +2,10 @@
 %%% Emitted when a reviewer session is escalated to review_gate.
 -module(review_gate_escalated_v1).
 
+-behaviour(evoq_event).
+
 -export([new/1, to_map/1, from_map/1]).
+-export([event_type/0]).
 -export([get_session_id/1, get_gate_name/1, get_escalated_at/1,
          get_notation_output/1, get_parsed_terms/1]).
 
@@ -23,6 +26,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> review_gate_escalated_v1().
+-spec event_type() -> atom().
+event_type() -> review_gate_escalated_v1.
+
 new(#{session_id := SessionId} = Params) ->
     #review_gate_escalated_v1{
         session_id = SessionId,
@@ -38,7 +44,7 @@ new(#{session_id := SessionId} = Params) ->
 -spec to_map(review_gate_escalated_v1()) -> map().
 to_map(#review_gate_escalated_v1{} = E) ->
     #{
-        event_type => <<"review_gate_escalated_v1">>,
+        event_type => review_gate_escalated_v1,
         session_id => E#review_gate_escalated_v1.session_id,
         agent_role => E#review_gate_escalated_v1.agent_role,
         venture_id => E#review_gate_escalated_v1.venture_id,

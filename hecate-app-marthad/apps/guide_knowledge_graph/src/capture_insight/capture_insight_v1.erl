@@ -1,7 +1,10 @@
 %%% @doc Command: capture an insight into the knowledge graph.
 -module(capture_insight_v1).
 
+-behaviour(evoq_command).
+
 -export([new/1, from_map/1, to_map/1, validate/1]).
+-export([command_type/0]).
 -export([get_venture_id/1, get_insight_id/1, get_content/1,
          get_source_agent/1, get_source_session/1, get_insight_type/1]).
 
@@ -18,6 +21,9 @@
 -export_type([capture_insight_v1/0]).
 
 -spec new(map()) -> {ok, capture_insight_v1()} | {error, term()}.
+-spec command_type() -> atom().
+command_type() -> capture_insight_v1.
+
 new(#{venture_id := VId, content := Content} = Params) ->
     InsightId = maps:get(insight_id, Params, generate_id()),
     {ok, #capture_insight_v1{
@@ -51,7 +57,7 @@ from_map(Map) ->
 
 -spec to_map(capture_insight_v1()) -> map().
 to_map(#capture_insight_v1{} = C) ->
-    #{command_type => <<"capture_insight">>,
+    #{command_type => capture_insight_v1,
       venture_id => C#capture_insight_v1.venture_id,
       insight_id => C#capture_insight_v1.insight_id,
       content => C#capture_insight_v1.content,

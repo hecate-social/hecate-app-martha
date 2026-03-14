@@ -2,7 +2,10 @@
 %%% Emitted when the storm phase advances during Big Picture Event Storming.
 -module(storm_phase_advanced_v1).
 
+-behaviour(evoq_event).
+
 -export([new/1, from_map/1, to_map/1]).
+-export([event_type/0]).
 -export([get_venture_id/1, get_phase/1, get_previous_phase/1, get_advanced_at/1]).
 
 -record(storm_phase_advanced_v1, {
@@ -18,6 +21,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> storm_phase_advanced_v1().
+-spec event_type() -> atom().
+event_type() -> storm_phase_advanced_v1.
+
 new(#{venture_id := VentureId, phase := Phase} = Params) ->
     #storm_phase_advanced_v1{
         venture_id = VentureId,
@@ -30,7 +36,7 @@ new(#{venture_id := VentureId, phase := Phase} = Params) ->
 to_map(#storm_phase_advanced_v1{venture_id = V, phase = P,
                                  previous_phase = PP, advanced_at = AA}) ->
     #{
-        event_type => <<"storm_phase_advanced_v1">>,
+        event_type => storm_phase_advanced_v1,
         venture_id => V,
         phase => P,
         previous_phase => PP,

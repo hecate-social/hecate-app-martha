@@ -3,7 +3,10 @@
 %%% All research briefs have been contributed; the storm can begin.
 -module(venture_preparation_completed_v1).
 
+-behaviour(evoq_event).
+
 -export([new/1, to_map/1, from_map/1]).
+-export([event_type/0]).
 -export([get_venture_id/1, get_completed_at/1]).
 
 -record(venture_preparation_completed_v1, {
@@ -17,6 +20,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> venture_preparation_completed_v1().
+-spec event_type() -> atom().
+event_type() -> venture_preparation_completed_v1.
+
 new(#{venture_id := VentureId}) ->
     #venture_preparation_completed_v1{
         venture_id = VentureId,
@@ -26,7 +32,7 @@ new(#{venture_id := VentureId}) ->
 -spec to_map(venture_preparation_completed_v1()) -> map().
 to_map(#venture_preparation_completed_v1{} = E) ->
     #{
-        event_type => <<"venture_preparation_completed_v1">>,
+        event_type => venture_preparation_completed_v1,
         venture_id => E#venture_preparation_completed_v1.venture_id,
         completed_at => E#venture_preparation_completed_v1.completed_at
     }.

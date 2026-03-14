@@ -3,7 +3,10 @@
 %%% All fields optional except venture_id — partial updates only.
 -module(refine_vision_v1).
 
+-behaviour(evoq_command).
+
 -export([new/1, from_map/1, validate/1, to_map/1]).
+-export([command_type/0]).
 -export([get_venture_id/1, get_brief/1, get_repos/1, get_skills/1,
          get_context_map/1]).
 
@@ -21,6 +24,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> {ok, refine_vision_v1()} | {error, term()}.
+-spec command_type() -> atom().
+command_type() -> refine_vision_v1.
+
 new(#{venture_id := VentureId} = Params) ->
     {ok, #refine_vision_v1{
         venture_id = VentureId,
@@ -42,7 +48,7 @@ validate(#refine_vision_v1{} = Cmd) ->
 -spec to_map(refine_vision_v1()) -> map().
 to_map(#refine_vision_v1{} = Cmd) ->
     #{
-        command_type => <<"refine_vision">>,
+        command_type => refine_vision_v1,
         venture_id => Cmd#refine_vision_v1.venture_id,
         brief => Cmd#refine_vision_v1.brief,
         repos => Cmd#refine_vision_v1.repos,

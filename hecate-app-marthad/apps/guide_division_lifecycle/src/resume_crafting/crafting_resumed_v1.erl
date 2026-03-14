@@ -2,7 +2,10 @@
 %%% Emitted when a shelved crafting dossier is resumed.
 -module(crafting_resumed_v1).
 
+-behaviour(evoq_event).
+
 -export([new/1, to_map/1, from_map/1]).
+-export([event_type/0]).
 -export([get_division_id/1, get_resumed_at/1]).
 
 -record(crafting_resumed_v1, {
@@ -16,6 +19,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> crafting_resumed_v1().
+-spec event_type() -> atom().
+event_type() -> crafting_resumed_v1.
+
 new(#{division_id := DivisionId}) ->
     #crafting_resumed_v1{
         division_id = DivisionId,
@@ -25,7 +31,7 @@ new(#{division_id := DivisionId}) ->
 -spec to_map(crafting_resumed_v1()) -> map().
 to_map(#crafting_resumed_v1{} = E) ->
     #{
-        event_type => <<"crafting_resumed_v1">>,
+        event_type => crafting_resumed_v1,
         division_id => E#crafting_resumed_v1.division_id,
         resumed_at => E#crafting_resumed_v1.resumed_at
     }.

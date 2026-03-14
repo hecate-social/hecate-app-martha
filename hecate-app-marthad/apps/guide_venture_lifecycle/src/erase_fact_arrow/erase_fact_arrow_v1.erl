@@ -2,7 +2,10 @@
 %%% Erases a fact arrow during Big Picture Event Storming.
 -module(erase_fact_arrow_v1).
 
+-behaviour(evoq_command).
+
 -export([new/1, from_map/1, validate/1, to_map/1]).
+-export([command_type/0]).
 -export([get_venture_id/1, get_arrow_id/1]).
 
 -record(erase_fact_arrow_v1, {
@@ -16,6 +19,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> {ok, erase_fact_arrow_v1()} | {error, term()}.
+-spec command_type() -> atom().
+command_type() -> erase_fact_arrow_v1.
+
 new(#{venture_id := VentureId, arrow_id := ArrowId} = _Params) ->
     Cmd = #erase_fact_arrow_v1{
         venture_id = VentureId,
@@ -38,7 +44,7 @@ validate(_) -> ok.
 -spec to_map(erase_fact_arrow_v1()) -> map().
 to_map(#erase_fact_arrow_v1{venture_id = V, arrow_id = A}) ->
     #{
-        command_type => <<"erase_fact_arrow">>,
+        command_type => erase_fact_arrow_v1,
         venture_id => V,
         arrow_id => A
     }.

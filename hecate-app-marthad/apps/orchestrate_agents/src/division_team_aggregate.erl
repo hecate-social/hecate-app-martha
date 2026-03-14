@@ -17,11 +17,13 @@
 -include("division_team_state.hrl").
 
 -export([init/1, execute/2, apply/2]).
--export([initial_state/0, apply_event/2]).
--export([flag_map/0]).
+-export([state_module/0, flag_map/0]).
 
 -type state() :: #division_team_state{}.
 -export_type([state/0]).
+
+-spec state_module() -> module().
+state_module() -> division_team_state.
 
 -spec flag_map() -> evoq_bit_flags:flag_map().
 flag_map() -> ?DT_FLAG_MAP.
@@ -29,12 +31,8 @@ flag_map() -> ?DT_FLAG_MAP.
 %% --- Callbacks ---
 
 -spec init(binary()) -> {ok, state()}.
-init(_AggregateId) ->
-    {ok, initial_state()}.
-
--spec initial_state() -> state().
-initial_state() ->
-    #division_team_state{}.
+init(AggregateId) ->
+    {ok, division_team_state:new(AggregateId)}.
 
 %% --- Execute ---
 
@@ -101,66 +99,13 @@ execute_disband(Payload, _State) ->
 
 -spec apply(state(), map()) -> state().
 apply(State, Event) ->
-    apply_event(Event, State).
-
--spec apply_event(map(), state()) -> state().
-
-apply_event(#{event_type := <<"team_formed_v1">>} = E, S)                    -> apply_formed(E, S);
-apply_event(#{event_type := <<"agent_assigned_to_team_v1">>} = E, S)         -> apply_assigned(E, S);
-apply_event(#{event_type := <<"team_activated_v1">>} = E, S)                 -> apply_activated(E, S);
-apply_event(#{event_type := <<"team_disbanded_v1">>} = E, S)                 -> apply_disbanded(E, S);
-apply_event(_E, S) -> S.
-
-%% --- Apply helpers ---
-
-apply_formed(E, _State) ->
-    #division_team_state{
-        division_id = get_value(division_id, E),
-        venture_id = get_value(venture_id, E),
-        status = evoq_bit_flags:set(0, ?DT_FORMED),
-        planned_roles = get_value(planned_roles, E, []),
-        formed_at = get_value(formed_at, E),
-        formed_by = get_value(formed_by, E)
-    }.
-
-apply_assigned(E, #division_team_state{members = Members} = State) ->
-    NewMember = #{
-        agent_role => get_value(agent_role, E),
-        session_id => get_value(session_id, E)
-    },
-    State#division_team_state{
-        members = Members ++ [NewMember]
-    }.
-
-apply_activated(E, #division_team_state{status = Status} = State) ->
-    State#division_team_state{
-        status = evoq_bit_flags:set(Status, ?DT_ACTIVE),
-        activated_at = get_value(activated_at, E)
-    }.
-
-apply_disbanded(E, #division_team_state{status = Status} = State) ->
-    State#division_team_state{
-        status = evoq_bit_flags:set(Status, ?DT_DISBANDED),
-        disbanded_at = get_value(disbanded_at, E)
-    }.
+    division_team_state:apply_event(State, Event).
 
 %% --- Internal ---
 
 get_command_type(#{command_type := T}) when is_binary(T) -> T;
 get_command_type(#{command_type := T}) when is_atom(T) -> atom_to_binary(T);
 get_command_type(_) -> undefined.
-
-get_value(Key, Map) when is_atom(Key) ->
-    case maps:find(Key, Map) of
-        {ok, V} -> V;
-        error -> maps:get(atom_to_binary(Key), Map, undefined)
-    end.
-
-get_value(Key, Map, Default) when is_atom(Key) ->
-    case maps:find(Key, Map) of
-        {ok, V} -> V;
-        error -> maps:get(atom_to_binary(Key), Map, Default)
-    end.
 
 convert_events({ok, Events}, ToMapFn) ->
     {ok, [ToMapFn(E) || E <- Events]};

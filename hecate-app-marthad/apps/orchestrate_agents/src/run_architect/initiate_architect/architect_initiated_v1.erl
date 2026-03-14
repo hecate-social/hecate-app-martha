@@ -2,7 +2,10 @@
 %%% Emitted when a architect agent session is initiated.
 -module(architect_initiated_v1).
 
+-behaviour(evoq_event).
+
 -export([new/1, to_map/1, from_map/1]).
+-export([event_type/0]).
 -export([get_session_id/1, get_venture_id/1, get_tier/1, get_model/1,
          get_initiated_at/1, get_initiated_by/1, get_input_context/1]).
 
@@ -24,6 +27,9 @@
 -dialyzer({nowarn_function, [new/1, from_map/1]}).
 
 -spec new(map()) -> architect_initiated_v1().
+-spec event_type() -> atom().
+event_type() -> architect_initiated_v1.
+
 new(#{session_id := SessionId} = Params) ->
     #architect_initiated_v1{
         session_id = SessionId,
@@ -40,7 +46,7 @@ new(#{session_id := SessionId} = Params) ->
 -spec to_map(architect_initiated_v1()) -> map().
 to_map(#architect_initiated_v1{} = E) ->
     #{
-        event_type => <<"architect_initiated_v1">>,
+        event_type => architect_initiated_v1,
         session_id => E#architect_initiated_v1.session_id,
         agent_role => E#architect_initiated_v1.agent_role,
         venture_id => E#architect_initiated_v1.venture_id,
