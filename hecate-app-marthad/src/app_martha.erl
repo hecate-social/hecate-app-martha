@@ -11,7 +11,6 @@
 -behaviour(hecate_plugin).
 
 -include_lib("hecate_sdk/include/hecate_plugin.hrl").
--include_lib("reckon_db/include/reckon_db.hrl").
 -include_lib("guide_division_lifecycle/include/division_lifecycle_status.hrl").
 -include_lib("guide_division_lifecycle/include/kanban_card_status.hrl").
 
@@ -50,12 +49,12 @@ init(#{plugin_name := PluginName, store_id := StoreId, data_dir := DataDir}) ->
     %% Set plugin name for ?METRIC_* macros
     persistent_term:put(hecate_current_plugin, PluginName),
     %% Create additional Martha stores (primary martha_store already created by loader)
-    start_extra_stores(DataDir),
+    hecate_plugin_store:start_extra_stores(DataDir, ?EXTRA_STORES),
     %% Start store subscriptions for all Martha stores
     AllStoreIds = [StoreId | [Id || {Id, _, _} <- ?EXTRA_STORES]],
-    start_store_subscriptions(AllStoreIds),
+    hecate_plugin_store:start_subscriptions(AllStoreIds),
     %% Load OTP application metadata so application:get_key/2 works
-    %% for route discovery (app_marthad_api_routes:discover_routes/0).
+    %% for route discovery (hecate_plugin_routes:discover_routes/1).
     lists:foreach(fun(App) -> application:load(App) end, ?DOMAIN_APPS),
     case app_martha_sup:start_link() of
         {ok, Pid} ->
@@ -71,10 +70,8 @@ init(#{plugin_name := PluginName, store_id := StoreId, data_dir := DataDir}) ->
 
 -spec routes() -> [{string(), module(), term()}].
 routes() ->
-    %% Domain handlers return routes with "/api/" prefix (for standalone mode).
-    %% Plugin loader mounts at /plugin/{name}/api/, so strip the prefix to
-    %% avoid double "/api/api/..." paths.
-    [strip_api_prefix(R) || R <- app_marthad_api_routes:discover_routes()].
+    [hecate_plugin_routes:strip_api_prefix(R)
+     || R <- hecate_plugin_routes:discover_routes(?DOMAIN_APPS)].
 
 -spec store_config() -> #hecate_store_config{}.
 store_config() ->
@@ -133,44 +130,3 @@ check_llm_availability() ->
     catch _:_ ->
         false
     end.
-
-%%% Internal
-
-strip_api_prefix({"/api" ++ Rest, Handler, Opts}) ->
-    {Rest, Handler, Opts};
-strip_api_prefix(Route) ->
-    Route.
-
-start_extra_stores(BaseDataDir) ->
-    lists:foreach(fun({StoreId, SubDir, Label}) ->
-        DataDir = filename:join(BaseDataDir, SubDir),
-        ok = filelib:ensure_path(DataDir),
-        Config = #store_config{
-            store_id = StoreId,
-            data_dir = DataDir,
-            mode = single,
-            writer_pool_size = 5,
-            reader_pool_size = 5,
-            gateway_pool_size = 2,
-            options = #{}
-        },
-        case reckon_db_sup:start_store(Config) of
-            {ok, _Pid} ->
-                logger:info("[app-martha] Store ~p ready (~s)", [StoreId, Label]);
-            {error, {already_started, _Pid}} ->
-                logger:info("[app-martha] Store ~p already running", [StoreId]);
-            {error, Reason} ->
-                logger:error("[app-martha] Failed to start store ~p: ~p", [StoreId, Reason])
-        end
-    end, ?EXTRA_STORES).
-
-start_store_subscriptions(StoreIds) ->
-    lists:foreach(fun(StoreId) ->
-        case evoq_store_subscription:start_link(StoreId) of
-            {ok, _Pid} ->
-                logger:info("[app-martha] Store subscription ready for ~p", [StoreId]);
-            {error, Reason} ->
-                logger:warning("[app-martha] Store subscription failed for ~p: ~p",
-                               [StoreId, Reason])
-        end
-    end, StoreIds).

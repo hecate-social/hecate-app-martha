@@ -1,16 +1,13 @@
-%%% @doc Auto-discovery route handler for Martha API.
+%%% @doc API route dispatcher for Martha plugin.
 %%%
-%%% Discovers all API handlers across Martha domain apps by looking
-%%% for modules that export routes/0. Delegates incoming requests
-%%% to the matching handler.
-%%%
-%%% This module acts as a Cowboy handler for /api/[...] and dispatches
-%%% to the correct domain handler based on path matching.
+%%% Cowboy handler for /api/[...] that dispatches to the correct
+%%% domain handler based on path matching. Route discovery is
+%%% delegated to hecate_plugin_routes.
 %%% @end
 -module(app_marthad_api_routes).
 
 -export([init/2]).
--export([compile/0, discover_routes/0]).
+-export([discover_routes/0]).
 
 %% Martha OTP apps that may contain API handlers.
 -define(MARTHA_APPS, [
@@ -26,7 +23,6 @@
 
 %% @doc Cowboy handler init - dispatches to domain route handlers.
 init(Req0, _State) ->
-    %% Strip /api prefix and re-dispatch
     PathInfo = cowboy_req:path_info(Req0),
     Path = case PathInfo of
         undefined -> cowboy_req:path(Req0);
@@ -39,31 +35,12 @@ init(Req0, _State) ->
             hecate_plugin_api:not_found(Req0)
     end.
 
-%% @doc Compile all routes into a Cowboy dispatch table.
--spec compile() -> cowboy_router:dispatch_rules().
-compile() ->
-    cowboy_router:compile([{'_', discover_routes()}]).
-
-%%% Internal
-
+%% @doc Discover all routes from Martha domain apps.
 -spec discover_routes() -> [tuple()].
 discover_routes() ->
-    lists:flatmap(fun collect_app_routes/1, ?MARTHA_APPS).
+    hecate_plugin_routes:discover_routes(?MARTHA_APPS).
 
-collect_app_routes(App) ->
-    Mods = app_modules(App),
-    Handlers = [M || M <- Mods, M =/= ?MODULE, exports_routes(M)],
-    lists:flatmap(fun(M) -> M:routes() end, Handlers).
-
-app_modules(App) ->
-    case application:get_key(App, modules) of
-        {ok, Mods} -> Mods;
-        _ -> []
-    end.
-
-exports_routes(Mod) ->
-    code:ensure_loaded(Mod),
-    erlang:function_exported(Mod, routes, 0).
+%%% Internal
 
 find_handler(_Path, []) ->
     nomatch;

@@ -3,5 +3,5 @@
 
 discover_routes_returns_list_test() ->
     %% Without domain apps loaded, should return empty list
-    Routes = app_marthad_api_routes:compile(),
-    ?assert(is_tuple(Routes) orelse is_list(Routes)).
+    Routes = app_marthad_api_routes:discover_routes(),
+    ?assert(is_list(Routes)).
