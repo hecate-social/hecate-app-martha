@@ -18,6 +18,8 @@
     {division_consumes, Fact :: binary(), From :: binary()} |
     {agg, Name :: binary(), Stream :: binary(), Details :: map()} |
     {app, Name :: binary(), Dept :: cmd | prj | qry, Details :: map()} |
+    {deliver, Name :: binary(), Type :: in_vm | container, Props :: map()} |
+    {version, Version :: binary(), Changelog :: binary()} |
     {phase, Code :: binary(), map()} |
     {item, Id :: binary(), map()} |
     {flag, Agent :: binary(), Severity :: binary(), Msg :: binary()} |
@@ -79,6 +81,8 @@ dispatch(Trimmed, _Raw, Acc, Ctx) ->
         <<"COST ", Rest/binary>> -> parse_cost(Rest, Acc, Ctx);
         <<"TOTAL ", Rest/binary>> -> parse_total(Rest, Acc, Ctx);
         <<"STATUS ", Rest/binary>> -> parse_status(Rest, Acc, Ctx);
+        <<"DELIVER ", Rest/binary>> -> parse_deliver(Rest, Acc, Ctx);
+        <<"VERSION ", Rest/binary>> -> parse_version(Rest, Acc, Ctx);
         _ -> {Acc, Ctx}  %% skip unknown lines
     end.
 
@@ -298,6 +302,34 @@ parse_status(Rest, Acc, Ctx) ->
         _ ->
             {Acc, Ctx}
     end.
+
+%% DELIVER hecate-app-billing in_vm OTP=27
+%% DELIVER hecate-app-trader container OTP=27 PORT=4444
+parse_deliver(Rest, Acc, Ctx) ->
+    Words = split_words(Rest),
+    case Words of
+        [Name, TypeBin | PropWords] ->
+            Type = parse_plugin_type(TypeBin),
+            Props = lists:foldl(fun parse_prop/2, #{}, PropWords),
+            {[{deliver, Name, Type, Props} | Acc], Ctx};
+        [Name] ->
+            {[{deliver, Name, in_vm, #{}} | Acc], Ctx};
+        _ ->
+            {Acc, Ctx}
+    end.
+
+%% VERSION 0.2.5 "Added billing division"
+parse_version(Rest, Acc, Ctx) ->
+    case binary:split(Rest, <<" ">>) of
+        [Version, ChangelogRaw] ->
+            {[{version, Version, unquote(string:trim(ChangelogRaw))} | Acc], Ctx};
+        [Version] ->
+            {[{version, Version, <<>>} | Acc], Ctx}
+    end.
+
+parse_plugin_type(<<"in_vm">>) -> in_vm;
+parse_plugin_type(<<"container">>) -> container;
+parse_plugin_type(_) -> in_vm.
 
 %%====================================================================
 %% Internal — helpers

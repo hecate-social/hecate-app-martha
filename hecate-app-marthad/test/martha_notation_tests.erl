@@ -82,6 +82,13 @@ parse_test_() ->
         {"TOTAL parsed correctly",                    fun parse_total/0},
         {"STATUS parsed correctly",                   fun parse_status/0},
 
+        %% DELIVER / VERSION
+        {"DELIVER in_vm with props",                  fun parse_deliver_in_vm/0},
+        {"DELIVER container with props",              fun parse_deliver_container/0},
+        {"DELIVER name only defaults to in_vm",       fun parse_deliver_default/0},
+        {"VERSION with changelog",                    fun parse_version_full/0},
+        {"VERSION without changelog",                 fun parse_version_no_changelog/0},
+
         %% Integration: full document
         {"full EventStorm document",                  fun parse_full_document/0}
     ].
@@ -340,6 +347,31 @@ parse_total() ->
 parse_status() ->
     {ok, [Term]} = martha_notation:parse(<<"STATUS billing stormer COMPLETE">>),
     ?assertEqual({status, <<"billing">>, <<"stormer">>, <<"COMPLETE">>}, Term).
+
+%% ===================================================================
+%% DELIVER / VERSION
+%% ===================================================================
+
+parse_deliver_in_vm() ->
+    {ok, [Term]} = martha_notation:parse(<<"DELIVER hecate-app-billing in_vm OTP=27">>),
+    ?assertEqual({deliver, <<"hecate-app-billing">>, in_vm, #{<<"OTP">> => <<"27">>}}, Term).
+
+parse_deliver_container() ->
+    {ok, [Term]} = martha_notation:parse(<<"DELIVER hecate-app-trader container OTP=27 PORT=4444">>),
+    ?assertEqual({deliver, <<"hecate-app-trader">>, container,
+                  #{<<"OTP">> => <<"27">>, <<"PORT">> => <<"4444">>}}, Term).
+
+parse_deliver_default() ->
+    {ok, [Term]} = martha_notation:parse(<<"DELIVER hecate-app-foo">>),
+    ?assertEqual({deliver, <<"hecate-app-foo">>, in_vm, #{}}, Term).
+
+parse_version_full() ->
+    {ok, [Term]} = martha_notation:parse(<<"VERSION 0.2.5 \"Added billing division\"">>),
+    ?assertEqual({version, <<"0.2.5">>, <<"Added billing division">>}, Term).
+
+parse_version_no_changelog() ->
+    {ok, [Term]} = martha_notation:parse(<<"VERSION 0.1.0">>),
+    ?assertEqual({version, <<"0.1.0">>, <<>>}, Term).
 
 %% ===================================================================
 %% Integration: full EventStorm document

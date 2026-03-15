@@ -23,16 +23,21 @@ scaffold(ParsedTerms, RepoPath) when is_list(RepoPath) ->
     Aggs = collect_aggs(ParsedTerms),
     Emits = collect_emits(ParsedTerms),
     Consumes = collect_consumes(ParsedTerms),
+    Delivers = collect_delivers(ParsedTerms),
+    Versions = collect_versions(ParsedTerms),
     AppsDir = filename:join(RepoPath, "apps"),
     AllFiles = lists:append([
         scaffold_divisions(Apps, Aggs, AppsDir),
         scaffold_cmd_desks(Apps, Aggs, AppsDir),
+        scaffold_walk_desks(Apps, Aggs, AppsDir),
         scaffold_prj_desks(Apps, Aggs, AppsDir),
         scaffold_qry_desks(Apps, Aggs, AppsDir),
         scaffold_pms(Apps, Aggs, AppsDir),
         scaffold_emitters(Apps, Emits, AppsDir),
-        scaffold_listeners(Apps, Consumes, AppsDir)
+        scaffold_listeners(Apps, Consumes, AppsDir),
+        scaffold_delivery(Delivers, RepoPath)
     ]),
+    scaffold_versions(Versions, RepoPath),
     {ok, AllFiles}.
 
 %% ===================================================================
@@ -51,6 +56,12 @@ collect_emits(Terms) ->
 collect_consumes(Terms) ->
     [{Fact, From} || {division_consumes, Fact, From} <- Terms].
 
+collect_delivers(Terms) ->
+    [{Name, Type, Props} || {deliver, Name, Type, Props} <- Terms].
+
+collect_versions(Terms) ->
+    [{Vsn, Changelog} || {version, Vsn, Changelog} <- Terms].
+
 %% ===================================================================
 %% Scaffolding functions
 %% ===================================================================
@@ -64,13 +75,15 @@ scaffold_divisions(Apps, Aggs, AppsDir) ->
         {_, undefined, _} -> [];
         {_, _, undefined} -> [];
         {C, P, Q} ->
-            lists:flatmap(fun({agg, Subject, _Stream, _Details}) ->
+            lists:flatmap(fun({agg, Subject, _Stream, Details}) ->
+                Flags = maps:get(flags, Details, []),
                 Opts = #{
                     subject => Subject,
                     cmd_app => C,
                     prj_app => P,
                     qry_app => Q,
-                    output_dir => AppsDir
+                    output_dir => AppsDir,
+                    flags => Flags
                 },
                 case hecate_plugin_codegen:division(Opts) of
                     {ok, Files} -> Files;
@@ -226,6 +239,72 @@ scaffold_listeners(Apps, Consumes, AppsDir) ->
                 end
             end, Consumes)
     end.
+
+scaffold_walk_desks(Apps, Aggs, AppsDir) ->
+    CmdApp = find_app(cmd, Apps),
+    case CmdApp of
+        undefined -> [];
+        _ ->
+            SrcDir = filename:join([AppsDir, str(CmdApp), "src"]),
+            lists:flatmap(fun({agg, Subject, _Stream, Details}) ->
+                WalkNames = maps:get(walk, Details, []),
+                ExplicitDesks = maps:get(desks, Details, []),
+                ExplicitDeskNames = [DN || {desk, DN, _, _} <- ExplicitDesks],
+                lists:flatmap(fun(WalkName) ->
+                    case lists:member(WalkName, ExplicitDeskNames) of
+                        true -> [];  %% skip — already covered by explicit DESK
+                        false ->
+                            {Verb, _Subj} = split_verb_subject(WalkName),
+                            PastVerb = past_verb(Verb),
+                            Opts = #{
+                                dept => cmd,
+                                verb => Verb,
+                                subject => Subject,
+                                past_verb => PastVerb,
+                                output_dir => SrcDir
+                            },
+                            case hecate_plugin_codegen:desk(Opts) of
+                                {ok, Files} -> Files;
+                                _ -> []
+                            end
+                    end
+                end, WalkNames)
+            end, Aggs)
+    end.
+
+scaffold_delivery(Delivers, RepoPath) ->
+    lists:flatmap(fun({Name, Type, Props}) ->
+        OtpVsn = maps:get(<<"OTP">>, Props, <<"27">>),
+        Port = maps:get(<<"PORT">>, Props, <<"4444">>),
+        Opts = #{
+            plugin_name => Name,
+            plugin_type => Type,
+            otp_version => OtpVsn,
+            port => Port,
+            output_dir => RepoPath
+        },
+        case hecate_plugin_codegen:delivery(Opts) of
+            {ok, Files} -> Files;
+            _ -> []
+        end
+    end, Delivers).
+
+scaffold_versions(Versions, RepoPath) ->
+    lists:foreach(fun({Vsn, Changelog}) ->
+        hecate_plugin_codegen_delivery:bump_version(#{
+            version => Vsn,
+            changelog => Changelog,
+            output_dir => RepoPath
+        })
+    end, Versions).
+
+past_verb(<<"initiate">>) -> <<"initiated">>;
+past_verb(<<"archive">>) -> <<"archived">>;
+past_verb(<<"activate">>) -> <<"activated">>;
+past_verb(<<"suspend">>) -> <<"suspended">>;
+past_verb(<<"complete">>) -> <<"completed">>;
+past_verb(<<"cancel">>) -> <<"cancelled">>;
+past_verb(Verb) -> <<Verb/binary, "d">>.
 
 %% ===================================================================
 %% Helpers
