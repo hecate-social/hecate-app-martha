@@ -58,6 +58,12 @@ init(#{plugin_name := PluginName, store_id := StoreId, data_dir := DataDir}) ->
     lists:foreach(fun(App) -> application:load(App) end, ?DOMAIN_APPS),
     case app_martha_sup:start_link() of
         {ok, Pid} ->
+            %% CRITICAL: unlink supervisor from this process.
+            %% Plugin loader calls init/1 from a temporary spawned process.
+            %% OTP supervisors track their parent (the start_link caller) and
+            %% stop themselves when the parent exits. Without unlink, the
+            %% supervisor dies as soon as the init process completes.
+            unlink(Pid),
             logger:info("[app-martha] Supervision tree started (~p)", [Pid]),
             {ok, #{sup_pid => Pid}};
         {error, {already_started, Pid}} ->
@@ -71,7 +77,7 @@ init(#{plugin_name := PluginName, store_id := StoreId, data_dir := DataDir}) ->
 -spec routes() -> [{string(), module(), term()}].
 routes() ->
     [hecate_plugin_routes:strip_api_prefix(R)
-     || R <- hecate_plugin_routes:discover_routes(?DOMAIN_APPS)].
+     || R <- hecate_plugin_routes:discover_routes([hecate_app_marthad | ?DOMAIN_APPS])].
 
 -spec store_config() -> #hecate_store_config{}.
 store_config() ->
@@ -90,7 +96,7 @@ manifest() ->
     #{
         name => <<"hecate-app-martha">>,
         display_name => <<"Martha">>,
-        version => <<"0.5.3">>,
+        version => <<"0.5.4">>,
         description => <<"AI-Assisted Application Lifecycle">>,
         icon => <<"dog2">>,
         tag => <<"martha-studio">>,

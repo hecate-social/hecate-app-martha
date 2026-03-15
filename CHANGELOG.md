@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.5.4] - 2026-03-15
+
+### Fixed
+
+- **Supervision tree dies on init**: OTP supervisors track their parent process
+  and stop when it exits. Plugin loader spawns a temporary process for async init,
+  so `app_martha_sup:start_link()` made that temp process the parent. When the temp
+  process completed, the supervisor shut itself down. Fixed by unlinking the
+  supervisor from the init process immediately after startup.
+- **SSE endpoint missing from routes**: `app_marthad_sse_handler` lives in root app
+  `hecate_app_marthad`, which was not included in route discovery. Added to
+  `discover_routes/1` call so `/api/events/stream` is now reachable.
+
 ## [0.5.3] - 2026-03-15
 
 ### Fixed
