@@ -90,11 +90,11 @@ manifest() ->
     #{
         name => <<"hecate-app-martha">>,
         display_name => <<"Martha">>,
-        version => <<"0.5.0">>,
+        version => <<"0.5.1">>,
         description => <<"AI-Assisted Application Lifecycle">>,
         icon => <<"dog2">>,
         tag => <<"martha-studio">>,
-        min_sdk_version => <<"0.4.0">>
+        min_sdk_version => <<"0.5.0">>
     }.
 
 -spec flag_maps() -> #{binary() => evoq_bit_flags:flag_map()}.
