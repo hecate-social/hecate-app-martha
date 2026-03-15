@@ -41,14 +41,8 @@ jobs:
         with:
           otp-version: "27"
           rebar3-version: "3.24"
-      - name: Cache rebar3 deps
-        uses: actions/cache@v4
-        with:
-          path: |
-            hecate-app-marthad/_build/default/lib
-            hecate-app-marthad/_build/default/plugins
-          key: rebar3-${{ runner.os }}-${{ hashFiles('hecate-app-marthad/rebar.lock') }}
-          restore-keys: rebar3-${{ runner.os }}-
+      - name: Fetch deps
+        run: rebar3 get-deps
       - run: rebar3 compile
       - run: rebar3 eunit
       - run: rebar3 dialyzer
