@@ -1,6 +1,4 @@
 import { writable, get } from 'svelte/store';
-import { isTauri } from '$lib/tauri';
-
 export interface SSEEvent {
 	type: string;
 	data: Record<string, unknown>;
@@ -12,8 +10,8 @@ export type SSEStatus = 'disconnected' | 'connecting' | 'connected';
 export const sseStatus = writable<SSEStatus>('disconnected');
 export const lastSSEEvent = writable<SSEEvent | null>(null);
 
-// In dev mode, use empty base (Vite proxy handles it). In Tauri prod, use custom protocol.
-const DAEMON_BASE = isTauri() && !import.meta.env.DEV ? 'hecate://localhost' : '';
+// Use relative URL — works in both Tauri (hecate://localhost) and dev (Vite proxy).
+// The browser resolves relative paths against the current page origin.
 const SSE_PATH = '/plugin/hecate-app-martha/api/events/stream';
 const RECONNECT_DELAY_MS = 3000;
 
@@ -41,7 +39,7 @@ export function connectSSE(): void {
 	sseStatus.set('connecting');
 
 	try {
-		eventSource = new EventSource(`${DAEMON_BASE}${SSE_PATH}`);
+		eventSource = new EventSource(SSE_PATH);
 
 		eventSource.onopen = () => {
 			sseStatus.set('connected');
@@ -72,7 +70,7 @@ export function connectSSE(): void {
 async function connectSSEViaFetch(): Promise<void> {
 	sseStatus.set('connecting');
 	try {
-		const resp = await fetch(`${DAEMON_BASE}${SSE_PATH}`);
+		const resp = await fetch(SSE_PATH);
 		if (!resp.ok || !resp.body) {
 			sseStatus.set('disconnected');
 			scheduleReconnect();

@@ -1,13 +1,21 @@
 # Changelog
 
+## [0.5.7] - 2026-03-15
+
+### Fixed
+
+- **SSE connection works everywhere**: `sseStore.ts` now uses a relative URL for the
+  EventSource path. The browser resolves relative paths against the current page origin,
+  which works in both Tauri prod (`hecate://localhost`) and dev mode (Vite proxy). The
+  previous `isTauri()` approach failed because `import.meta.env.DEV` gets statically
+  replaced to `false` in the production lib build.
+
 ## [0.5.6] - 2026-03-15
 
 ### Fixed
 
-- **SSE broken in dev mode**: `sseStore.ts` hardcoded `hecate://localhost` as the
-  EventSource base URL. This Tauri-only protocol doesn't exist in dev mode (browser),
-  causing the SSE connection to fail and Martha to show "connecting" forever. Now uses
-  `isTauri()` check — empty base in dev (Vite proxy), `hecate://localhost` in Tauri prod.
+- **SSE broken in dev mode** (incomplete fix): Attempted `isTauri()` check but
+  `import.meta.env.DEV` compiled away in production Vite build. Superseded by 0.5.7.
 
 ## [0.5.5] - 2026-03-15
 
