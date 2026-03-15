@@ -144,7 +144,7 @@ export async function designAggregate(
 ): Promise<boolean> {
 	try {
 		const api = getApi();
-		await api.post(`/plannings/${divisionId}/design-aggregate`, data);
+		await api.post(`/design_aggregate/${divisionId}`, data);
 		return true;
 	} catch (e: unknown) {
 		const err = e as { message?: string };
@@ -159,7 +159,7 @@ export async function designEvent(
 ): Promise<boolean> {
 	try {
 		const api = getApi();
-		await api.post(`/plannings/${divisionId}/design-event`, data);
+		await api.post(`/design_event/${divisionId}`, data);
 		return true;
 	} catch (e: unknown) {
 		const err = e as { message?: string };
@@ -174,7 +174,7 @@ export async function planDesk(
 ): Promise<boolean> {
 	try {
 		const api = getApi();
-		await api.post(`/plannings/${divisionId}/plan-desk`, data);
+		await api.post(`/plan_desk/${divisionId}`, data);
 		return true;
 	} catch (e: unknown) {
 		const err = e as { message?: string };
@@ -189,7 +189,7 @@ export async function planDependency(
 ): Promise<boolean> {
 	try {
 		const api = getApi();
-		await api.post(`/plannings/${divisionId}/plan-dependency`, data);
+		await api.post(`/plan_dependency/${divisionId}`, data);
 		return true;
 	} catch (e: unknown) {
 		const err = e as { message?: string };

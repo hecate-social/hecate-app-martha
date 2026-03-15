@@ -138,14 +138,14 @@ export function resetDeskCards(): void {
 }
 
 // --- Server Actions (storming dossier API) ---
-// NOTE: Routes go to /stormings/ (not /plannings/) — content belongs to the storming domain
+// NOTE: Storming design desks — URL = desk name (design_aggregate, design_event, etc.)
 export async function designAggregate(
 	divisionId: string,
 	data: { aggregate_name: string; description?: string }
 ): Promise<boolean> {
 	try {
 		const api = getApi();
-		await api.post(`/stormings/${divisionId}/design-aggregate`, data);
+		await api.post(`/design_aggregate/${divisionId}`, data);
 		return true;
 	} catch (e: unknown) {
 		const err = e as { message?: string };
@@ -160,7 +160,7 @@ export async function designEvent(
 ): Promise<boolean> {
 	try {
 		const api = getApi();
-		await api.post(`/stormings/${divisionId}/design-event`, data);
+		await api.post(`/design_event/${divisionId}`, data);
 		return true;
 	} catch (e: unknown) {
 		const err = e as { message?: string };
@@ -175,7 +175,7 @@ export async function planDesk(
 ): Promise<boolean> {
 	try {
 		const api = getApi();
-		await api.post(`/stormings/${divisionId}/plan-desk`, data);
+		await api.post(`/plan_desk/${divisionId}`, data);
 		return true;
 	} catch (e: unknown) {
 		const err = e as { message?: string };
@@ -190,7 +190,7 @@ export async function planDependency(
 ): Promise<boolean> {
 	try {
 		const api = getApi();
-		await api.post(`/stormings/${divisionId}/plan-dependency`, data);
+		await api.post(`/plan_dependency/${divisionId}`, data);
 		return true;
 	} catch (e: unknown) {
 		const err = e as { message?: string };

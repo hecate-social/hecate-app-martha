@@ -8,16 +8,6 @@ export const selectedPhase = writable<PhaseCode>('storming');
 export const phaseError = writable<string | null>(null);
 export const isLoading = writable(false);
 
-/** Map phase code to its API path prefix */
-function phaseApiPrefix(phase: PhaseCode): string {
-	switch (phase) {
-		case 'storming': return 'stormings';
-		case 'planning': return 'plannings';
-		case 'kanban': return 'kanbans';
-		case 'crafting': return 'craftings';
-	}
-}
-
 // --- Actions ---
 export async function openPhase(
 	divisionId: string,
@@ -26,7 +16,7 @@ export async function openPhase(
 	try {
 		isLoading.set(true);
 		const api = getApi();
-		await api.post(`/${phaseApiPrefix(phase)}/${divisionId}/open`, {});
+		await api.post(`/open_${phase}/${divisionId}`, {});
 		const v = get(activeVenture);
 		if (v) await fetchDivisions(v.venture_id);
 		return true;
@@ -47,7 +37,7 @@ export async function shelvePhase(
 	try {
 		isLoading.set(true);
 		const api = getApi();
-		await api.post(`/${phaseApiPrefix(phase)}/${divisionId}/shelve`, {
+		await api.post(`/shelve_${phase}/${divisionId}`, {
 			reason: reason || null
 		});
 		const v = get(activeVenture);
@@ -69,7 +59,7 @@ export async function resumePhase(
 	try {
 		isLoading.set(true);
 		const api = getApi();
-		await api.post(`/${phaseApiPrefix(phase)}/${divisionId}/resume`, {});
+		await api.post(`/resume_${phase}/${divisionId}`, {});
 		const v = get(activeVenture);
 		if (v) await fetchDivisions(v.venture_id);
 		return true;
@@ -89,7 +79,7 @@ export async function concludePhase(
 	try {
 		isLoading.set(true);
 		const api = getApi();
-		await api.post(`/${phaseApiPrefix(phase)}/${divisionId}/conclude`, {});
+		await api.post(`/submit_${phase}/${divisionId}`, {});
 		const v = get(activeVenture);
 		if (v) await fetchDivisions(v.venture_id);
 		return true;

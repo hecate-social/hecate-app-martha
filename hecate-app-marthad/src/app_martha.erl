@@ -4,6 +4,7 @@
 %%% When loaded by hecate_plugin_loader, this module provides:
 %%%   - ReckonDB store config (martha_store)
 %%%   - Cowboy routes (mounted under /plugin/hecate-app-martha/api/)
+%%%     Routes use screaming desk names as URLs (URL = desk name).
 %%%   - Static dir (frontend assets at /plugin/hecate-app-martha/)
 %%%   - Plugin manifest with flag maps for planning/crafting status
 %%% @end
@@ -75,161 +76,156 @@ init(#{plugin_name := PluginName, store_id := StoreId, data_dir := DataDir}) ->
 
 -spec routes() -> [{string(), module(), term()}].
 routes() ->
-    %% Explicit route table — no dynamic discovery.
-    %% Each handler still defines routes/0 for standalone use, but
-    %% plugin loading uses this list to avoid scanning 851 modules.
+    %% Screaming desk routes — URL = desk name.
+    %% CMD desks: POST /desk_name[/:id]
+    %% QRY desks: GET /desk_name[/:id]
+    %% No REST-style resource paths. The handler module IS the desk.
     [
      %% SSE (root app)
      {"/events/stream", app_marthad_sse_handler, []},
 
-     %% === Query: Ventures ===
-     {"/venture",                                        get_active_venture_api, []},
-     {"/ventures",                                       get_ventures_page_api, []},
-     {"/ventures/:venture_id",                           get_venture_by_id_api, []},
-     {"/ventures/:venture_id/status",                    get_venture_status_api, []},
-     {"/ventures/:venture_id/tasks",                     get_venture_tasks_api, []},
-     {"/ventures/:venture_id/events",                    get_venture_events_page_api, []},
-     {"/ventures/:venture_id/divisions",                 get_discovered_divisions_page_api, []},
-     {"/ventures/:venture_id/storm/state",               get_storm_state_api, []},
-
-     %% === Query: Divisions ===
-     {"/divisions",                                      get_divisions_page_api, []},
-     {"/divisions/:division_id",                         get_division_by_id_api, []},
-     {"/divisions/:division_id/planning",                get_division_planning_api, []},
-     {"/divisions/:division_id/storming",                get_division_storming_api, []},
-     {"/divisions/:division_id/kanban",                  get_division_kanban_api, []},
-     {"/divisions/:division_id/kanban/cards",            get_division_kanban_cards_api, []},
-     {"/divisions/:division_id/crafting",                get_division_crafting_api, []},
-
-     %% NOTE: query_divisions also serves this under /ventures/:venture_id/divisions
-     %% but get_discovered_divisions_page_api (query_ventures) handles that path above.
-     %% This is the query_divisions version for divisions-by-venture:
-     %% Cowboy picks the first matching route, so this second registration is safe
-     %% only if they return the same data. Both exist for standalone-mode compat.
-
-     %% === Query: Agent Sessions ===
-     {"/agents/sessions",                                get_sessions_page_api, []},
-     {"/agents/sessions/active",                         get_active_sessions_api, []},
-     {"/agents/sessions/:session_id",                    get_session_by_id_api, []},
-     {"/agents/sessions/:session_id/turns",              get_session_turns_api, []},
-
-     %% === Query: Knowledge Graph ===
-     {"/knowledge-graph/:venture_id",                    get_knowledge_graph_api, []},
-     {"/knowledge-graph/:venture_id/entities",           get_entities_page_api, []},
-     {"/knowledge-graph/:venture_id/insights",           get_insights_page_api, []},
-     {"/knowledge-graph/:venture_id/search",             search_knowledge_graph_api, []},
-     {"/knowledge-graph/:venture_id/narrative",          get_venture_narrative_api, []},
-
-     %% === Query: Cost Budgets ===
-     {"/cost-budgets/:venture_id",                       get_cost_budget_api, []},
-     {"/cost-budgets",                                   get_cost_budget_api, []},
-
-     %% === Query: Retry Strategy ===
-     {"/retry-strategy/:venture_id",                     get_retry_history_api, []},
-     {"/retry-strategy/:venture_id/:session_id",         get_retry_history_api, []},
+     %% === QRY: Ventures ===
+     {"/get_active_venture",                                    get_active_venture_api, []},
+     {"/get_ventures_page",                                     get_ventures_page_api, []},
+     {"/get_venture_by_id/:venture_id",                         get_venture_by_id_api, []},
+     {"/get_venture_status/:venture_id",                        get_venture_status_api, []},
+     {"/get_venture_tasks/:venture_id",                         get_venture_tasks_api, []},
+     {"/get_venture_events_page/:venture_id",                   get_venture_events_page_api, []},
+     {"/get_discovered_divisions_page/:venture_id",             get_discovered_divisions_page_api, []},
+     {"/get_storm_state/:venture_id",                           get_storm_state_api, []},
 
      %% === CMD: Venture Lifecycle ===
-     {"/ventures/initiate",                              initiate_venture_api, []},
-     {"/ventures/:venture_id/archive",                   archive_venture_api, []},
-     {"/ventures/:venture_id/scaffold",                  scaffold_venture_repo_api, []},
+     {"/initiate_venture",                                      initiate_venture_api, []},
+     {"/archive_venture/:venture_id",                           archive_venture_api, []},
+     {"/scaffold_venture_repo/:venture_id",                     scaffold_venture_repo_api, []},
      %% Vision
-     {"/ventures/:venture_id/vision",                    submit_vision_api, []},
-     {"/ventures/:venture_id/vision/refine",             refine_vision_api, []},
+     {"/submit_vision/:venture_id",                             submit_vision_api, []},
+     {"/refine_vision/:venture_id",                             refine_vision_api, []},
      %% Discovery
-     {"/ventures/:venture_id/discovery/start",           start_discovery_api, []},
-     {"/ventures/:venture_id/discovery/pause",           pause_discovery_api, []},
-     {"/ventures/:venture_id/discovery/resume",          resume_discovery_api, []},
-     {"/ventures/:venture_id/discovery/complete",        complete_discovery_api, []},
-     {"/ventures/:venture_id/discovery/identify",        identify_division_api, []},
+     {"/start_discovery/:venture_id",                           start_discovery_api, []},
+     {"/pause_discovery/:venture_id",                           pause_discovery_api, []},
+     {"/resume_discovery/:venture_id",                          resume_discovery_api, []},
+     {"/complete_discovery/:venture_id",                        complete_discovery_api, []},
+     {"/identify_division/:venture_id",                         identify_division_api, []},
      %% Knowledge Preparation
-     {"/ventures/:venture_id/knowledge/prepare",         prepare_venture_knowledge_api, []},
-     {"/ventures/:venture_id/knowledge/brief",           contribute_research_brief_api, []},
-     {"/ventures/:venture_id/knowledge/complete",        complete_venture_preparation_api, []},
+     {"/prepare_venture_knowledge/:venture_id",                 prepare_venture_knowledge_api, []},
+     {"/contribute_research_brief/:venture_id",                 contribute_research_brief_api, []},
+     {"/complete_venture_preparation/:venture_id",              complete_venture_preparation_api, []},
      %% Big Picture Storm
-     {"/ventures/:venture_id/storm/start",               start_big_picture_storm_api, []},
-     {"/ventures/:venture_id/storm/shelve",              shelve_big_picture_storm_api, []},
-     {"/ventures/:venture_id/storm/resume",              resume_big_picture_storm_api, []},
-     {"/ventures/:venture_id/storm/archive",             archive_big_picture_storm_api, []},
-     {"/ventures/:venture_id/storm/phase/advance",       advance_storm_phase_api, []},
+     {"/start_big_picture_storm/:venture_id",                   start_big_picture_storm_api, []},
+     {"/shelve_big_picture_storm/:venture_id",                  shelve_big_picture_storm_api, []},
+     {"/resume_big_picture_storm/:venture_id",                  resume_big_picture_storm_api, []},
+     {"/archive_big_picture_storm/:venture_id",                 archive_big_picture_storm_api, []},
+     {"/advance_storm_phase/:venture_id",                       advance_storm_phase_api, []},
      %% Storm Artifacts
-     {"/ventures/:venture_id/storm/fact",                draw_fact_arrow_api, []},
-     {"/ventures/:venture_id/storm/fact/:arrow_id/erase", erase_fact_arrow_api, []},
-     {"/ventures/:venture_id/storm/sticky",              post_event_sticky_api, []},
-     {"/ventures/:venture_id/storm/sticky/:sticky_id/stack",      stack_event_sticky_api, []},
-     {"/ventures/:venture_id/storm/sticky/:sticky_id/unstack",    unstack_event_sticky_api, []},
-     {"/ventures/:venture_id/storm/sticky/:sticky_id/pull",       pull_event_sticky_api, []},
-     {"/ventures/:venture_id/storm/sticky/:sticky_id/cluster",    cluster_event_sticky_api, []},
-     {"/ventures/:venture_id/storm/sticky/:sticky_id/uncluster",  uncluster_event_sticky_api, []},
+     {"/draw_fact_arrow/:venture_id",                           draw_fact_arrow_api, []},
+     {"/erase_fact_arrow/:venture_id/:arrow_id",                erase_fact_arrow_api, []},
+     {"/post_event_sticky/:venture_id",                         post_event_sticky_api, []},
+     {"/stack_event_sticky/:venture_id/:sticky_id",             stack_event_sticky_api, []},
+     {"/unstack_event_sticky/:venture_id/:sticky_id",           unstack_event_sticky_api, []},
+     {"/pull_event_sticky/:venture_id/:sticky_id",              pull_event_sticky_api, []},
+     {"/cluster_event_sticky/:venture_id/:sticky_id",           cluster_event_sticky_api, []},
+     {"/uncluster_event_sticky/:venture_id/:sticky_id",         uncluster_event_sticky_api, []},
      %% Storm Clusters
-     {"/ventures/:venture_id/storm/cluster/:cluster_id/name",     name_event_cluster_api, []},
-     {"/ventures/:venture_id/storm/cluster/:cluster_id/promote",  promote_event_cluster_api, []},
-     {"/ventures/:venture_id/storm/cluster/:cluster_id/dissolve", dissolve_event_cluster_api, []},
+     {"/name_event_cluster/:venture_id/:cluster_id",            name_event_cluster_api, []},
+     {"/promote_event_cluster/:venture_id/:cluster_id",         promote_event_cluster_api, []},
+     {"/dissolve_event_cluster/:venture_id/:cluster_id",        dissolve_event_cluster_api, []},
+
+     %% === QRY: Divisions ===
+     {"/get_divisions_page",                                    get_divisions_page_api, []},
+     {"/get_division_by_id/:division_id",                       get_division_by_id_api, []},
+     {"/get_division_planning/:division_id",                    get_division_planning_api, []},
+     {"/get_division_storming/:division_id",                    get_division_storming_api, []},
+     {"/get_division_kanban/:division_id",                      get_division_kanban_api, []},
+     {"/get_division_kanban_cards/:division_id",                get_division_kanban_cards_api, []},
+     {"/get_division_crafting/:division_id",                    get_division_crafting_api, []},
 
      %% === CMD: Division Lifecycle ===
-     {"/divisions/:division_id/initiate",                initiate_division_api, []},
-     {"/divisions/:division_id/archive",                 archive_division_api, []},
+     {"/initiate_division/:division_id",                        initiate_division_api, []},
+     {"/archive_division/:division_id",                         archive_division_api, []},
      %% Planning
-     {"/plannings/:division_id/open",                    open_planning_api, []},
-     {"/plannings/:division_id/shelve",                  shelve_planning_api, []},
-     {"/plannings/:division_id/resume",                  resume_planning_api, []},
-     {"/plannings/:division_id/submit",                  submit_planning_api, []},
+     {"/open_planning/:division_id",                            open_planning_api, []},
+     {"/shelve_planning/:division_id",                          shelve_planning_api, []},
+     {"/resume_planning/:division_id",                          resume_planning_api, []},
+     {"/submit_planning/:division_id",                          submit_planning_api, []},
      %% Storming (design)
-     {"/stormings/:division_id/design-event",            design_event_api, []},
-     {"/stormings/:division_id/design-aggregate",        design_aggregate_api, []},
-     {"/stormings/:division_id/plan-dependency",         plan_dependency_api, []},
-     {"/stormings/:division_id/plan-desk",               plan_desk_api, []},
+     {"/design_event/:division_id",                             design_event_api, []},
+     {"/design_aggregate/:division_id",                         design_aggregate_api, []},
+     {"/plan_dependency/:division_id",                          plan_dependency_api, []},
+     {"/plan_desk/:division_id",                                plan_desk_api, []},
      %% Crafting
-     {"/craftings/:division_id/open",                    open_crafting_api, []},
-     {"/craftings/:division_id/shelve",                  shelve_crafting_api, []},
-     {"/craftings/:division_id/resume",                  resume_crafting_api, []},
-     {"/craftings/:division_id/generate-module",         generate_module_api, []},
-     {"/craftings/:division_id/generate-test",           generate_test_api, []},
-     {"/craftings/:division_id/run-test-suite",          run_test_suite_api, []},
-     {"/craftings/:division_id/record-test-result",      record_test_result_api, []},
-     {"/craftings/:division_id/stage-delivery",          stage_delivery_api, []},
-     {"/craftings/:division_id/deliver-release",         deliver_release_api, []},
+     {"/open_crafting/:division_id",                            open_crafting_api, []},
+     {"/shelve_crafting/:division_id",                          shelve_crafting_api, []},
+     {"/resume_crafting/:division_id",                          resume_crafting_api, []},
+     {"/generate_module/:division_id",                          generate_module_api, []},
+     {"/generate_test/:division_id",                            generate_test_api, []},
+     {"/run_test_suite/:division_id",                           run_test_suite_api, []},
+     {"/record_test_result/:division_id",                       record_test_result_api, []},
+     {"/stage_delivery/:division_id",                           stage_delivery_api, []},
+     {"/deliver_release/:division_id",                          deliver_release_api, []},
      %% Kanban Cards
-     {"/kanbans/:division_id/cards",                     post_kanban_card_api, []},
-     {"/kanbans/:division_id/cards/:card_id/pick",       pick_kanban_card_api, []},
-     {"/kanbans/:division_id/cards/:card_id/unpick",     unpick_kanban_card_api, []},
-     {"/kanbans/:division_id/cards/:card_id/park",       park_kanban_card_api, []},
-     {"/kanbans/:division_id/cards/:card_id/unpark",     unpark_kanban_card_api, []},
-     {"/kanbans/:division_id/cards/:card_id/block",      block_kanban_card_api, []},
-     {"/kanbans/:division_id/cards/:card_id/unblock",    unblock_kanban_card_api, []},
-     {"/kanbans/:division_id/cards/:card_id/finish",     finish_kanban_card_api, []},
+     {"/post_kanban_card/:division_id",                         post_kanban_card_api, []},
+     {"/pick_kanban_card/:division_id/:card_id",                pick_kanban_card_api, []},
+     {"/unpick_kanban_card/:division_id/:card_id",              unpick_kanban_card_api, []},
+     {"/park_kanban_card/:division_id/:card_id",                park_kanban_card_api, []},
+     {"/unpark_kanban_card/:division_id/:card_id",              unpark_kanban_card_api, []},
+     {"/block_kanban_card/:division_id/:card_id",               block_kanban_card_api, []},
+     {"/unblock_kanban_card/:division_id/:card_id",             unblock_kanban_card_api, []},
+     {"/finish_kanban_card/:division_id/:card_id",              finish_kanban_card_api, []},
+
+     %% === QRY: Agent Sessions ===
+     {"/get_sessions_page",                                     get_sessions_page_api, []},
+     {"/get_active_sessions",                                   get_active_sessions_api, []},
+     {"/get_session_by_id/:session_id",                         get_session_by_id_api, []},
+     {"/get_session_turns/:session_id",                         get_session_turns_api, []},
 
      %% === CMD: Agent Orchestration ===
-     {"/agents/sessions/archive",                        archive_agent_session_api, []},
+     {"/archive_agent_session",                                 archive_agent_session_api, []},
      %% Visionary
-     {"/agents/visionary/initiate",                      initiate_visionary_api, []},
-     {"/agents/visionary/gate/pass",                     pass_vision_gate_api, []},
-     {"/agents/visionary/gate/reject",                   reject_vision_gate_api, []},
+     {"/initiate_visionary",                                    initiate_visionary_api, []},
+     {"/pass_vision_gate",                                      pass_vision_gate_api, []},
+     {"/reject_vision_gate",                                    reject_vision_gate_api, []},
      %% Explorer
-     {"/agents/explorer/initiate",                       initiate_explorer_api, []},
-     {"/agents/explorer/gates/boundary-gate/pass",       pass_boundary_gate_api, []},
-     {"/agents/explorer/gates/boundary-gate/reject",     reject_boundary_gate_api, []},
+     {"/initiate_explorer",                                     initiate_explorer_api, []},
+     {"/pass_boundary_gate",                                    pass_boundary_gate_api, []},
+     {"/reject_boundary_gate",                                  reject_boundary_gate_api, []},
      %% Stormer
-     {"/agents/stormer/initiate",                        initiate_stormer_api, []},
-     {"/agents/stormer/gates/design-gate/pass",          pass_design_gate_api, []},
-     {"/agents/stormer/gates/design-gate/reject",        reject_design_gate_api, []},
+     {"/initiate_stormer",                                      initiate_stormer_api, []},
+     {"/pass_design_gate",                                      pass_design_gate_api, []},
+     {"/reject_design_gate",                                    reject_design_gate_api, []},
      %% Architect
-     {"/agents/architect/initiate",                      initiate_architect_api, []},
+     {"/initiate_architect",                                    initiate_architect_api, []},
      %% Coders
-     {"/agents/erlang_coder/initiate",                   initiate_erlang_coder_api, []},
-     {"/agents/svelte_coder/initiate",                   initiate_svelte_coder_api, []},
-     {"/agents/sql_coder/initiate",                      initiate_sql_coder_api, []},
+     {"/initiate_erlang_coder",                                 initiate_erlang_coder_api, []},
+     {"/initiate_svelte_coder",                                 initiate_svelte_coder_api, []},
+     {"/initiate_sql_coder",                                    initiate_sql_coder_api, []},
      %% Reviewer
-     {"/agents/reviewer/initiate",                       initiate_reviewer_api, []},
-     {"/agents/reviewer/gates/review-gate/pass",         pass_review_gate_api, []},
-     {"/agents/reviewer/gates/review-gate/reject",       reject_review_gate_api, []},
+     {"/initiate_reviewer",                                     initiate_reviewer_api, []},
+     {"/pass_review_gate",                                      pass_review_gate_api, []},
+     {"/reject_review_gate",                                    reject_review_gate_api, []},
      %% Tester
-     {"/agents/tester/initiate",                         initiate_tester_api, []},
+     {"/initiate_tester",                                       initiate_tester_api, []},
      %% Delivery Manager
-     {"/agents/delivery_manager/initiate",               initiate_delivery_manager_api, []},
+     {"/initiate_delivery_manager",                             initiate_delivery_manager_api, []},
      %% Mentor
-     {"/agents/mentor/initiate",                         initiate_mentor_api, []},
+     {"/initiate_mentor",                                       initiate_mentor_api, []},
      %% Coordinator
-     {"/agents/coordinator/initiate",                    initiate_coordinator_api, []}
+     {"/initiate_coordinator",                                  initiate_coordinator_api, []},
+
+     %% === QRY: Knowledge Graph ===
+     {"/get_knowledge_graph/:venture_id",                       get_knowledge_graph_api, []},
+     {"/get_entities_page/:venture_id",                         get_entities_page_api, []},
+     {"/get_insights_page/:venture_id",                         get_insights_page_api, []},
+     {"/search_knowledge_graph/:venture_id",                    search_knowledge_graph_api, []},
+     {"/get_venture_narrative/:venture_id",                     get_venture_narrative_api, []},
+
+     %% === QRY: Cost Budgets ===
+     {"/get_cost_budget/:venture_id",                           get_cost_budget_api, []},
+     {"/get_cost_budget",                                       get_cost_budget_api, []},
+
+     %% === QRY: Retry Strategy ===
+     {"/get_retry_history/:venture_id",                         get_retry_history_api, []},
+     {"/get_retry_history/:venture_id/:session_id",             get_retry_history_api, []}
     ].
 
 -spec store_config() -> #hecate_store_config{}.
@@ -249,7 +245,7 @@ manifest() ->
     #{
         name => <<"hecate-app-martha">>,
         display_name => <<"Martha">>,
-        version => <<"0.5.7">>,
+        version => <<"0.6.0">>,
         description => <<"AI-Assisted Application Lifecycle">>,
         icon => <<"dog2">>,
         tag => <<"martha-studio">>,

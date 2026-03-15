@@ -88,7 +88,7 @@ export async function fetchStormState(ventureId: string): Promise<void> {
 	try {
 		const api = getApi();
 		const resp = await api.get<{ storm: StormState }>(
-			`/ventures/${ventureId}/storm/state`
+			`/get_storm_state/${ventureId}`
 		);
 		const s = resp.storm;
 		bigPicturePhase.set(s.phase);
@@ -108,7 +108,7 @@ export async function fetchVentureEvents(
 	try {
 		const api = getApi();
 		const resp = await api.get<{ events: RawEvent[]; count: number }>(
-			`/ventures/${ventureId}/events?offset=${offset}&limit=${limit}`
+			`/get_venture_events_page/${ventureId}?offset=${offset}&limit=${limit}`
 		);
 		ventureRawEvents.set(resp.events);
 		return { events: resp.events, count: resp.count };
@@ -121,7 +121,7 @@ export async function startBigPictureStorm(ventureId: string): Promise<boolean> 
 	try {
 		isLoading.set(true);
 		const api = getApi();
-		await api.post(`/ventures/${ventureId}/storm/start`, {});
+		await api.post(`/start_big_picture_storm/${ventureId}`, {});
 		bigPicturePhase.set('storm');
 		highOctaneRemaining.set(600);
 		highOctaneTimer = setInterval(() => {
@@ -153,7 +153,7 @@ export async function postEventSticky(
 ): Promise<boolean> {
 	try {
 		const api = getApi();
-		await api.post(`/ventures/${ventureId}/storm/sticky`, { text, author });
+		await api.post(`/post_event_sticky/${ventureId}`, { text, author });
 		await fetchStormState(ventureId);
 		return true;
 	} catch (e: unknown) {
@@ -169,7 +169,7 @@ export async function pullEventSticky(
 ): Promise<boolean> {
 	try {
 		const api = getApi();
-		await api.post(`/ventures/${ventureId}/storm/sticky/${stickyId}/pull`, {});
+		await api.post(`/pull_event_sticky/${ventureId}/${stickyId}`, {});
 		await fetchStormState(ventureId);
 		return true;
 	} catch (e: unknown) {
@@ -186,7 +186,7 @@ export async function stackEventSticky(
 ): Promise<boolean> {
 	try {
 		const api = getApi();
-		await api.post(`/ventures/${ventureId}/storm/sticky/${stickyId}/stack`, {
+		await api.post(`/stack_event_sticky/${ventureId}/${stickyId}`, {
 			target_sticky_id: targetStickyId
 		});
 		await fetchStormState(ventureId);
@@ -204,7 +204,7 @@ export async function unstackEventSticky(
 ): Promise<boolean> {
 	try {
 		const api = getApi();
-		await api.post(`/ventures/${ventureId}/storm/sticky/${stickyId}/unstack`, {});
+		await api.post(`/unstack_event_sticky/${ventureId}/${stickyId}`, {});
 		await fetchStormState(ventureId);
 		return true;
 	} catch (e: unknown) {
@@ -221,7 +221,7 @@ export async function groomEventStack(
 ): Promise<boolean> {
 	try {
 		const api = getApi();
-		await api.post(`/ventures/${ventureId}/storm/stack/${stackId}/groom`, {
+		await api.post(`/groom_event_stack/${ventureId}/${stackId}`, {
 			canonical_sticky_id: canonicalStickyId
 		});
 		await fetchStormState(ventureId);
@@ -240,7 +240,7 @@ export async function clusterEventSticky(
 ): Promise<boolean> {
 	try {
 		const api = getApi();
-		await api.post(`/ventures/${ventureId}/storm/sticky/${stickyId}/cluster`, {
+		await api.post(`/cluster_event_sticky/${ventureId}/${stickyId}`, {
 			target_cluster_id: targetClusterId
 		});
 		await fetchStormState(ventureId);
@@ -258,7 +258,7 @@ export async function unclusterEventSticky(
 ): Promise<boolean> {
 	try {
 		const api = getApi();
-		await api.post(`/ventures/${ventureId}/storm/sticky/${stickyId}/uncluster`, {});
+		await api.post(`/uncluster_event_sticky/${ventureId}/${stickyId}`, {});
 		await fetchStormState(ventureId);
 		return true;
 	} catch (e: unknown) {
@@ -274,7 +274,7 @@ export async function dissolveEventCluster(
 ): Promise<boolean> {
 	try {
 		const api = getApi();
-		await api.post(`/ventures/${ventureId}/storm/cluster/${clusterId}/dissolve`, {});
+		await api.post(`/dissolve_event_cluster/${ventureId}/${clusterId}`, {});
 		await fetchStormState(ventureId);
 		return true;
 	} catch (e: unknown) {
@@ -291,7 +291,7 @@ export async function nameEventCluster(
 ): Promise<boolean> {
 	try {
 		const api = getApi();
-		await api.post(`/ventures/${ventureId}/storm/cluster/${clusterId}/name`, { name });
+		await api.post(`/name_event_cluster/${ventureId}/${clusterId}`, { name });
 		await fetchStormState(ventureId);
 		return true;
 	} catch (e: unknown) {
@@ -309,7 +309,7 @@ export async function drawFactArrow(
 ): Promise<boolean> {
 	try {
 		const api = getApi();
-		await api.post(`/ventures/${ventureId}/storm/fact`, {
+		await api.post(`/draw_fact_arrow/${ventureId}`, {
 			from_cluster: fromCluster,
 			to_cluster: toCluster,
 			fact_name: factName
@@ -329,7 +329,7 @@ export async function eraseFactArrow(
 ): Promise<boolean> {
 	try {
 		const api = getApi();
-		await api.post(`/ventures/${ventureId}/storm/fact/${arrowId}/erase`, {});
+		await api.post(`/erase_fact_arrow/${ventureId}/${arrowId}`, {});
 		await fetchStormState(ventureId);
 		return true;
 	} catch (e: unknown) {
@@ -345,7 +345,7 @@ export async function promoteEventCluster(
 ): Promise<boolean> {
 	try {
 		const api = getApi();
-		await api.post(`/ventures/${ventureId}/storm/cluster/${clusterId}/promote`, {});
+		await api.post(`/promote_event_cluster/${ventureId}/${clusterId}`, {});
 		await fetchStormState(ventureId);
 		return true;
 	} catch (e: unknown) {
@@ -361,7 +361,7 @@ export async function advanceStormPhase(
 ): Promise<boolean> {
 	try {
 		const api = getApi();
-		await api.post(`/ventures/${ventureId}/storm/phase/advance`, {
+		await api.post(`/advance_storm_phase/${ventureId}`, {
 			target_phase: nextPhase
 		});
 		await fetchStormState(ventureId);
@@ -376,7 +376,7 @@ export async function advanceStormPhase(
 export async function shelveStorm(ventureId: string): Promise<boolean> {
 	try {
 		const api = getApi();
-		await api.post(`/ventures/${ventureId}/storm/shelve`, {});
+		await api.post(`/shelve_big_picture_storm/${ventureId}`, {});
 		bigPicturePhase.set('shelved');
 		return true;
 	} catch (e: unknown) {
@@ -389,7 +389,7 @@ export async function shelveStorm(ventureId: string): Promise<boolean> {
 export async function resumeStorm(ventureId: string): Promise<boolean> {
 	try {
 		const api = getApi();
-		await api.post(`/ventures/${ventureId}/storm/resume`, {});
+		await api.post(`/resume_big_picture_storm/${ventureId}`, {});
 		await fetchStormState(ventureId);
 		return true;
 	} catch (e: unknown) {
@@ -402,7 +402,7 @@ export async function resumeStorm(ventureId: string): Promise<boolean> {
 export async function archiveStorm(ventureId: string): Promise<boolean> {
 	try {
 		const api = getApi();
-		await api.post(`/ventures/${ventureId}/storm/archive`, {});
+		await api.post(`/archive_big_picture_storm/${ventureId}`, {});
 		await fetchStormState(ventureId);
 		return true;
 	} catch (e: unknown) {

@@ -108,7 +108,7 @@ export async function fetchKanban(divisionId: string): Promise<void> {
 		kanbanError.set(null);
 		const api = getApi();
 		const resp = await api.get<{ board: KanbanBoard; cards: KanbanCard[] }>(
-			`/kanbans/${divisionId}`
+			`/get_division_kanban/${divisionId}`
 		);
 		kanbanBoard.set(resp.board);
 		kanbanCards.set(resp.cards ?? []);
@@ -129,7 +129,7 @@ export async function postCard(
 	try {
 		kanbanError.set(null);
 		const api = getApi();
-		await api.post(`/kanbans/${divisionId}/cards`, data);
+		await api.post(`/post_kanban_card/${divisionId}`, data);
 		await fetchKanban(divisionId);
 		return true;
 	} catch (e: unknown) {
@@ -147,7 +147,7 @@ export async function pickCard(
 	try {
 		kanbanError.set(null);
 		const api = getApi();
-		await api.post(`/kanbans/${divisionId}/cards/${cardId}/pick`, {
+		await api.post(`/pick_kanban_card/${divisionId}/${cardId}`, {
 			picked_by: pickedBy
 		});
 		await fetchKanban(divisionId);
@@ -166,7 +166,7 @@ export async function finishCard(
 	try {
 		kanbanError.set(null);
 		const api = getApi();
-		await api.post(`/kanbans/${divisionId}/cards/${cardId}/finish`, {});
+		await api.post(`/finish_kanban_card/${divisionId}/${cardId}`, {});
 		await fetchKanban(divisionId);
 		return true;
 	} catch (e: unknown) {
@@ -184,7 +184,7 @@ export async function unpickCard(
 	try {
 		kanbanError.set(null);
 		const api = getApi();
-		await api.post(`/kanbans/${divisionId}/cards/${cardId}/unpick`, { reason });
+		await api.post(`/unpick_kanban_card/${divisionId}/${cardId}`, { reason });
 		await fetchKanban(divisionId);
 		return true;
 	} catch (e: unknown) {
@@ -203,7 +203,7 @@ export async function parkCard(
 	try {
 		kanbanError.set(null);
 		const api = getApi();
-		await api.post(`/kanbans/${divisionId}/cards/${cardId}/park`, {
+		await api.post(`/park_kanban_card/${divisionId}/${cardId}`, {
 			reason,
 			parked_by: parkedBy
 		});
@@ -223,7 +223,7 @@ export async function unparkCard(
 	try {
 		kanbanError.set(null);
 		const api = getApi();
-		await api.post(`/kanbans/${divisionId}/cards/${cardId}/unpark`, {});
+		await api.post(`/unpark_kanban_card/${divisionId}/${cardId}`, {});
 		await fetchKanban(divisionId);
 		return true;
 	} catch (e: unknown) {
@@ -242,7 +242,7 @@ export async function blockCard(
 	try {
 		kanbanError.set(null);
 		const api = getApi();
-		await api.post(`/kanbans/${divisionId}/cards/${cardId}/block`, {
+		await api.post(`/block_kanban_card/${divisionId}/${cardId}`, {
 			reason,
 			blocked_by: blockedBy
 		});
@@ -262,7 +262,7 @@ export async function unblockCard(
 	try {
 		kanbanError.set(null);
 		const api = getApi();
-		await api.post(`/kanbans/${divisionId}/cards/${cardId}/unblock`, {});
+		await api.post(`/unblock_kanban_card/${divisionId}/${cardId}`, {});
 		await fetchKanban(divisionId);
 		return true;
 	} catch (e: unknown) {

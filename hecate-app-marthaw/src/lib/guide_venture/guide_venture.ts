@@ -43,7 +43,7 @@ export function clearActiveVenture(): void {
 export async function fetchVentures(): Promise<void> {
 	try {
 		const api = getApi();
-		const resp = await api.get<{ ventures: Venture[] }>('/ventures');
+		const resp = await api.get<{ ventures: Venture[] }>('/get_ventures_page');
 		ventures.set(resp.ventures);
 	} catch {
 		ventures.set([]);
@@ -53,7 +53,7 @@ export async function fetchVentures(): Promise<void> {
 export async function fetchActiveVenture(): Promise<void> {
 	try {
 		const api = getApi();
-		const resp = await api.get<{ venture: Venture }>('/venture');
+		const resp = await api.get<{ venture: Venture }>('/get_active_venture');
 		activeVenture.set(resp.venture);
 	} catch {
 		activeVenture.set(null);
@@ -64,7 +64,7 @@ export async function fetchDivisions(ventureId: string): Promise<void> {
 	try {
 		const api = getApi();
 		const resp = await api.get<{ divisions: Division[] }>(
-			`/ventures/${ventureId}/divisions`
+			`/get_discovered_divisions_page/${ventureId}`
 		);
 		divisions.set(resp.divisions);
 	} catch {
@@ -76,7 +76,7 @@ export async function initiateVenture(name: string, brief: string): Promise<bool
 	try {
 		isLoading.set(true);
 		const api = getApi();
-		const resp = await api.post<{ venture_id: string; name: string; brief: string; status: number; status_label: string; initiated_at: number; initiated_by: string }>('/ventures/initiate', { name, brief, initiated_by: 'hecate-web' });
+		const resp = await api.post<{ venture_id: string; name: string; brief: string; status: number; status_label: string; initiated_at: number; initiated_by: string }>('/initiate_venture', { name, brief, initiated_by: 'hecate-web' });
 		// Optimistically add the new venture to the store from the API response,
 		// avoiding the race condition where the projection hasn't processed the event yet.
 		const newVenture: Venture = {
@@ -107,7 +107,7 @@ export async function archiveVenture(ventureId: string): Promise<boolean> {
 	try {
 		isLoading.set(true);
 		const api = getApi();
-		await api.post(`/ventures/${ventureId}/archive`, {});
+		await api.post(`/archive_venture/${ventureId}`, {});
 		await fetchVentures();
 		await fetchActiveVenture();
 		return true;
@@ -130,7 +130,7 @@ export async function scaffoldVentureRepo(
 	try {
 		isLoading.set(true);
 		const api = getApi();
-		await api.post(`/ventures/${ventureId}/repo`, {
+		await api.post(`/scaffold_venture_repo/${ventureId}`, {
 			repo_url: repoPath,
 			vision: vision || undefined,
 			name: name || undefined,
@@ -151,7 +151,7 @@ export async function startDiscovery(ventureId: string): Promise<boolean> {
 	try {
 		isLoading.set(true);
 		const api = getApi();
-		await api.post(`/ventures/${ventureId}/discovery/start`, {});
+		await api.post(`/start_discovery/${ventureId}`, {});
 		await fetchActiveVenture();
 		return true;
 	} catch (e: unknown) {
@@ -171,7 +171,7 @@ export async function identifyDivision(
 	try {
 		isLoading.set(true);
 		const api = getApi();
-		await api.post(`/ventures/${ventureId}/discovery/identify`, {
+		await api.post(`/identify_division/${ventureId}`, {
 			context_name: contextName,
 			description: description || null,
 			identified_by: 'hecate-web'
@@ -194,7 +194,7 @@ export async function pauseDiscovery(
 	try {
 		isLoading.set(true);
 		const api = getApi();
-		await api.post(`/ventures/${ventureId}/discovery/pause`, {
+		await api.post(`/pause_discovery/${ventureId}`, {
 			reason: reason || null
 		});
 		await fetchActiveVenture();
@@ -212,7 +212,7 @@ export async function resumeDiscovery(ventureId: string): Promise<boolean> {
 	try {
 		isLoading.set(true);
 		const api = getApi();
-		await api.post(`/ventures/${ventureId}/discovery/resume`, {});
+		await api.post(`/resume_discovery/${ventureId}`, {});
 		await fetchActiveVenture();
 		return true;
 	} catch (e: unknown) {
@@ -228,7 +228,7 @@ export async function completeDiscovery(ventureId: string): Promise<boolean> {
 	try {
 		isLoading.set(true);
 		const api = getApi();
-		await api.post(`/ventures/${ventureId}/discovery/complete`, {});
+		await api.post(`/complete_discovery/${ventureId}`, {});
 		await fetchActiveVenture();
 		return true;
 	} catch (e: unknown) {

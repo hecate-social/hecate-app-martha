@@ -81,6 +81,30 @@ export const ALL_ROLES: AgentRole[] = [
 	'coordinator', 'mentor'
 ];
 
+/** Map role to its initiate route name (desk name) */
+const INITIATE_ROUTE: Record<AgentRole, string> = {
+	visionary: 'initiate_visionary',
+	explorer: 'initiate_explorer',
+	stormer: 'initiate_stormer',
+	architect: 'initiate_architect',
+	erlang_coder: 'initiate_erlang_coder',
+	svelte_coder: 'initiate_svelte_coder',
+	sql_coder: 'initiate_sql_coder',
+	tester: 'initiate_tester',
+	reviewer: 'initiate_reviewer',
+	delivery: 'initiate_delivery_manager',
+	coordinator: 'initiate_coordinator',
+	mentor: 'initiate_mentor'
+};
+
+/** Map role to its gate desk names (only roles with HITL gates) */
+const GATE_ROUTES: Partial<Record<AgentRole, { pass: string; reject: string }>> = {
+	visionary: { pass: 'pass_vision_gate', reject: 'reject_vision_gate' },
+	explorer: { pass: 'pass_boundary_gate', reject: 'reject_boundary_gate' },
+	stormer: { pass: 'pass_design_gate', reject: 'reject_design_gate' },
+	reviewer: { pass: 'pass_review_gate', reject: 'reject_review_gate' }
+};
+
 // --- State ---
 export const agentSessions = writable<AgentSession[]>([]);
 export const agentRoleStatuses = writable<RoleStatus[]>([]);
@@ -112,9 +136,7 @@ export async function fetchAgentSessions(ventureId: string): Promise<void> {
 		agentLoading.set(true);
 		agentError.set(null);
 		const api = getApi();
-		const resp = await api.get<{ sessions: AgentSession[] }>(
-			`/ventures/${ventureId}/agents/sessions`
-		);
+		const resp = await api.get<{ sessions: AgentSession[] }>('/get_sessions_page');
 		agentSessions.set(resp.sessions ?? []);
 		deriveRoleStatuses(resp.sessions ?? []);
 		derivePendingGates(resp.sessions ?? []);
@@ -130,9 +152,7 @@ export async function fetchActiveSessions(ventureId: string): Promise<void> {
 	try {
 		agentError.set(null);
 		const api = getApi();
-		const resp = await api.get<{ sessions: AgentSession[] }>(
-			`/ventures/${ventureId}/agents/sessions/active`
-		);
+		const resp = await api.get<{ sessions: AgentSession[] }>('/get_active_sessions');
 		agentSessions.set(resp.sessions ?? []);
 		deriveRoleStatuses(resp.sessions ?? []);
 		derivePendingGates(resp.sessions ?? []);
@@ -147,7 +167,7 @@ export async function fetchSessionDetail(ventureId: string, sessionId: string): 
 		agentError.set(null);
 		const api = getApi();
 		const resp = await api.get<{ session: AgentSession }>(
-			`/ventures/${ventureId}/agents/sessions/${sessionId}`
+			`/get_session_by_id/${sessionId}`
 		);
 		selectedSession.set(resp.session);
 	} catch (e: unknown) {
@@ -160,7 +180,7 @@ export async function fetchSessionTurns(ventureId: string, sessionId: string): P
 	try {
 		const api = getApi();
 		const resp = await api.get<{ turns: AgentTurn[] }>(
-			`/ventures/${ventureId}/agents/sessions/${sessionId}/turns`
+			`/get_session_turns/${sessionId}`
 		);
 		sessionTurns.set(resp.turns ?? []);
 	} catch {
@@ -172,9 +192,9 @@ export async function initiateAgent(ventureId: string, role: AgentRole, division
 	try {
 		agentError.set(null);
 		const api = getApi();
-		const body: Record<string, unknown> = {};
+		const body: Record<string, unknown> = { venture_id: ventureId };
 		if (divisionId) body.division_id = divisionId;
-		await api.post(`/ventures/${ventureId}/agents/${role}/initiate`, body);
+		await api.post(`/${INITIATE_ROUTE[role]}`, body);
 		await fetchAgentSessions(ventureId);
 		return true;
 	} catch (e: unknown) {
@@ -188,7 +208,9 @@ export async function passGate(ventureId: string, role: AgentRole, sessionId: st
 	try {
 		agentError.set(null);
 		const api = getApi();
-		await api.post(`/ventures/${ventureId}/agents/${role}/gate/pass`, { session_id: sessionId });
+		const gate = GATE_ROUTES[role];
+		if (!gate) throw new Error(`No gate for role ${role}`);
+		await api.post(`/${gate.pass}`, { session_id: sessionId });
 		await fetchAgentSessions(ventureId);
 		return true;
 	} catch (e: unknown) {
@@ -202,7 +224,9 @@ export async function rejectGate(ventureId: string, role: AgentRole, sessionId: 
 	try {
 		agentError.set(null);
 		const api = getApi();
-		await api.post(`/ventures/${ventureId}/agents/${role}/gate/reject`, {
+		const gate = GATE_ROUTES[role];
+		if (!gate) throw new Error(`No gate for role ${role}`);
+		await api.post(`/${gate.reject}`, {
 			session_id: sessionId,
 			reason
 		});
@@ -219,7 +243,7 @@ export async function archiveSession(ventureId: string, sessionId: string): Prom
 	try {
 		agentError.set(null);
 		const api = getApi();
-		await api.post(`/ventures/${ventureId}/agents/sessions/${sessionId}/archive`, {});
+		await api.post('/archive_agent_session', { session_id: sessionId });
 		await fetchAgentSessions(ventureId);
 		return true;
 	} catch (e: unknown) {
