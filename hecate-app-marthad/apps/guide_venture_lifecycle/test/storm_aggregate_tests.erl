@@ -214,63 +214,63 @@ shelved_state() ->
 %% ===================================================================
 
 exec_start_storm_ok() ->
-    Cmd = #{command_type => <<"start_big_picture_storm">>,
+    Cmd = #{command_type => <<"start_big_picture_storm_v1">>,
             <<"venture_id">> => <<"v-storm-1">>},
     {ok, [Event]} = venture_aggregate:execute(discovering_state(), Cmd),
     ?assertEqual(big_picture_storm_started_v1, maps:get(event_type, Event)).
 
 exec_start_storm_not_discovering() ->
     State = apply_events([initiated_event()]),
-    Cmd = #{command_type => <<"start_big_picture_storm">>,
+    Cmd = #{command_type => <<"start_big_picture_storm_v1">>,
             <<"venture_id">> => <<"v-storm-1">>},
     ?assertEqual({error, discovery_not_active},
                  venture_aggregate:execute(State, Cmd)).
 
 exec_start_storm_already_active() ->
-    Cmd = #{command_type => <<"start_big_picture_storm">>,
+    Cmd = #{command_type => <<"start_big_picture_storm_v1">>,
             <<"venture_id">> => <<"v-storm-1">>},
     ?assertEqual({error, storm_already_active},
                  venture_aggregate:execute(storming_state(), Cmd)).
 
 exec_shelve_storm_ok() ->
-    Cmd = #{command_type => <<"shelve_big_picture_storm">>,
+    Cmd = #{command_type => <<"shelve_big_picture_storm_v1">>,
             <<"venture_id">> => <<"v-storm-1">>,
             <<"reason">> => <<"lunch break">>},
     {ok, [Event]} = venture_aggregate:execute(storming_state(), Cmd),
     ?assertEqual(big_picture_storm_shelved_v1, maps:get(event_type, Event)).
 
 exec_shelve_storm_not_active() ->
-    Cmd = #{command_type => <<"shelve_big_picture_storm">>,
+    Cmd = #{command_type => <<"shelve_big_picture_storm_v1">>,
             <<"venture_id">> => <<"v-storm-1">>},
     ?assertEqual({error, storm_not_active},
                  venture_aggregate:execute(discovering_state(), Cmd)).
 
 exec_resume_storm_ok() ->
-    Cmd = #{command_type => <<"resume_big_picture_storm">>,
+    Cmd = #{command_type => <<"resume_big_picture_storm_v1">>,
             <<"venture_id">> => <<"v-storm-1">>},
     {ok, [Event]} = venture_aggregate:execute(shelved_state(), Cmd),
     ?assertEqual(big_picture_storm_resumed_v1, maps:get(event_type, Event)).
 
 exec_resume_storm_not_shelved() ->
-    Cmd = #{command_type => <<"resume_big_picture_storm">>,
+    Cmd = #{command_type => <<"resume_big_picture_storm_v1">>,
             <<"venture_id">> => <<"v-storm-1">>},
     ?assertEqual({error, storm_not_shelved},
                  venture_aggregate:execute(storming_state(), Cmd)).
 
 exec_archive_storm_active() ->
-    Cmd = #{command_type => <<"archive_big_picture_storm">>,
+    Cmd = #{command_type => <<"archive_big_picture_storm_v1">>,
             <<"venture_id">> => <<"v-storm-1">>},
     {ok, [Event]} = venture_aggregate:execute(storming_state(), Cmd),
     ?assertEqual(big_picture_storm_archived_v1, maps:get(event_type, Event)).
 
 exec_archive_storm_shelved() ->
-    Cmd = #{command_type => <<"archive_big_picture_storm">>,
+    Cmd = #{command_type => <<"archive_big_picture_storm_v1">>,
             <<"venture_id">> => <<"v-storm-1">>},
     {ok, [Event]} = venture_aggregate:execute(shelved_state(), Cmd),
     ?assertEqual(big_picture_storm_archived_v1, maps:get(event_type, Event)).
 
 exec_archive_storm_none() ->
-    Cmd = #{command_type => <<"archive_big_picture_storm">>,
+    Cmd = #{command_type => <<"archive_big_picture_storm_v1">>,
             <<"venture_id">> => <<"v-storm-1">>},
     ?assertEqual({error, no_storm_to_archive},
                  venture_aggregate:execute(discovering_state(), Cmd)).
@@ -280,7 +280,7 @@ exec_archive_storm_none() ->
 %% ===================================================================
 
 exec_post_sticky_ok() ->
-    Cmd = #{command_type => <<"post_event_sticky">>,
+    Cmd = #{command_type => <<"post_event_sticky_v1">>,
             <<"venture_id">> => <<"v-storm-1">>,
             <<"text">> => <<"order_placed">>},
     {ok, [Event]} = venture_aggregate:execute(storming_state(), Cmd),
@@ -288,14 +288,14 @@ exec_post_sticky_ok() ->
     ?assertEqual(<<"order_placed">>, maps:get(text, Event)).
 
 exec_post_sticky_not_storming() ->
-    Cmd = #{command_type => <<"post_event_sticky">>,
+    Cmd = #{command_type => <<"post_event_sticky_v1">>,
             <<"venture_id">> => <<"v-storm-1">>,
             <<"text">> => <<"order_placed">>},
     ?assertEqual({error, storm_not_active},
                  venture_aggregate:execute(discovering_state(), Cmd)).
 
 exec_pull_sticky_ok() ->
-    Cmd = #{command_type => <<"pull_event_sticky">>,
+    Cmd = #{command_type => <<"pull_event_sticky_v1">>,
             <<"venture_id">> => <<"v-storm-1">>,
             <<"sticky_id">> => <<"s-1">>},
     {ok, [Event]} = venture_aggregate:execute(with_stickies_state(), Cmd),
@@ -307,7 +307,7 @@ exec_pull_sticky_ok() ->
 
 exec_stack_sticky_new_stack() ->
     %% Stack s-1 onto s-2, both free — should create stack + 2 stacked events
-    Cmd = #{command_type => <<"stack_event_sticky">>,
+    Cmd = #{command_type => <<"stack_event_sticky_v1">>,
             <<"venture_id">> => <<"v-storm-1">>,
             <<"sticky_id">> => <<"s-1">>,
             <<"target_sticky_id">> => <<"s-2">>},
@@ -319,7 +319,7 @@ exec_stack_sticky_new_stack() ->
 
 exec_stack_sticky_existing() ->
     %% s-3 is free, s-1 is already in stk-1 — should only emit stacked
-    Cmd = #{command_type => <<"stack_event_sticky">>,
+    Cmd = #{command_type => <<"stack_event_sticky_v1">>,
             <<"venture_id">> => <<"v-storm-1">>,
             <<"sticky_id">> => <<"s-3">>,
             <<"target_sticky_id">> => <<"s-1">>},
@@ -330,7 +330,7 @@ exec_stack_sticky_existing() ->
     ?assert(lists:member(event_sticky_stacked_v1, EventTypes)).
 
 exec_unstack_sticky_ok() ->
-    Cmd = #{command_type => <<"unstack_event_sticky">>,
+    Cmd = #{command_type => <<"unstack_event_sticky_v1">>,
             <<"venture_id">> => <<"v-storm-1">>,
             <<"sticky_id">> => <<"s-1">>},
     {ok, [Event]} = venture_aggregate:execute(with_stack_state(), Cmd),
@@ -338,7 +338,7 @@ exec_unstack_sticky_ok() ->
     ?assertEqual(<<"stk-1">>, maps:get(stack_id, Event)).
 
 exec_groom_stack_ok() ->
-    Cmd = #{command_type => <<"groom_event_stack">>,
+    Cmd = #{command_type => <<"groom_event_stack_v1">>,
             <<"venture_id">> => <<"v-storm-1">>,
             <<"stack_id">> => <<"stk-1">>,
             <<"canonical_sticky_id">> => <<"s-1">>},
@@ -355,7 +355,7 @@ exec_groom_stack_ok() ->
 exec_cluster_sticky_new() ->
     %% Cluster s-1 onto s-2 — both free, should emerge new cluster
     %% target_cluster_id = s-2 (a sticky ID, not a cluster ID) triggers new cluster emergence
-    Cmd = #{command_type => <<"cluster_event_sticky">>,
+    Cmd = #{command_type => <<"cluster_event_sticky_v1">>,
             <<"venture_id">> => <<"v-storm-1">>,
             <<"sticky_id">> => <<"s-1">>,
             <<"target_cluster_id">> => <<"s-2">>},
@@ -366,7 +366,7 @@ exec_cluster_sticky_new() ->
 
 exec_cluster_sticky_existing() ->
     %% s-2 is free, cl-1 exists with s-1 — cluster s-2 into existing cl-1
-    Cmd = #{command_type => <<"cluster_event_sticky">>,
+    Cmd = #{command_type => <<"cluster_event_sticky_v1">>,
             <<"venture_id">> => <<"v-storm-1">>,
             <<"sticky_id">> => <<"s-2">>,
             <<"target_cluster_id">> => <<"cl-1">>},
@@ -376,21 +376,21 @@ exec_cluster_sticky_existing() ->
     ?assert(lists:member(event_sticky_clustered_v1, EventTypes)).
 
 exec_uncluster_sticky_ok() ->
-    Cmd = #{command_type => <<"uncluster_event_sticky">>,
+    Cmd = #{command_type => <<"uncluster_event_sticky_v1">>,
             <<"venture_id">> => <<"v-storm-1">>,
             <<"sticky_id">> => <<"s-1">>},
     {ok, [Event]} = venture_aggregate:execute(with_cluster_state(), Cmd),
     ?assertEqual(event_sticky_unclustered_v1, maps:get(event_type, Event)).
 
 exec_dissolve_cluster_ok() ->
-    Cmd = #{command_type => <<"dissolve_event_cluster">>,
+    Cmd = #{command_type => <<"dissolve_event_cluster_v1">>,
             <<"venture_id">> => <<"v-storm-1">>,
             <<"cluster_id">> => <<"cl-1">>},
     {ok, [Event]} = venture_aggregate:execute(with_cluster_state(), Cmd),
     ?assertEqual(event_cluster_dissolved_v1, maps:get(event_type, Event)).
 
 exec_name_cluster_ok() ->
-    Cmd = #{command_type => <<"name_event_cluster">>,
+    Cmd = #{command_type => <<"name_event_cluster_v1">>,
             <<"venture_id">> => <<"v-storm-1">>,
             <<"cluster_id">> => <<"cl-1">>,
             <<"name">> => <<"orders">>},
@@ -403,7 +403,7 @@ exec_name_cluster_ok() ->
 %% ===================================================================
 
 exec_draw_arrow_ok() ->
-    Cmd = #{command_type => <<"draw_fact_arrow">>,
+    Cmd = #{command_type => <<"draw_fact_arrow_v1">>,
             <<"venture_id">> => <<"v-storm-1">>,
             <<"from_cluster">> => <<"cl-1">>,
             <<"to_cluster">> => <<"cl-2">>,
@@ -413,7 +413,7 @@ exec_draw_arrow_ok() ->
     ?assertEqual(<<"order_confirmed">>, maps:get(fact_name, Event)).
 
 exec_erase_arrow_ok() ->
-    Cmd = #{command_type => <<"erase_fact_arrow">>,
+    Cmd = #{command_type => <<"erase_fact_arrow_v1">>,
             <<"venture_id">> => <<"v-storm-1">>,
             <<"arrow_id">> => <<"arr-1">>},
     {ok, [Event]} = venture_aggregate:execute(with_arrows_state(), Cmd),
@@ -424,7 +424,7 @@ exec_erase_arrow_ok() ->
 %% ===================================================================
 
 exec_promote_cluster_ok() ->
-    Cmd = #{command_type => <<"promote_event_cluster">>,
+    Cmd = #{command_type => <<"promote_event_cluster_v1">>,
             <<"venture_id">> => <<"v-storm-1">>,
             <<"cluster_id">> => <<"cl-1">>},
     {ok, Events} = venture_aggregate:execute(with_arrows_state(), Cmd),
@@ -437,7 +437,7 @@ exec_promote_cluster_ok() ->
 %% ===================================================================
 
 exec_advance_phase_ok() ->
-    Cmd = #{command_type => <<"advance_storm_phase">>,
+    Cmd = #{command_type => <<"advance_storm_phase_v1">>,
             <<"venture_id">> => <<"v-storm-1">>,
             <<"target_phase">> => <<"stack">>},
     {ok, [Event]} = venture_aggregate:execute(storming_state(), Cmd),
@@ -446,7 +446,7 @@ exec_advance_phase_ok() ->
 
 exec_advance_phase_invalid() ->
     %% Current phase is storm, trying to jump to name (skipping stack, groom, cluster)
-    Cmd = #{command_type => <<"advance_storm_phase">>,
+    Cmd = #{command_type => <<"advance_storm_phase_v1">>,
             <<"venture_id">> => <<"v-storm-1">>,
             <<"target_phase">> => <<"name">>},
     ?assertEqual({error, invalid_phase_transition},
@@ -662,7 +662,7 @@ full_storm_lifecycle() ->
 
     %% 1. Start storm
     {ok, [E1]} = venture_aggregate:execute(S0,
-        #{command_type => <<"start_big_picture_storm">>,
+        #{command_type => <<"start_big_picture_storm_v1">>,
           <<"venture_id">> => <<"v-storm-1">>}),
     S1 = venture_aggregate:apply(S0, E1),
     ?assert(S1#venture_state.status band ?VL_STORMING =/= 0),
@@ -670,14 +670,14 @@ full_storm_lifecycle() ->
 
     %% 2. Post stickies
     {ok, [E2]} = venture_aggregate:execute(S1,
-        #{command_type => <<"post_event_sticky">>,
+        #{command_type => <<"post_event_sticky_v1">>,
           <<"venture_id">> => <<"v-storm-1">>,
           <<"text">> => <<"order_placed">>}),
     S2 = venture_aggregate:apply(S1, E2),
     StickyId1 = maps:get(sticky_id, E2),
 
     {ok, [E3]} = venture_aggregate:execute(S2,
-        #{command_type => <<"post_event_sticky">>,
+        #{command_type => <<"post_event_sticky_v1">>,
           <<"venture_id">> => <<"v-storm-1">>,
           <<"text">> => <<"order_received">>}),
     S3 = venture_aggregate:apply(S2, E3),
@@ -687,7 +687,7 @@ full_storm_lifecycle() ->
 
     %% 3. Advance to stack phase
     {ok, [E4]} = venture_aggregate:execute(S3,
-        #{command_type => <<"advance_storm_phase">>,
+        #{command_type => <<"advance_storm_phase_v1">>,
           <<"venture_id">> => <<"v-storm-1">>,
           <<"target_phase">> => <<"stack">>}),
     S4 = venture_aggregate:apply(S3, E4),
@@ -695,7 +695,7 @@ full_storm_lifecycle() ->
 
     %% 4. Stack stickies together
     {ok, StackEvents} = venture_aggregate:execute(S4,
-        #{command_type => <<"stack_event_sticky">>,
+        #{command_type => <<"stack_event_sticky_v1">>,
           <<"venture_id">> => <<"v-storm-1">>,
           <<"sticky_id">> => StickyId1,
           <<"target_sticky_id">> => StickyId2}),
@@ -704,7 +704,7 @@ full_storm_lifecycle() ->
 
     %% 5. Advance to groom phase
     {ok, [E6]} = venture_aggregate:execute(S5,
-        #{command_type => <<"advance_storm_phase">>,
+        #{command_type => <<"advance_storm_phase_v1">>,
           <<"venture_id">> => <<"v-storm-1">>,
           <<"target_phase">> => <<"groom">>}),
     S6 = venture_aggregate:apply(S5, E6),
@@ -712,7 +712,7 @@ full_storm_lifecycle() ->
     %% 6. Groom the stack
     [StackId] = maps:keys(S6#venture_state.event_stacks),
     {ok, [E7]} = venture_aggregate:execute(S6,
-        #{command_type => <<"groom_event_stack">>,
+        #{command_type => <<"groom_event_stack_v1">>,
           <<"venture_id">> => <<"v-storm-1">>,
           <<"stack_id">> => StackId,
           <<"canonical_sticky_id">> => StickyId1}),
@@ -725,7 +725,7 @@ full_storm_lifecycle() ->
 
     %% 7. Advance through remaining phases
     {ok, [E8]} = venture_aggregate:execute(S7,
-        #{command_type => <<"advance_storm_phase">>,
+        #{command_type => <<"advance_storm_phase_v1">>,
           <<"venture_id">> => <<"v-storm-1">>,
           <<"target_phase">> => <<"cluster">>}),
     S8 = venture_aggregate:apply(S7, E8),
@@ -733,19 +733,19 @@ full_storm_lifecycle() ->
 
     %% 8. Shelve, resume, then archive
     {ok, [E9]} = venture_aggregate:execute(S8,
-        #{command_type => <<"shelve_big_picture_storm">>,
+        #{command_type => <<"shelve_big_picture_storm_v1">>,
           <<"venture_id">> => <<"v-storm-1">>}),
     S9 = venture_aggregate:apply(S8, E9),
     ?assert(S9#venture_state.status band ?VL_STORM_SHELVED =/= 0),
 
     {ok, [E10]} = venture_aggregate:execute(S9,
-        #{command_type => <<"resume_big_picture_storm">>,
+        #{command_type => <<"resume_big_picture_storm_v1">>,
           <<"venture_id">> => <<"v-storm-1">>}),
     S10 = venture_aggregate:apply(S9, E10),
     ?assert(S10#venture_state.status band ?VL_STORMING =/= 0),
 
     {ok, [E11]} = venture_aggregate:execute(S10,
-        #{command_type => <<"archive_big_picture_storm">>,
+        #{command_type => <<"archive_big_picture_storm_v1">>,
           <<"venture_id">> => <<"v-storm-1">>}),
     S11 = venture_aggregate:apply(S10, E11),
     ?assert(S11#venture_state.status band ?VL_STORMING =:= 0),

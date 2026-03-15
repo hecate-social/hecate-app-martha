@@ -201,7 +201,7 @@ card_picked_state() ->
 %% ===================================================================
 
 exec_initiate_ok() ->
-    Cmd = #{command_type => <<"initiate_division">>,
+    Cmd = #{command_type => <<"initiate_division_v1">>,
             <<"division_id">> => <<"div-new">>,
             <<"venture_id">> => <<"v-1">>,
             <<"context_name">> => <<"auth">>},
@@ -211,12 +211,12 @@ exec_initiate_ok() ->
     ?assertEqual(<<"auth">>, maps:get(context_name, Event)).
 
 exec_initiate_missing_fields() ->
-    Cmd = #{command_type => <<"initiate_division">>},
+    Cmd = #{command_type => <<"initiate_division_v1">>},
     ?assertError({badmatch, {error, missing_required_fields}},
                  division_aggregate:execute(fresh(), Cmd)).
 
 exec_non_initiate_on_fresh() ->
-    Cmd = #{command_type => <<"design_aggregate">>,
+    Cmd = #{command_type => <<"design_aggregate_v1">>,
             <<"division_id">> => <<"div-1">>},
     ?assertEqual({error, division_not_initiated},
                  division_aggregate:execute(fresh(), Cmd)).
@@ -226,20 +226,20 @@ exec_non_initiate_on_fresh() ->
 %% ===================================================================
 
 exec_archive_ok() ->
-    Cmd = #{command_type => <<"archive_division">>,
+    Cmd = #{command_type => <<"archive_division_v1">>,
             <<"division_id">> => <<"div-test-1">>},
     {ok, [Event]} = division_aggregate:execute(initiated_state(), Cmd),
     ?assertEqual(division_archived_v1, maps:get(event_type, Event)).
 
 exec_archived_rejects_all() ->
-    Cmd = #{command_type => <<"design_aggregate">>,
+    Cmd = #{command_type => <<"design_aggregate_v1">>,
             <<"division_id">> => <<"div-test-1">>,
             <<"aggregate_name">> => <<"order">>},
     ?assertEqual({error, division_archived},
                  division_aggregate:execute(archived_state(), Cmd)).
 
 exec_unknown_command() ->
-    Cmd = #{command_type => <<"do_something_weird">>},
+    Cmd = #{command_type => <<"do_something_weird_v1">>},
     ?assertEqual({error, unknown_command},
                  division_aggregate:execute(initiated_state(), Cmd)).
 
@@ -248,7 +248,7 @@ exec_unknown_command() ->
 %% ===================================================================
 
 exec_design_aggregate_ok() ->
-    Cmd = #{command_type => <<"design_aggregate">>,
+    Cmd = #{command_type => <<"design_aggregate_v1">>,
             <<"division_id">> => <<"div-test-1">>,
             <<"aggregate_name">> => <<"order_aggregate">>,
             <<"description">> => <<"Manages orders">>,
@@ -264,14 +264,14 @@ exec_design_aggregate_not_active() ->
         initiated_event(),
         #{event_type => <<"division_archived_v1">>}
     ]),
-    Cmd = #{command_type => <<"design_aggregate">>,
+    Cmd = #{command_type => <<"design_aggregate_v1">>,
             <<"division_id">> => <<"div-test-1">>,
             <<"aggregate_name">> => <<"x">>},
     ?assertEqual({error, division_archived},
                  division_aggregate:execute(S, Cmd)).
 
 exec_design_event_ok() ->
-    Cmd = #{command_type => <<"design_event">>,
+    Cmd = #{command_type => <<"design_event_v1">>,
             <<"division_id">> => <<"div-test-1">>,
             <<"event_name">> => <<"order_placed_v1">>,
             <<"description">> => <<"Order was placed">>,
@@ -281,7 +281,7 @@ exec_design_event_ok() ->
     ?assertEqual(event_designed_v1, maps:get(event_type, Event)).
 
 exec_plan_desk_ok() ->
-    Cmd = #{command_type => <<"plan_desk">>,
+    Cmd = #{command_type => <<"plan_desk_v1">>,
             <<"division_id">> => <<"div-test-1">>,
             <<"desk_name">> => <<"place_order">>,
             <<"department">> => <<"cmd">>,
@@ -291,7 +291,7 @@ exec_plan_desk_ok() ->
     ?assertEqual(desk_planned_v1, maps:get(event_type, Event)).
 
 exec_plan_dependency_ok() ->
-    Cmd = #{command_type => <<"plan_dependency">>,
+    Cmd = #{command_type => <<"plan_dependency_v1">>,
             <<"division_id">> => <<"div-test-1">>,
             <<"dependency_id">> => <<"dep-1">>,
             <<"from_desk">> => <<"place_order">>,
@@ -311,44 +311,44 @@ planning_starts_open() ->
 
 exec_open_planning_already_open() ->
     %% Planning starts open after initiate, so opening again should fail
-    Cmd = #{command_type => <<"open_planning">>,
+    Cmd = #{command_type => <<"open_planning_v1">>,
             <<"division_id">> => <<"div-test-1">>},
     ?assertEqual({error, planning_already_open},
                  division_aggregate:execute(initiated_state(), Cmd)).
 
 exec_shelve_planning_ok() ->
-    Cmd = #{command_type => <<"shelve_planning">>,
+    Cmd = #{command_type => <<"shelve_planning_v1">>,
             <<"division_id">> => <<"div-test-1">>,
             <<"reason">> => <<"need more research">>},
     {ok, [Event]} = division_aggregate:execute(initiated_state(), Cmd),
     ?assertEqual(planning_shelved_v1, maps:get(event_type, Event)).
 
 exec_shelve_planning_not_open() ->
-    Cmd = #{command_type => <<"shelve_planning">>,
+    Cmd = #{command_type => <<"shelve_planning_v1">>,
             <<"division_id">> => <<"div-test-1">>},
     ?assertEqual({error, planning_not_open},
                  division_aggregate:execute(planning_shelved_state(), Cmd)).
 
 exec_resume_planning_ok() ->
-    Cmd = #{command_type => <<"resume_planning">>,
+    Cmd = #{command_type => <<"resume_planning_v1">>,
             <<"division_id">> => <<"div-test-1">>},
     {ok, [Event]} = division_aggregate:execute(planning_shelved_state(), Cmd),
     ?assertEqual(planning_resumed_v1, maps:get(event_type, Event)).
 
 exec_resume_planning_not_shelved() ->
-    Cmd = #{command_type => <<"resume_planning">>,
+    Cmd = #{command_type => <<"resume_planning_v1">>,
             <<"division_id">> => <<"div-test-1">>},
     ?assertEqual({error, planning_not_shelved},
                  division_aggregate:execute(initiated_state(), Cmd)).
 
 exec_submit_planning_ok() ->
-    Cmd = #{command_type => <<"submit_planning">>,
+    Cmd = #{command_type => <<"submit_planning_v1">>,
             <<"division_id">> => <<"div-test-1">>},
     {ok, [Event]} = division_aggregate:execute(initiated_state(), Cmd),
     ?assertEqual(planning_submitted_v1, maps:get(event_type, Event)).
 
 exec_submit_planning_not_open() ->
-    Cmd = #{command_type => <<"submit_planning">>,
+    Cmd = #{command_type => <<"submit_planning_v1">>,
             <<"division_id">> => <<"div-test-1">>},
     ?assertEqual({error, planning_not_open},
                  division_aggregate:execute(planning_shelved_state(), Cmd)).
@@ -358,7 +358,7 @@ exec_submit_planning_not_open() ->
 %% ===================================================================
 
 exec_post_card_ok() ->
-    Cmd = #{command_type => <<"post_kanban_card">>,
+    Cmd = #{command_type => <<"post_kanban_card_v1">>,
             <<"division_id">> => <<"div-test-1">>,
             <<"card_id">> => <<"card-new">>,
             <<"title">> => <<"Implement auth">>},
@@ -366,7 +366,7 @@ exec_post_card_ok() ->
     ?assertEqual(kanban_card_posted_v1, maps:get(event_type, Event)).
 
 exec_post_card_not_active() ->
-    Cmd = #{command_type => <<"post_kanban_card">>,
+    Cmd = #{command_type => <<"post_kanban_card_v1">>,
             <<"division_id">> => <<"div-test-1">>,
             <<"card_id">> => <<"card-1">>,
             <<"title">> => <<"X">>},
@@ -374,7 +374,7 @@ exec_post_card_not_active() ->
                  division_aggregate:execute(archived_state(), Cmd)).
 
 exec_pick_card_ok() ->
-    Cmd = #{command_type => <<"pick_kanban_card">>,
+    Cmd = #{command_type => <<"pick_kanban_card_v1">>,
             <<"division_id">> => <<"div-test-1">>,
             <<"card_id">> => <<"card-1">>,
             <<"picked_by">> => <<"crafter@test">>},
@@ -382,21 +382,21 @@ exec_pick_card_ok() ->
     ?assertEqual(kanban_card_picked_v1, maps:get(event_type, Event)).
 
 exec_finish_card_ok() ->
-    Cmd = #{command_type => <<"finish_kanban_card">>,
+    Cmd = #{command_type => <<"finish_kanban_card_v1">>,
             <<"division_id">> => <<"div-test-1">>,
             <<"card_id">> => <<"card-1">>},
     {ok, [Event]} = division_aggregate:execute(card_picked_state(), Cmd),
     ?assertEqual(kanban_card_finished_v1, maps:get(event_type, Event)).
 
 exec_unpick_card_ok() ->
-    Cmd = #{command_type => <<"unpick_kanban_card">>,
+    Cmd = #{command_type => <<"unpick_kanban_card_v1">>,
             <<"division_id">> => <<"div-test-1">>,
             <<"card_id">> => <<"card-1">>},
     {ok, [Event]} = division_aggregate:execute(card_picked_state(), Cmd),
     ?assertEqual(kanban_card_unpicked_v1, maps:get(event_type, Event)).
 
 exec_park_card_ok() ->
-    Cmd = #{command_type => <<"park_kanban_card">>,
+    Cmd = #{command_type => <<"park_kanban_card_v1">>,
             <<"division_id">> => <<"div-test-1">>,
             <<"card_id">> => <<"card-1">>,
             <<"parked_by">> => <<"agent@test">>,
@@ -416,14 +416,14 @@ exec_unpark_card_ok() ->
           <<"parked_by">> => <<"a">>, <<"parked_at">> => 3000,
           <<"park_reason">> => <<"wait">>}
     ]),
-    Cmd = #{command_type => <<"unpark_kanban_card">>,
+    Cmd = #{command_type => <<"unpark_kanban_card_v1">>,
             <<"division_id">> => <<"div-test-1">>,
             <<"card_id">> => <<"card-1">>},
     {ok, [Event]} = division_aggregate:execute(S, Cmd),
     ?assertEqual(kanban_card_unparked_v1, maps:get(event_type, Event)).
 
 exec_block_card_ok() ->
-    Cmd = #{command_type => <<"block_kanban_card">>,
+    Cmd = #{command_type => <<"block_kanban_card_v1">>,
             <<"division_id">> => <<"div-test-1">>,
             <<"card_id">> => <<"card-1">>,
             <<"blocked_by">> => <<"agent@test">>,
@@ -443,7 +443,7 @@ exec_unblock_card_ok() ->
           <<"blocked_by">> => <<"a">>, <<"blocked_at">> => 3000,
           <<"block_reason">> => <<"unclear">>}
     ]),
-    Cmd = #{command_type => <<"unblock_kanban_card">>,
+    Cmd = #{command_type => <<"unblock_kanban_card_v1">>,
             <<"division_id">> => <<"div-test-1">>,
             <<"card_id">> => <<"card-1">>},
     {ok, [Event]} = division_aggregate:execute(S, Cmd),
@@ -459,38 +459,38 @@ crafting_starts_open() ->
     ?assert(S#division_state.crafting_status band ?CRAFTING_INITIATED =/= 0).
 
 exec_open_crafting_already_open() ->
-    Cmd = #{command_type => <<"open_crafting">>,
+    Cmd = #{command_type => <<"open_crafting_v1">>,
             <<"division_id">> => <<"div-test-1">>},
     ?assertEqual({error, crafting_already_open},
                  division_aggregate:execute(initiated_state(), Cmd)).
 
 exec_shelve_crafting_ok() ->
-    Cmd = #{command_type => <<"shelve_crafting">>,
+    Cmd = #{command_type => <<"shelve_crafting_v1">>,
             <<"division_id">> => <<"div-test-1">>,
             <<"reason">> => <<"blocked">>},
     {ok, [Event]} = division_aggregate:execute(initiated_state(), Cmd),
     ?assertEqual(crafting_shelved_v1, maps:get(event_type, Event)).
 
 exec_shelve_crafting_not_open() ->
-    Cmd = #{command_type => <<"shelve_crafting">>,
+    Cmd = #{command_type => <<"shelve_crafting_v1">>,
             <<"division_id">> => <<"div-test-1">>},
     ?assertEqual({error, crafting_not_open},
                  division_aggregate:execute(crafting_shelved_state(), Cmd)).
 
 exec_resume_crafting_ok() ->
-    Cmd = #{command_type => <<"resume_crafting">>,
+    Cmd = #{command_type => <<"resume_crafting_v1">>,
             <<"division_id">> => <<"div-test-1">>},
     {ok, [Event]} = division_aggregate:execute(crafting_shelved_state(), Cmd),
     ?assertEqual(crafting_resumed_v1, maps:get(event_type, Event)).
 
 exec_resume_crafting_not_shelved() ->
-    Cmd = #{command_type => <<"resume_crafting">>,
+    Cmd = #{command_type => <<"resume_crafting_v1">>,
             <<"division_id">> => <<"div-test-1">>},
     ?assertEqual({error, crafting_not_shelved},
                  division_aggregate:execute(initiated_state(), Cmd)).
 
 exec_generate_module_ok() ->
-    Cmd = #{command_type => <<"generate_module">>,
+    Cmd = #{command_type => <<"generate_module_v1">>,
             <<"division_id">> => <<"div-test-1">>,
             <<"module_name">> => <<"order_handler">>,
             <<"module_type">> => <<"handler">>,
@@ -499,7 +499,7 @@ exec_generate_module_ok() ->
     ?assertEqual(module_generated_v1, maps:get(event_type, Event)).
 
 exec_generate_module_not_open() ->
-    Cmd = #{command_type => <<"generate_module">>,
+    Cmd = #{command_type => <<"generate_module_v1">>,
             <<"division_id">> => <<"div-test-1">>,
             <<"module_name">> => <<"x">>,
             <<"module_type">> => <<"handler">>,
@@ -508,7 +508,7 @@ exec_generate_module_not_open() ->
                  division_aggregate:execute(crafting_shelved_state(), Cmd)).
 
 exec_generate_test_ok() ->
-    Cmd = #{command_type => <<"generate_test">>,
+    Cmd = #{command_type => <<"generate_test_v1">>,
             <<"division_id">> => <<"div-test-1">>,
             <<"test_name">> => <<"order_handler_tests">>,
             <<"module_name">> => <<"order_handler">>,
@@ -517,7 +517,7 @@ exec_generate_test_ok() ->
     ?assertEqual(test_generated_v1, maps:get(event_type, Event)).
 
 exec_run_test_suite_ok() ->
-    Cmd = #{command_type => <<"run_test_suite">>,
+    Cmd = #{command_type => <<"run_test_suite_v1">>,
             <<"division_id">> => <<"div-test-1">>,
             <<"suite_id">> => <<"suite-1">>,
             <<"suite_name">> => <<"unit_tests">>},
@@ -525,7 +525,7 @@ exec_run_test_suite_ok() ->
     ?assertEqual(test_suite_run_v1, maps:get(event_type, Event)).
 
 exec_record_test_result_ok() ->
-    Cmd = #{command_type => <<"record_test_result">>,
+    Cmd = #{command_type => <<"record_test_result_v1">>,
             <<"division_id">> => <<"div-test-1">>,
             <<"result_id">> => <<"result-1">>,
             <<"suite_id">> => <<"suite-1">>,
@@ -535,7 +535,7 @@ exec_record_test_result_ok() ->
     ?assertEqual(test_result_recorded_v1, maps:get(event_type, Event)).
 
 exec_deliver_release_ok() ->
-    Cmd = #{command_type => <<"deliver_release">>,
+    Cmd = #{command_type => <<"deliver_release_v1">>,
             <<"division_id">> => <<"div-test-1">>,
             <<"release_id">> => <<"rel-1">>,
             <<"version">> => <<"0.1.0">>},
@@ -543,7 +543,7 @@ exec_deliver_release_ok() ->
     ?assertEqual(release_delivered_v1, maps:get(event_type, Event)).
 
 exec_stage_delivery_ok() ->
-    Cmd = #{command_type => <<"stage_delivery">>,
+    Cmd = #{command_type => <<"stage_delivery_v1">>,
             <<"division_id">> => <<"div-test-1">>,
             <<"stage_id">> => <<"stage-1">>,
             <<"release_id">> => <<"rel-1">>,
@@ -847,7 +847,7 @@ full_lifecycle() ->
 
     %% 1. Initiate division (sets all 4 phases to active/open)
     S1 = exec_and_apply(S0,
-        #{command_type => <<"initiate_division">>,
+        #{command_type => <<"initiate_division_v1">>,
           <<"division_id">> => <<"div-full">>,
           <<"venture_id">> => <<"v-full">>,
           <<"context_name">> => <<"orders">>}),
@@ -859,7 +859,7 @@ full_lifecycle() ->
 
     %% 2. STORMING: design an aggregate
     S2 = exec_and_apply(S1,
-        #{command_type => <<"design_aggregate">>,
+        #{command_type => <<"design_aggregate_v1">>,
           <<"division_id">> => <<"div-full">>,
           <<"aggregate_name">> => <<"order_agg">>,
           <<"description">> => <<"Manages orders">>}),
@@ -867,7 +867,7 @@ full_lifecycle() ->
 
     %% 3. STORMING: design an event
     S3 = exec_and_apply(S2,
-        #{command_type => <<"design_event">>,
+        #{command_type => <<"design_event_v1">>,
           <<"division_id">> => <<"div-full">>,
           <<"event_name">> => <<"order_placed_v1">>,
           <<"aggregate_name">> => <<"order_agg">>}),
@@ -875,7 +875,7 @@ full_lifecycle() ->
 
     %% 4. STORMING: plan a desk
     S4 = exec_and_apply(S3,
-        #{command_type => <<"plan_desk">>,
+        #{command_type => <<"plan_desk_v1">>,
           <<"division_id">> => <<"div-full">>,
           <<"desk_name">> => <<"place_order">>,
           <<"department">> => <<"cmd">>}),
@@ -883,7 +883,7 @@ full_lifecycle() ->
 
     %% 5. STORMING: plan a dependency
     S5 = exec_and_apply(S4,
-        #{command_type => <<"plan_dependency">>,
+        #{command_type => <<"plan_dependency_v1">>,
           <<"division_id">> => <<"div-full">>,
           <<"dependency_id">> => <<"dep-1">>,
           <<"from_desk">> => <<"place_order">>,
@@ -892,7 +892,7 @@ full_lifecycle() ->
 
     %% 6. PLANNING: shelve
     S6 = exec_and_apply(S5,
-        #{command_type => <<"shelve_planning">>,
+        #{command_type => <<"shelve_planning_v1">>,
           <<"division_id">> => <<"div-full">>,
           <<"reason">> => <<"need stakeholder input">>}),
     ?assert(S6#division_state.planning_status band ?PLANNING_SHELVED =/= 0),
@@ -900,20 +900,20 @@ full_lifecycle() ->
 
     %% 7. PLANNING: resume
     S7 = exec_and_apply(S6,
-        #{command_type => <<"resume_planning">>,
+        #{command_type => <<"resume_planning_v1">>,
           <<"division_id">> => <<"div-full">>}),
     ?assert(S7#division_state.planning_status band ?PLANNING_OPEN =/= 0),
     ?assert(S7#division_state.planning_status band ?PLANNING_SHELVED =:= 0),
 
     %% 8. PLANNING: submit
     S8 = exec_and_apply(S7,
-        #{command_type => <<"submit_planning">>,
+        #{command_type => <<"submit_planning_v1">>,
           <<"division_id">> => <<"div-full">>}),
     ?assert(S8#division_state.planning_status band ?PLANNING_SUBMITTED =/= 0),
 
     %% 9. KANBAN: post a card
     S9 = exec_and_apply(S8,
-        #{command_type => <<"post_kanban_card">>,
+        #{command_type => <<"post_kanban_card_v1">>,
           <<"division_id">> => <<"div-full">>,
           <<"card_id">> => <<"card-1">>,
           <<"title">> => <<"Build order aggregate">>}),
@@ -921,7 +921,7 @@ full_lifecycle() ->
 
     %% 10. KANBAN: pick the card
     S10 = exec_and_apply(S9,
-        #{command_type => <<"pick_kanban_card">>,
+        #{command_type => <<"pick_kanban_card_v1">>,
           <<"division_id">> => <<"div-full">>,
           <<"card_id">> => <<"card-1">>,
           <<"picked_by">> => <<"crafter-agent">>}),
@@ -930,7 +930,7 @@ full_lifecycle() ->
 
     %% 11. KANBAN: finish the card
     S11 = exec_and_apply(S10,
-        #{command_type => <<"finish_kanban_card">>,
+        #{command_type => <<"finish_kanban_card_v1">>,
           <<"division_id">> => <<"div-full">>,
           <<"card_id">> => <<"card-1">>}),
     #{<<"card-1">> := FinishedCard} = S11#division_state.cards,
@@ -938,7 +938,7 @@ full_lifecycle() ->
 
     %% 12. CRAFTING: generate a module
     S12 = exec_and_apply(S11,
-        #{command_type => <<"generate_module">>,
+        #{command_type => <<"generate_module_v1">>,
           <<"division_id">> => <<"div-full">>,
           <<"module_name">> => <<"order_handler">>,
           <<"module_type">> => <<"handler">>,
@@ -947,7 +947,7 @@ full_lifecycle() ->
 
     %% 13. CRAFTING: generate a test
     S13 = exec_and_apply(S12,
-        #{command_type => <<"generate_test">>,
+        #{command_type => <<"generate_test_v1">>,
           <<"division_id">> => <<"div-full">>,
           <<"test_name">> => <<"order_handler_tests">>,
           <<"module_name">> => <<"order_handler">>,
@@ -956,7 +956,7 @@ full_lifecycle() ->
 
     %% 14. CRAFTING: run a test suite
     S14 = exec_and_apply(S13,
-        #{command_type => <<"run_test_suite">>,
+        #{command_type => <<"run_test_suite_v1">>,
           <<"division_id">> => <<"div-full">>,
           <<"suite_id">> => <<"suite-1">>,
           <<"suite_name">> => <<"eunit">>}),
@@ -964,7 +964,7 @@ full_lifecycle() ->
 
     %% 15. CRAFTING: record test result
     S15 = exec_and_apply(S14,
-        #{command_type => <<"record_test_result">>,
+        #{command_type => <<"record_test_result_v1">>,
           <<"division_id">> => <<"div-full">>,
           <<"result_id">> => <<"result-1">>,
           <<"suite_id">> => <<"suite-1">>,
@@ -974,7 +974,7 @@ full_lifecycle() ->
 
     %% 16. CRAFTING: deliver a release
     S16 = exec_and_apply(S15,
-        #{command_type => <<"deliver_release">>,
+        #{command_type => <<"deliver_release_v1">>,
           <<"division_id">> => <<"div-full">>,
           <<"release_id">> => <<"rel-1">>,
           <<"version">> => <<"1.0.0">>}),
@@ -982,7 +982,7 @@ full_lifecycle() ->
 
     %% 17. CRAFTING: stage the delivery
     S17 = exec_and_apply(S16,
-        #{command_type => <<"stage_delivery">>,
+        #{command_type => <<"stage_delivery_v1">>,
           <<"division_id">> => <<"div-full">>,
           <<"stage_id">> => <<"stage-1">>,
           <<"release_id">> => <<"rel-1">>,
@@ -991,38 +991,38 @@ full_lifecycle() ->
 
     %% 18. CRAFTING: shelve
     S18 = exec_and_apply(S17,
-        #{command_type => <<"shelve_crafting">>,
+        #{command_type => <<"shelve_crafting_v1">>,
           <<"division_id">> => <<"div-full">>,
           <<"reason">> => <<"release done">>}),
     ?assert(S18#division_state.crafting_status band ?CRAFTING_SHELVED =/= 0),
 
     %% 19. CRAFTING: resume
     S19 = exec_and_apply(S18,
-        #{command_type => <<"resume_crafting">>,
+        #{command_type => <<"resume_crafting_v1">>,
           <<"division_id">> => <<"div-full">>}),
     ?assert(S19#division_state.crafting_status band ?CRAFTING_OPEN =/= 0),
 
     %% 20. ARCHIVE the division
     S20 = exec_and_apply(S19,
-        #{command_type => <<"archive_division">>,
+        #{command_type => <<"archive_division_v1">>,
           <<"division_id">> => <<"div-full">>}),
     ?assert(S20#division_state.status band ?DIV_ARCHIVED =/= 0),
 
     %% Verify archived blocks everything
     ?assertEqual({error, division_archived},
                  division_aggregate:execute(S20,
-                     #{command_type => <<"design_aggregate">>,
+                     #{command_type => <<"design_aggregate_v1">>,
                        <<"division_id">> => <<"div-full">>,
                        <<"aggregate_name">> => <<"x">>})),
     ?assertEqual({error, division_archived},
                  division_aggregate:execute(S20,
-                     #{command_type => <<"post_kanban_card">>,
+                     #{command_type => <<"post_kanban_card_v1">>,
                        <<"division_id">> => <<"div-full">>,
                        <<"card_id">> => <<"c">>,
                        <<"title">> => <<"x">>})),
     ?assertEqual({error, division_archived},
                  division_aggregate:execute(S20,
-                     #{command_type => <<"generate_module">>,
+                     #{command_type => <<"generate_module_v1">>,
                        <<"division_id">> => <<"div-full">>,
                        <<"module_name">> => <<"x">>,
                        <<"module_type">> => <<"y">>,
