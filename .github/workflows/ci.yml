@@ -47,7 +47,7 @@ jobs:
           path: |
             hecate-app-marthad/_build/default/lib
             hecate-app-marthad/_build/default/plugins
-          key: rebar3-${{ runner.os }}-${{ hashFiles('hecate-app-marthad/rebar.config') }}
+          key: rebar3-${{ runner.os }}-${{ hashFiles('hecate-app-marthad/rebar.lock') }}
           restore-keys: rebar3-${{ runner.os }}-
       - run: rebar3 compile
       - run: rebar3 eunit

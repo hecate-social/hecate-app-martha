@@ -22,26 +22,41 @@ echo "==> Preparing package..."
 rm -rf "$STAGING_DIR"
 mkdir -p "$STAGING_DIR/ebin"
 
-## Consolidate all .beam files from root app + 18 domain apps
+## Consolidate all .beam files from root app + domain apps
+## Must match the apps listed in app_martha_sup.erl and rebar.config release
 DOMAIN_APPS=(
+    # Martha root (sup + notation)
+    martha
+
+    # Venture lifecycle (CMD + PRJ + QRY)
     guide_venture_lifecycle
     project_ventures
     query_ventures
-    guide_division_planning
-    guide_division_storming
-    guide_division_crafting
-    guide_kanban_lifecycle
+
+    # Division lifecycle (CMD + PRJ + QRY) — unified
+    guide_division_lifecycle
+    project_divisions
+    query_divisions
+
+    # Agent orchestration (CMD + PRJ + QRY)
     orchestrate_agents
     project_agent_sessions
     query_agent_sessions
-    project_division_plannings
-    project_division_stormings
-    project_division_craftings
-    project_division_kanbans
-    query_division_plannings
-    query_division_stormings
-    query_division_craftings
-    query_division_kanbans
+
+    # Knowledge graph (CMD + PRJ + QRY)
+    guide_knowledge_graph
+    project_knowledge_graph
+    query_knowledge_graph
+
+    # Retry strategy (CMD + PRJ + QRY)
+    guide_retry_strategy
+    project_retry_strategy
+    query_retry_strategy
+
+    # Cost budget (CMD + PRJ + QRY)
+    guard_cost_budget
+    project_cost_budgets
+    query_cost_budgets
 )
 
 for ebin_dir in \
