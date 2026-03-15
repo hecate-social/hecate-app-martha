@@ -249,7 +249,7 @@ manifest() ->
     #{
         name => <<"hecate-app-martha">>,
         display_name => <<"Martha">>,
-        version => <<"0.5.5">>,
+        version => <<"0.5.6">>,
         description => <<"AI-Assisted Application Lifecycle">>,
         icon => <<"dog2">>,
         tag => <<"martha-studio">>,

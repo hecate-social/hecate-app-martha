@@ -1,4 +1,5 @@
 import { writable, get } from 'svelte/store';
+import { isTauri } from '$lib/tauri';
 
 export interface SSEEvent {
 	type: string;
@@ -11,7 +12,8 @@ export type SSEStatus = 'disconnected' | 'connecting' | 'connected';
 export const sseStatus = writable<SSEStatus>('disconnected');
 export const lastSSEEvent = writable<SSEEvent | null>(null);
 
-const DAEMON_BASE = 'hecate://localhost';
+// In dev mode, use empty base (Vite proxy handles it). In Tauri prod, use custom protocol.
+const DAEMON_BASE = isTauri() && !import.meta.env.DEV ? 'hecate://localhost' : '';
 const SSE_PATH = '/plugin/hecate-app-martha/api/events/stream';
 const RECONNECT_DELAY_MS = 3000;
 
