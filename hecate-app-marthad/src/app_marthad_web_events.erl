@@ -10,7 +10,9 @@
 -define(SCOPE, pg).
 -define(GROUP, martha_sse).
 
--spec broadcast(binary(), map()) -> ok.
+-spec broadcast(atom() | binary(), map()) -> ok.
+broadcast(EventType, Data) when is_atom(EventType), is_map(Data) ->
+    broadcast(atom_to_binary(EventType, utf8), Data);
 broadcast(EventType, Data) when is_binary(EventType), is_map(Data) ->
     JsonBin = iolist_to_binary(json:encode(Data)),
     Members = pg:get_members(?SCOPE, ?GROUP),
