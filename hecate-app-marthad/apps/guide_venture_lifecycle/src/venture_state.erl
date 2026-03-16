@@ -50,6 +50,13 @@ apply_event(S, #{event_type := <<"discovery_completed_v1">>} = E)       -> apply
 %% Archive
 apply_event(S, #{event_type := <<"venture_archived_v1">>} = _E)       -> apply_archived(S);
 
+%% Storm participant & meditation events
+apply_event(S, #{event_type := <<"storm_participant_registered_v1">>} = E)    -> apply_participant_registered(E, S);
+apply_event(S, #{event_type := <<"storm_participant_unregistered_v1">>} = E)  -> apply_participant_unregistered(E, S);
+apply_event(S, #{event_type := <<"domain_meditation_started_v1">>} = E)      -> apply_meditation_started(E, S);
+apply_event(S, #{event_type := <<"meditation_finding_contributed_v1">>} = E)  -> apply_finding_contributed(E, S);
+apply_event(S, #{event_type := <<"domain_meditation_completed_v1">>} = E)    -> apply_meditation_completed(E, S);
+
 %% Big Picture Event Storming events
 apply_event(S, #{event_type := <<"big_picture_storm_started_v1">>} = E)        -> apply_storm_started(E, S);
 apply_event(S, #{event_type := <<"event_sticky_posted_v1">>} = E)              -> apply_sticky_posted(E, S);
@@ -98,6 +105,10 @@ to_map(#venture_state{} = S) ->
         research_briefs => S#venture_state.research_briefs,
         preparation_started_at => S#venture_state.preparation_started_at,
         preparation_completed_at => S#venture_state.preparation_completed_at,
+        storm_participants => S#venture_state.storm_participants,
+        meditation_started_at => S#venture_state.meditation_started_at,
+        meditation_completed_at => S#venture_state.meditation_completed_at,
+        meditation_findings => S#venture_state.meditation_findings,
         storm_number => S#venture_state.storm_number,
         storm_phase => S#venture_state.storm_phase,
         storm_started_at => S#venture_state.storm_started_at,
@@ -218,6 +229,46 @@ apply_discovery_completed(E, #venture_state{status = Status} = State) ->
 
 apply_archived(#venture_state{status = Status} = State) ->
     State#venture_state{status = evoq_bit_flags:set(Status, ?VL_ARCHIVED)}.
+
+%% --- Storm Participant & Meditation apply helpers ---
+
+apply_participant_registered(E, #venture_state{storm_participants = Participants} = State) ->
+    ParticipantId = get_value(participant_id, E),
+    Participant = #{
+        role => get_value(role, E),
+        custom_instructions => get_value(custom_instructions, E),
+        registered_at => get_value(registered_at, E)
+    },
+    State#venture_state{storm_participants = Participants#{ParticipantId => Participant}}.
+
+apply_participant_unregistered(E, #venture_state{storm_participants = Participants} = State) ->
+    ParticipantId = get_value(participant_id, E),
+    State#venture_state{storm_participants = maps:remove(ParticipantId, Participants)}.
+
+apply_meditation_started(E, #venture_state{status = Status} = State) ->
+    State#venture_state{
+        status = evoq_bit_flags:set(Status, ?VL_MEDITATING),
+        meditation_started_at = get_value(started_at, E),
+        meditation_findings = []
+    }.
+
+apply_finding_contributed(E, #venture_state{meditation_findings = Findings} = State) ->
+    Finding = #{
+        participant_id => get_value(participant_id, E),
+        finding_type => get_value(finding_type, E),
+        content => get_value(content, E),
+        sources => get_value(sources, E, []),
+        contributed_at => get_value(contributed_at, E)
+    },
+    State#venture_state{meditation_findings = [Finding | Findings]}.
+
+apply_meditation_completed(E, #venture_state{status = Status} = State) ->
+    S0 = evoq_bit_flags:unset(Status, ?VL_MEDITATING),
+    S1 = evoq_bit_flags:set(S0, ?VL_MEDITATION_DONE),
+    State#venture_state{
+        status = S1,
+        meditation_completed_at = get_value(completed_at, E)
+    }.
 
 %% --- Big Picture Event Storming apply helpers ---
 

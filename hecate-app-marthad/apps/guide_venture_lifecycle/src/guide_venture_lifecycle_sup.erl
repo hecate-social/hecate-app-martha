@@ -44,6 +44,16 @@ init([]) ->
         emitter(discovery_completed_v1_to_pg),
         emitter(division_identified_v1_to_pg),
 
+        %% Storm participants & meditation
+        emitter(storm_participant_registered_v1_to_pg),
+        emitter(storm_participant_unregistered_v1_to_pg),
+        emitter(domain_meditation_started_v1_to_pg),
+        emitter(meditation_finding_contributed_v1_to_pg),
+        emitter(domain_meditation_completed_v1_to_pg),
+
+        %% Meditation PM: fan out findings to knowledge graph
+        emitter(on_meditation_finding_contributed_fan_out),
+
         %% Big Picture Storm lifecycle
         emitter(big_picture_storm_started_v1_to_pg),
         emitter(big_picture_storm_shelved_v1_to_pg),

@@ -107,8 +107,28 @@ discovering_events() ->
 discovering_state() ->
     apply_events(discovering_events()).
 
-storming_events() ->
+%% Discovering + meditation done — ready for first storm
+meditation_done_events() ->
     discovering_events() ++ [
+        #{event_type => <<"storm_participant_registered_v1">>,
+          <<"venture_id">> => <<"v-storm-1">>,
+          <<"participant_id">> => <<"p-1">>,
+          <<"role">> => <<"domain_expert">>,
+          <<"registered_at">> => 2100},
+        #{event_type => <<"domain_meditation_started_v1">>,
+          <<"venture_id">> => <<"v-storm-1">>,
+          <<"started_at">> => 2200,
+          <<"participants">> => [#{<<"participant_id">> => <<"p-1">>, <<"role">> => <<"domain_expert">>}]},
+        #{event_type => <<"domain_meditation_completed_v1">>,
+          <<"venture_id">> => <<"v-storm-1">>,
+          <<"completed_at">> => 2500}
+    ].
+
+meditation_done_state() ->
+    apply_events(meditation_done_events()).
+
+storming_events() ->
+    meditation_done_events() ++ [
         #{event_type => <<"big_picture_storm_started_v1">>,
           <<"venture_id">> => <<"v-storm-1">>,
           <<"storm_number">> => 1,
@@ -216,7 +236,7 @@ shelved_state() ->
 exec_start_storm_ok() ->
     Cmd = #{command_type => <<"start_big_picture_storm_v1">>,
             <<"venture_id">> => <<"v-storm-1">>},
-    {ok, [Event]} = venture_aggregate:execute(discovering_state(), Cmd),
+    {ok, [Event]} = venture_aggregate:execute(meditation_done_state(), Cmd),
     ?assertEqual(big_picture_storm_started_v1, maps:get(event_type, Event)).
 
 exec_start_storm_not_discovering() ->
@@ -658,7 +678,7 @@ apply_storm_archived() ->
 %% ===================================================================
 
 full_storm_lifecycle() ->
-    S0 = discovering_state(),
+    S0 = meditation_done_state(),
 
     %% 1. Start storm
     {ok, [E1]} = venture_aggregate:execute(S0,

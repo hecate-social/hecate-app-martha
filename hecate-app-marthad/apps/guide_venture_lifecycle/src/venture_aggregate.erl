@@ -8,8 +8,9 @@
 %%%   1. initiate_venture (birth event)
 %%%   2. refine_vision / submit_vision (inception phase)
 %%%   3. prepare_venture_knowledge / contribute_research_brief / complete_venture_preparation
-%%%   4. start_discovery / identify_division / pause/resume/complete_discovery
-%%%   5. archive_venture (walking skeleton)
+%%%   4. register/unregister storm participants + start/contribute/complete domain meditation
+%%%   5. start_discovery / identify_division / pause/resume/complete_discovery
+%%%   6. archive_venture (walking skeleton)
 %%% @end
 -module(venture_aggregate).
 
@@ -66,6 +67,12 @@ execute(#venture_state{status = S} = State, Payload) when S band ?VL_INITIATED =
         <<"resume_discovery_v1">>   -> execute_resume_discovery(Payload, State);
         <<"complete_discovery_v1">> -> execute_complete_discovery(Payload, State);
         <<"archive_venture_v1">>    -> execute_archive_venture(Payload, State);
+        %% Storm Participants & Meditation
+        <<"register_storm_participant_v1">>   -> execute_register_participant(Payload, State);
+        <<"unregister_storm_participant_v1">> -> execute_unregister_participant(Payload, State);
+        <<"start_domain_meditation_v1">>      -> execute_start_meditation(Payload, State);
+        <<"contribute_meditation_finding_v1">> -> execute_contribute_finding(Payload, State);
+        <<"complete_domain_meditation_v1">>   -> execute_complete_meditation(Payload, State);
         %% Scaffold
         <<"scaffold_venture_repo_v1">> -> execute_scaffold_venture_repo(Payload, State);
         %% Big Picture Event Storming
@@ -197,13 +204,18 @@ execute_scaffold_venture_repo(Payload, _State) ->
 
 %% --- Big Picture Event Storming command handlers ---
 
-execute_start_storm(Payload, #venture_state{status = S}) ->
+execute_start_storm(Payload, #venture_state{status = S, storm_number = SN}) ->
     case {S band ?VL_DISCOVERING, S band ?VL_STORMING} of
         {0, _} -> {error, discovery_not_active};
         {_, V} when V =/= 0 -> {error, storm_already_active};
         _ ->
-            {ok, Cmd} = start_big_picture_storm_v1:from_map(Payload),
-            convert_events(maybe_start_big_picture_storm:handle(Cmd), fun big_picture_storm_started_v1:to_map/1)
+            %% Smart default: first storm requires meditation, subsequent storms skip
+            case {SN, S band ?VL_MEDITATION_DONE} of
+                {0, 0} -> {error, meditation_required};
+                _ ->
+                    {ok, Cmd} = start_big_picture_storm_v1:from_map(Payload),
+                    convert_events(maybe_start_big_picture_storm:handle(Cmd), fun big_picture_storm_started_v1:to_map/1)
+            end
     end.
 
 execute_post_sticky(Payload, #venture_state{status = S, storm_number = SN}) ->
@@ -319,6 +331,59 @@ execute_archive_storm(Payload, #venture_state{status = S}) ->
         _ ->
             {ok, Cmd} = archive_big_picture_storm_v1:from_map(Payload),
             convert_events(maybe_archive_big_picture_storm:handle(Cmd), fun big_picture_storm_archived_v1:to_map/1)
+    end.
+
+%% --- Storm Participant & Meditation command handlers ---
+
+execute_register_participant(Payload, #venture_state{status = S, storm_participants = Participants}) ->
+    case {S band ?VL_SUBMITTED, S band ?VL_MEDITATING} of
+        {0, _} -> {error, vision_not_submitted};
+        {_, V} when V =/= 0 -> {error, meditation_already_active};
+        _ ->
+            {ok, Cmd} = register_storm_participant_v1:from_map(Payload),
+            Context = #{storm_participants => Participants},
+            convert_events(maybe_register_storm_participant:handle(Cmd, Context),
+                fun storm_participant_registered_v1:to_map/1)
+    end.
+
+execute_unregister_participant(Payload, #venture_state{status = S, storm_participants = Participants}) ->
+    case S band ?VL_MEDITATING of
+        V when V =/= 0 -> {error, meditation_already_active};
+        _ ->
+            {ok, Cmd} = unregister_storm_participant_v1:from_map(Payload),
+            Context = #{storm_participants => Participants},
+            convert_events(maybe_unregister_storm_participant:handle(Cmd, Context),
+                fun storm_participant_unregistered_v1:to_map/1)
+    end.
+
+execute_start_meditation(Payload, #venture_state{status = S, storm_participants = Participants}) ->
+    case {S band ?VL_SUBMITTED, S band ?VL_MEDITATING, S band ?VL_MEDITATION_DONE} of
+        {0, _, _} -> {error, vision_not_submitted};
+        {_, V, _} when V =/= 0 -> {error, meditation_already_active};
+        {_, _, V} when V =/= 0 -> {error, meditation_already_completed};
+        _ ->
+            {ok, Cmd} = start_domain_meditation_v1:from_map(Payload),
+            Context = #{storm_participants => Participants},
+            convert_events(maybe_start_domain_meditation:handle(Cmd, Context),
+                fun domain_meditation_started_v1:to_map/1)
+    end.
+
+execute_contribute_finding(Payload, #venture_state{status = S}) ->
+    case S band ?VL_MEDITATING of
+        0 -> {error, meditation_not_active};
+        _ ->
+            {ok, Cmd} = contribute_meditation_finding_v1:from_map(Payload),
+            convert_events(maybe_contribute_meditation_finding:handle(Cmd),
+                fun meditation_finding_contributed_v1:to_map/1)
+    end.
+
+execute_complete_meditation(Payload, #venture_state{status = S}) ->
+    case S band ?VL_MEDITATING of
+        0 -> {error, meditation_not_active};
+        _ ->
+            {ok, Cmd} = complete_domain_meditation_v1:from_map(Payload),
+            convert_events(maybe_complete_domain_meditation:handle(Cmd),
+                fun domain_meditation_completed_v1:to_map/1)
     end.
 
 require_storming(S, Fun) ->

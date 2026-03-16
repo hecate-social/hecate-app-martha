@@ -1,7 +1,7 @@
 %%% @doc Tests for venture_aggregate (execute/2 + apply_event/2).
 %%%
 %%% Pure logic tests — no external deps (no ReckonDB, no mesh).
-%%% Tests all 9 command types through the aggregate, state guards,
+%%% Tests command types through the aggregate, state guards,
 %%% and bit flag transitions.
 -module(venture_aggregate_tests).
 
@@ -45,6 +45,36 @@ aggregate_test_() ->
         {"resume blocked when not paused",          fun exec_resume_not_paused/0},
         {"complete discovery succeeds",             fun exec_complete_discovery_ok/0},
         {"complete blocked when not active",        fun exec_complete_not_active/0},
+
+        %% Execute: storm participant registration
+        {"register participant succeeds after submit",     fun exec_register_participant_ok/0},
+        {"register participant blocked before submit",     fun exec_register_before_submit/0},
+        {"register participant blocked during meditation", fun exec_register_during_meditation/0},
+        {"register invalid role rejected",                 fun exec_register_invalid_role/0},
+        {"unregister participant succeeds",                fun exec_unregister_participant_ok/0},
+        {"unregister blocked during meditation",           fun exec_unregister_during_meditation/0},
+
+        %% Execute: domain meditation lifecycle
+        {"start meditation succeeds with participants",    fun exec_start_meditation_ok/0},
+        {"start meditation blocked before submit",         fun exec_start_meditation_before_submit/0},
+        {"start meditation blocked without participants",  fun exec_start_meditation_no_participants/0},
+        {"start meditation blocked if already active",     fun exec_start_meditation_twice/0},
+        {"start meditation blocked if already completed",  fun exec_start_meditation_after_done/0},
+        {"contribute finding succeeds during meditation",  fun exec_contribute_finding_ok/0},
+        {"contribute finding blocked when not meditating", fun exec_contribute_finding_not_active/0},
+        {"complete meditation succeeds",                   fun exec_complete_meditation_ok/0},
+        {"complete meditation blocked when not active",    fun exec_complete_meditation_not_active/0},
+
+        %% Execute: storm requires meditation (smart guard)
+        {"first storm requires meditation",                fun exec_first_storm_requires_meditation/0},
+        {"first storm allowed after meditation",           fun exec_first_storm_after_meditation/0},
+
+        %% Apply: meditation state transitions
+        {"apply participant_registered adds to map",       fun apply_participant_registered/0},
+        {"apply participant_unregistered removes from map", fun apply_participant_unregistered/0},
+        {"apply meditation_started sets flag",             fun apply_meditation_started/0},
+        {"apply finding_contributed adds to list",         fun apply_finding_contributed/0},
+        {"apply meditation_completed toggles flags",       fun apply_meditation_completed/0},
 
         %% Execute: archive
         {"archive venture succeeds",               fun exec_archive_ok/0},
@@ -143,6 +173,71 @@ archived_state() ->
         initiated_event(),
         #{event_type => <<"venture_archived_v1">>,
           <<"venture_id">> => <<"v-test-1">>}
+    ]).
+
+%% State with participants registered
+with_participant_state() ->
+    apply_events([
+        initiated_event(),
+        #{event_type => <<"vision_submitted_v1">>,
+          <<"venture_id">> => <<"v-test-1">>},
+        participant_registered_event()
+    ]).
+
+participant_registered_event() ->
+    #{event_type => <<"storm_participant_registered_v1">>,
+      <<"venture_id">> => <<"v-test-1">>,
+      <<"participant_id">> => <<"p-1">>,
+      <<"role">> => <<"domain_expert">>,
+      <<"custom_instructions">> => <<"Focus on fintech">>,
+      <<"registered_at">> => 2000}.
+
+%% State with meditation active
+meditating_state() ->
+    apply_events([
+        initiated_event(),
+        #{event_type => <<"vision_submitted_v1">>,
+          <<"venture_id">> => <<"v-test-1">>},
+        participant_registered_event(),
+        #{event_type => <<"domain_meditation_started_v1">>,
+          <<"venture_id">> => <<"v-test-1">>,
+          <<"participants">> => #{<<"p-1">> => #{<<"role">> => <<"domain_expert">>}},
+          <<"started_at">> => 3000}
+    ]).
+
+%% State with meditation completed
+meditation_done_state() ->
+    apply_events([
+        initiated_event(),
+        #{event_type => <<"vision_submitted_v1">>,
+          <<"venture_id">> => <<"v-test-1">>},
+        participant_registered_event(),
+        #{event_type => <<"domain_meditation_started_v1">>,
+          <<"venture_id">> => <<"v-test-1">>,
+          <<"participants">> => #{<<"p-1">> => #{<<"role">> => <<"domain_expert">>}},
+          <<"started_at">> => 3000},
+        #{event_type => <<"domain_meditation_completed_v1">>,
+          <<"venture_id">> => <<"v-test-1">>,
+          <<"completed_at">> => 4000}
+    ]).
+
+%% State ready for first storm (meditation done + discovering)
+ready_for_first_storm_state() ->
+    apply_events([
+        initiated_event(),
+        #{event_type => <<"vision_submitted_v1">>,
+          <<"venture_id">> => <<"v-test-1">>},
+        participant_registered_event(),
+        #{event_type => <<"domain_meditation_started_v1">>,
+          <<"venture_id">> => <<"v-test-1">>,
+          <<"participants">> => #{<<"p-1">> => #{<<"role">> => <<"domain_expert">>}},
+          <<"started_at">> => 3000},
+        #{event_type => <<"domain_meditation_completed_v1">>,
+          <<"venture_id">> => <<"v-test-1">>,
+          <<"completed_at">> => 4000},
+        #{event_type => <<"discovery_started_v1">>,
+          <<"venture_id">> => <<"v-test-1">>,
+          <<"started_at">> => 5000}
     ]).
 
 initiate_cmd() ->
@@ -314,6 +409,191 @@ exec_complete_not_active() ->
             <<"venture_id">> => <<"v-test-1">>},
     ?assertEqual({error, discovery_not_active},
                  venture_aggregate:execute(initiated_state(), Cmd)).
+
+%% ===================================================================
+%% Execute: Storm Participant Registration
+%% ===================================================================
+
+exec_register_participant_ok() ->
+    Cmd = #{command_type => <<"register_storm_participant_v1">>,
+            <<"venture_id">> => <<"v-test-1">>,
+            <<"participant_id">> => <<"p-new">>,
+            <<"role">> => <<"domain_expert">>,
+            <<"custom_instructions">> => <<>>},
+    {ok, [Event]} = venture_aggregate:execute(submitted_state(), Cmd),
+    ?assertEqual(storm_participant_registered_v1, maps:get(event_type, Event)),
+    ?assertEqual(<<"p-new">>, maps:get(participant_id, Event)),
+    ?assertEqual(<<"domain_expert">>, maps:get(role, Event)).
+
+exec_register_before_submit() ->
+    Cmd = #{command_type => <<"register_storm_participant_v1">>,
+            <<"venture_id">> => <<"v-test-1">>,
+            <<"participant_id">> => <<"p-1">>,
+            <<"role">> => <<"domain_expert">>,
+            <<"custom_instructions">> => <<>>},
+    ?assertEqual({error, vision_not_submitted},
+                 venture_aggregate:execute(initiated_state(), Cmd)).
+
+exec_register_during_meditation() ->
+    Cmd = #{command_type => <<"register_storm_participant_v1">>,
+            <<"venture_id">> => <<"v-test-1">>,
+            <<"participant_id">> => <<"p-2">>,
+            <<"role">> => <<"ux_expert">>,
+            <<"custom_instructions">> => <<>>},
+    ?assertEqual({error, meditation_already_active},
+                 venture_aggregate:execute(meditating_state(), Cmd)).
+
+exec_register_invalid_role() ->
+    Cmd = #{command_type => <<"register_storm_participant_v1">>,
+            <<"venture_id">> => <<"v-test-1">>,
+            <<"participant_id">> => <<"p-bad">>,
+            <<"role">> => <<"wizard">>,
+            <<"custom_instructions">> => <<>>},
+    ?assertEqual({error, {invalid_role, <<"wizard">>}},
+                 venture_aggregate:execute(submitted_state(), Cmd)).
+
+exec_unregister_participant_ok() ->
+    Cmd = #{command_type => <<"unregister_storm_participant_v1">>,
+            <<"venture_id">> => <<"v-test-1">>,
+            <<"participant_id">> => <<"p-1">>},
+    {ok, [Event]} = venture_aggregate:execute(with_participant_state(), Cmd),
+    ?assertEqual(storm_participant_unregistered_v1, maps:get(event_type, Event)).
+
+exec_unregister_during_meditation() ->
+    Cmd = #{command_type => <<"unregister_storm_participant_v1">>,
+            <<"venture_id">> => <<"v-test-1">>,
+            <<"participant_id">> => <<"p-1">>},
+    ?assertEqual({error, meditation_already_active},
+                 venture_aggregate:execute(meditating_state(), Cmd)).
+
+%% ===================================================================
+%% Execute: Domain Meditation Lifecycle
+%% ===================================================================
+
+exec_start_meditation_ok() ->
+    Cmd = #{command_type => <<"start_domain_meditation_v1">>,
+            <<"venture_id">> => <<"v-test-1">>},
+    {ok, [Event]} = venture_aggregate:execute(with_participant_state(), Cmd),
+    ?assertEqual(domain_meditation_started_v1, maps:get(event_type, Event)),
+    ?assert(is_map(maps:get(participants, Event))).
+
+exec_start_meditation_before_submit() ->
+    Cmd = #{command_type => <<"start_domain_meditation_v1">>,
+            <<"venture_id">> => <<"v-test-1">>},
+    ?assertEqual({error, vision_not_submitted},
+                 venture_aggregate:execute(initiated_state(), Cmd)).
+
+exec_start_meditation_no_participants() ->
+    Cmd = #{command_type => <<"start_domain_meditation_v1">>,
+            <<"venture_id">> => <<"v-test-1">>},
+    ?assertEqual({error, no_participants_registered},
+                 venture_aggregate:execute(submitted_state(), Cmd)).
+
+exec_start_meditation_twice() ->
+    Cmd = #{command_type => <<"start_domain_meditation_v1">>,
+            <<"venture_id">> => <<"v-test-1">>},
+    ?assertEqual({error, meditation_already_active},
+                 venture_aggregate:execute(meditating_state(), Cmd)).
+
+exec_start_meditation_after_done() ->
+    Cmd = #{command_type => <<"start_domain_meditation_v1">>,
+            <<"venture_id">> => <<"v-test-1">>},
+    ?assertEqual({error, meditation_already_completed},
+                 venture_aggregate:execute(meditation_done_state(), Cmd)).
+
+exec_contribute_finding_ok() ->
+    Cmd = #{command_type => <<"contribute_meditation_finding_v1">>,
+            <<"venture_id">> => <<"v-test-1">>,
+            <<"participant_id">> => <<"p-1">>,
+            <<"finding_type">> => <<"domain_concept">>,
+            <<"content">> => <<"Event sourcing is a common pattern in fintech">>,
+            <<"sources">> => [#{<<"url">> => <<"https://example.com">>,
+                               <<"title">> => <<"Example">>,
+                               <<"snippet">> => <<"...">>}]},
+    {ok, [Event]} = venture_aggregate:execute(meditating_state(), Cmd),
+    ?assertEqual(meditation_finding_contributed_v1, maps:get(event_type, Event)),
+    ?assertEqual(<<"domain_concept">>, maps:get(finding_type, Event)).
+
+exec_contribute_finding_not_active() ->
+    Cmd = #{command_type => <<"contribute_meditation_finding_v1">>,
+            <<"venture_id">> => <<"v-test-1">>,
+            <<"participant_id">> => <<"p-1">>,
+            <<"finding_type">> => <<"risk">>,
+            <<"content">> => <<"Something risky">>,
+            <<"sources">> => []},
+    ?assertEqual({error, meditation_not_active},
+                 venture_aggregate:execute(submitted_state(), Cmd)).
+
+exec_complete_meditation_ok() ->
+    Cmd = #{command_type => <<"complete_domain_meditation_v1">>,
+            <<"venture_id">> => <<"v-test-1">>},
+    {ok, [Event]} = venture_aggregate:execute(meditating_state(), Cmd),
+    ?assertEqual(domain_meditation_completed_v1, maps:get(event_type, Event)).
+
+exec_complete_meditation_not_active() ->
+    Cmd = #{command_type => <<"complete_domain_meditation_v1">>,
+            <<"venture_id">> => <<"v-test-1">>},
+    ?assertEqual({error, meditation_not_active},
+                 venture_aggregate:execute(submitted_state(), Cmd)).
+
+%% ===================================================================
+%% Execute: Smart Storm Guard (meditation required for first storm)
+%% ===================================================================
+
+exec_first_storm_requires_meditation() ->
+    %% Discovering but no meditation done — first storm should be rejected
+    Cmd = #{command_type => <<"start_big_picture_storm_v1">>,
+            <<"venture_id">> => <<"v-test-1">>},
+    ?assertEqual({error, meditation_required},
+                 venture_aggregate:execute(discovering_state(), Cmd)).
+
+exec_first_storm_after_meditation() ->
+    %% Meditation completed + discovering — first storm allowed
+    Cmd = #{command_type => <<"start_big_picture_storm_v1">>,
+            <<"venture_id">> => <<"v-test-1">>},
+    {ok, [Event]} = venture_aggregate:execute(ready_for_first_storm_state(), Cmd),
+    ?assertEqual(big_picture_storm_started_v1, maps:get(event_type, Event)).
+
+%% ===================================================================
+%% Apply: Meditation State Transitions
+%% ===================================================================
+
+apply_participant_registered() ->
+    State = with_participant_state(),
+    Participants = State#venture_state.storm_participants,
+    ?assert(maps:is_key(<<"p-1">>, Participants)),
+    #{<<"p-1">> := P1} = Participants,
+    ?assertEqual(<<"domain_expert">>, maps:get(role, P1)).
+
+apply_participant_unregistered() ->
+    Event = #{event_type => <<"storm_participant_unregistered_v1">>,
+              <<"venture_id">> => <<"v-test-1">>,
+              <<"participant_id">> => <<"p-1">>,
+              <<"unregistered_at">> => 5000},
+    State = venture_aggregate:apply(with_participant_state(), Event),
+    ?assertNot(maps:is_key(<<"p-1">>, State#venture_state.storm_participants)).
+
+apply_meditation_started() ->
+    State = meditating_state(),
+    ?assert(State#venture_state.status band ?VL_MEDITATING =/= 0),
+    ?assert(is_integer(State#venture_state.meditation_started_at)).
+
+apply_finding_contributed() ->
+    Event = #{event_type => <<"meditation_finding_contributed_v1">>,
+              <<"venture_id">> => <<"v-test-1">>,
+              <<"participant_id">> => <<"p-1">>,
+              <<"finding_type">> => <<"terminology">>,
+              <<"content">> => <<"KYC means Know Your Customer">>,
+              <<"sources">> => [],
+              <<"contributed_at">> => 3500},
+    State = venture_aggregate:apply(meditating_state(), Event),
+    ?assertEqual(1, length(State#venture_state.meditation_findings)).
+
+apply_meditation_completed() ->
+    State = meditation_done_state(),
+    ?assert(State#venture_state.status band ?VL_MEDITATION_DONE =/= 0),
+    ?assert(State#venture_state.status band ?VL_MEDITATING =:= 0),
+    ?assert(is_integer(State#venture_state.meditation_completed_at)).
 
 %% ===================================================================
 %% Execute: Archive

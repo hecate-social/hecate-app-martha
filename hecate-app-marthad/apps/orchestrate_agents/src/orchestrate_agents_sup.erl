@@ -32,6 +32,10 @@ init([]) ->
         emitter(team_activated_v1_to_pg),
         emitter(team_disbanded_v1_to_pg),
 
+        %% ── Domain Meditation PM ──
+
+        emitter(on_domain_meditation_started_run_meditation),
+
         %% ── Team lifecycle PMs ──
 
         emitter(on_division_identified_form_team),

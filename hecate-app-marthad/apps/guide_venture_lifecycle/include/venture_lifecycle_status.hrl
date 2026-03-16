@@ -19,6 +19,8 @@
 -define(VL_STORM_SHELVED,     256).   %% 2^8
 -define(VL_PREPARING,         512).   %% 2^9
 -define(VL_PREPARATION_DONE, 1024).   %% 2^10
+-define(VL_MEDITATING,       2048).   %% 2^11
+-define(VL_MEDITATION_DONE,  4096).   %% 2^12
 
 -define(VL_FLAG_MAP, #{
     ?VL_INITIATED           => <<"Initiated">>,
@@ -31,7 +33,9 @@
     ?VL_STORMING            => <<"Storming">>,
     ?VL_STORM_SHELVED       => <<"Storm Shelved">>,
     ?VL_PREPARING           => <<"Preparing Knowledge">>,
-    ?VL_PREPARATION_DONE    => <<"Preparation Done">>
+    ?VL_PREPARATION_DONE    => <<"Preparation Done">>,
+    ?VL_MEDITATING          => <<"Meditating">>,
+    ?VL_MEDITATION_DONE     => <<"Meditation Done">>
 }).
 
 -endif.

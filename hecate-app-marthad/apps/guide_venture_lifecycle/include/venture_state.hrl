@@ -26,6 +26,11 @@
     research_briefs = #{}      :: #{binary() => map()},
     preparation_started_at     :: non_neg_integer() | undefined,
     preparation_completed_at   :: non_neg_integer() | undefined,
+    %% Storm Participants & Meditation
+    storm_participants = #{}   :: #{binary() => map()},
+    meditation_started_at      :: non_neg_integer() | undefined,
+    meditation_completed_at    :: non_neg_integer() | undefined,
+    meditation_findings = []   :: [map()],
     %% Big Picture Event Storming
     storm_number = 0           :: non_neg_integer(),
     storm_phase = undefined    :: atom(),

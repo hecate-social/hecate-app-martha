@@ -111,6 +111,12 @@ routes() ->
      {"/prepare_venture_knowledge/:venture_id",                 prepare_venture_knowledge_api, []},
      {"/contribute_research_brief/:venture_id",                 contribute_research_brief_api, []},
      {"/complete_venture_preparation/:venture_id",              complete_venture_preparation_api, []},
+     %% Storm Participants & Meditation
+     {"/register_storm_participant/:venture_id",                 register_storm_participant_api, []},
+     {"/unregister_storm_participant/:venture_id/:participant_id", unregister_storm_participant_api, []},
+     {"/start_domain_meditation/:venture_id",                    start_domain_meditation_api, []},
+     {"/contribute_meditation_finding/:venture_id",              contribute_meditation_finding_api, []},
+     {"/complete_domain_meditation/:venture_id",                 complete_domain_meditation_api, []},
      %% Big Picture Storm
      {"/start_big_picture_storm/:venture_id",                   start_big_picture_storm_api, []},
      {"/shelve_big_picture_storm/:venture_id",                  shelve_big_picture_storm_api, []},
